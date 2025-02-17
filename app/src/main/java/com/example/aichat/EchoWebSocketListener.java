@@ -35,7 +35,7 @@ public final class EchoWebSocketListener extends WebSocketListener {
 
     @Override
     public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, okhttp3.Response response) {
-        webSocket.close(1000, "throw throwable");
+        Log.e("connection", "connaction failed");
     }
     private void commandGot(WebSocket socket, Command command){
         GetCommandEvent event = new GetCommandEvent(socket, command);

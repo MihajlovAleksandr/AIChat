@@ -39,7 +39,6 @@ public class ConnectionManager {
                 Message msg = event.getCommand().getData("message", Message.class);
                 Log.d("commanndGot", JsonHelper.Serialize(msg));
                 Log.d("commanndGot", msg.getTime().toString());
-
             }
         });
         webSocket = client.newWebSocket(request, webSocketListener);
