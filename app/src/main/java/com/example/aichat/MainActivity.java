@@ -9,6 +9,8 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -45,43 +47,23 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-
-
-        String utcString = "2025-02-17T10:51:17.4886139Z";
-
-        // Преобразуем строку в OffsetDateTime
-        OffsetDateTime utcTime = OffsetDateTime.parse(utcString, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-
-        // Получаем часовой пояс пользователя
-        ZoneId userZoneId = ZoneId.systemDefault();
-        ZoneOffset userOffset = userZoneId.getRules().getOffset(utcTime.toInstant());
-
-        // Преобразуем время в локальное время пользователя
-        OffsetDateTime userTime = utcTime.withOffsetSameInstant(userOffset);
-
-        // Форматируем результат в строку
-        String formattedUserTime = userTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-        Log.d("time", formattedUserTime);
-
-
-
+        String token = TokenManager.getToken(this);
+        if(token != null)
+            Log.d("Token", token);
         setContentView(R.layout.activity_main);
         messageEditText = findViewById(R.id.tiMessage);
         sendButton = findViewById(R.id.bSendMessage);
-        connectionManager = new ConnectionManager();
-
-
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Message message = new Message(messageEditText.getText().toString(),connectionManager.getUserId(), 1);
+                Message message = new Message(messageEditText.getText().toString(), connectionManager.getUserId(), 1);
                 Command command = new Command("SendMessage");
-                command.addData("message",message);
+                command.addData("message", message);
                 connectionManager.SendCommand(command);
             }
         });
+        connectionManager = new ConnectionManager(this);
     }
 
     @Override

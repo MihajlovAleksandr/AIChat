@@ -1,48 +1,90 @@
 package com.example.aichat;
 
+import android.content.Context;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.WebSocket;
 import java.security.cert.CertificateException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.WebSocket;
-
 public class ConnectionManager {
     private static final String TAG = "MessengerClient";
+    private Context context;
     private WebSocket webSocket;
-    private OkHttpClient client;
+    private final OkHttpClient client;
+    private final Request request;
+    private final EchoWebSocketListener webSocketListener;
     private int userId = 1;
+    private long lastInitializeTime = 0;
+    private static final long RECONNECT_INTERVAL_MS = 1000;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    public ConnectionManager() {
-        Log.d(TAG, "Initializing ConnectionManager");
-        client = getUnsafeOkHttpClient();
-        Request request = new Request.Builder()
-                .url("wss://192.168.100.11:8888/")
-                .addHeader("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwianRpIjoiNzkwN2NlMDctNjhmMy00YTA3LTk3NzYtMzFkMzliYjk1NjI2IiwiaWF0IjoxNzM5Mzk4Mjk0LCJleHAiOjE3NDE5OTAyOTQsImlzcyI6ImFpY2hhdCIsImF1ZCI6ImFpY2hhdCJ9.BD60ilqteAO2YvFGAl8GiNpNE3u7loyfB8j63mKa1x0")
-                .build();
-        EchoWebSocketListener webSocketListener = new EchoWebSocketListener();
-        webSocketListener.addGetCommandEvent(new GetCommandEventListener() {
+    public ConnectionManager(Context context) {
+        this.context = context;
+        request = getRequest();
+        webSocketListener = new EchoWebSocketListener();
+        webSocketListener.addGetCommandEvent(event -> {
+            Message msg = event.getCommand().getData("message", Message.class);
+            Log.d("commandGot", JsonHelper.Serialize(msg));
+            Log.d("commandGot", msg.getTime().toString());
+        });
+        webSocketListener.addCloseEvent(new CloseEventListener() {
             @Override
-            public void onCommandGot(GetCommandEvent event) {
-                Message msg = event.getCommand().getData("message", Message.class);
-                Log.d("commanndGot", JsonHelper.Serialize(msg));
-                Log.d("commanndGot", msg.getTime().toString());
+            public void onClose() {
+                Log.d("connection", "close");
+            }
+
+            @Override
+            public void onFailure() {
+                Log.d("connection", "retry");
+                retryInitialize();
             }
         });
+        client = getUnsafeOkHttpClient();
+        Initialize();
+    }
+
+
+    private void Initialize() {
+        Log.d(TAG, "Initializing ConnectionManager");
         webSocket = client.newWebSocket(request, webSocketListener);
         Log.d(TAG, "WebSocket initialized");
+        lastInitializeTime = System.currentTimeMillis();
+    }
+    private Request getRequest() {
+        String token = TokenManager.getToken(context);
+        if (token != null) {
+            return new Request.Builder()
+                    .url("wss://192.168.100.7:8888/")
+                    .addHeader("token", token)
+                    .build();
+        } else {
+            return new Request.Builder()
+                    .url("wss://192.168.100.7:8888/")
+                    .build();
+        }
+    }
+
+
+    private void retryInitialize() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastInitializeTime >= RECONNECT_INTERVAL_MS) {
+            Initialize();
+        } else {
+            Log.d(TAG, "Retrying too soon, waiting...");
+            // Schedule to retry after the remaining time to complete 1 second
+            long delay = RECONNECT_INTERVAL_MS - (currentTime - lastInitializeTime);
+            scheduler.schedule(this::Initialize, delay, TimeUnit.MILLISECONDS);
+        }
     }
 
     public void SendCommand(Command command) {
@@ -67,17 +109,17 @@ public class ConnectionManager {
 
     private OkHttpClient getUnsafeOkHttpClient() {
         try {
-            final TrustManager[] trustAllCerts = new TrustManager[] {
+            final TrustManager[] trustAllCerts = new TrustManager[]{
                     new X509TrustManager() {
                         @Override
-                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException { }
+                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {}
 
                         @Override
-                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException { }
+                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {}
 
                         @Override
                         public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                            return new java.security.cert.X509Certificate[]{ };
+                            return new java.security.cert.X509Certificate[]{};
                         }
                     }
             };
@@ -87,14 +129,9 @@ public class ConnectionManager {
             final javax.net.ssl.SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
             OkHttpClient.Builder builder = new OkHttpClient.Builder();
-            builder.sslSocketFactory(sslSocketFactory, (X509TrustManager)trustAllCerts[0]);
-            builder.hostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-            });
-            builder.connectTimeout(10, TimeUnit.SECONDS);
+            builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
+            builder.hostnameVerifier((hostname, session) -> true);
+            builder.connectTimeout(1, TimeUnit.SECONDS);
             builder.readTimeout(10, TimeUnit.SECONDS);
             builder.writeTimeout(10, TimeUnit.SECONDS);
 
@@ -104,7 +141,8 @@ public class ConnectionManager {
             throw new RuntimeException(e);
         }
     }
-    public int getUserId(){
+
+    public int getUserId() {
         return userId;
     }
 }
