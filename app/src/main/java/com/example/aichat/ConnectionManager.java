@@ -2,19 +2,19 @@ package com.example.aichat;
 
 import android.content.Context;
 import android.util.Log;
-import androidx.annotation.NonNull;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.WebSocket;
+
 import java.security.cert.CertificateException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import javax.net.ssl.HostnameVerifier;
+
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.WebSocket;
 
 public class ConnectionManager {
     private static final String TAG = "MessengerClient";
@@ -26,6 +26,7 @@ public class ConnectionManager {
     private int userId = 1;
     private long lastInitializeTime = 0;
     private static final long RECONNECT_INTERVAL_MS = 1000;
+    private final String URL = "wss://192.168.165.151:8888/";
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public ConnectionManager(Context context) {
@@ -60,16 +61,17 @@ public class ConnectionManager {
         Log.d(TAG, "WebSocket initialized");
         lastInitializeTime = System.currentTimeMillis();
     }
+
     private Request getRequest() {
         String token = TokenManager.getToken(context);
         if (token != null) {
             return new Request.Builder()
-                    .url("wss://192.168.100.7:8888/")
+                    .url(URL)
                     .addHeader("token", token)
                     .build();
         } else {
             return new Request.Builder()
-                    .url("wss://192.168.100.7:8888/")
+                    .url(URL)
                     .build();
         }
     }
@@ -112,10 +114,12 @@ public class ConnectionManager {
             final TrustManager[] trustAllCerts = new TrustManager[]{
                     new X509TrustManager() {
                         @Override
-                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {}
+                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                        }
 
                         @Override
-                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {}
+                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                        }
 
                         @Override
                         public java.security.cert.X509Certificate[] getAcceptedIssuers() {

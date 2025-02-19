@@ -1,9 +1,12 @@
 package com.example.aichat;
 
 import android.util.Log;
+
 import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 

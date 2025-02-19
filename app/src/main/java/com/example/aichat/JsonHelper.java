@@ -1,12 +1,12 @@
 package com.example.aichat;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonHelper {
     private static ObjectMapper objectMapper = new ObjectMapper();
-    public static String Serialize(Object obj){
+
+    public static String Serialize(Object obj) {
         try {
             return objectMapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {

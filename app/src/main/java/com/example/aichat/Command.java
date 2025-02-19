@@ -1,7 +1,7 @@
 package com.example.aichat;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,7 @@ public class Command {
         this.data = new HashMap<>();
     }
 
-    public <T>void addData(String name, T obj) {
+    public <T> void addData(String name, T obj) {
         data.put(name, JsonHelper.Serialize(obj));
     }
 
