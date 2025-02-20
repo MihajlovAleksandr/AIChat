@@ -21,14 +21,14 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
 
 public class ConnectionManager {
-    private static final String TAG = "MessengerClient";
     private WebSocket webSocket;
     private final OkHttpClient client;
     private boolean Connected = false;
     private final Request request;
-    private final EchoWebSocketListener webSocketListener;
+    private final WebSocketListener webSocketListener;
     private long lastInitializeTime = 0;
     private static final long RECONNECT_INTERVAL_MS = 1000;
     private final List<Command> unsendedCommands = new ArrayList<>();
@@ -36,7 +36,7 @@ public class ConnectionManager {
 
     public ConnectionManager(Context context) {
         request = getRequest();
-        webSocketListener = new EchoWebSocketListener(){
+        webSocketListener = new WebSocketListener(){
             @Override
             public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
                 Connected = true;
@@ -51,7 +51,6 @@ public class ConnectionManager {
             public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
                 Connected = false;
                 Log.d("connection", "close");
-
             }
 
             @Override
@@ -60,27 +59,28 @@ public class ConnectionManager {
                 Log.d("connection", "retry");
                 retryInitialize();
             }
+
+            @Override
+            public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
+                Command command = JsonHelper.Deserialize(text, Command.class);
+                Log.d("Command", command.toString());
+            }
         };
-        webSocketListener.addGetCommandEvent(event -> {
-            Message msg = event.getCommand().getData("message", Message.class);
-            Log.d("commandGot", JsonHelper.Serialize(msg));
-            Log.d("commandGot", msg.getTime().toString());
-        });
         client = getUnsafeOkHttpClient();
         Initialize();
     }
 
 
     private void Initialize() {
-        Log.d(TAG, "Initializing ConnectionManager");
+        Log.d("Connection", "Initializing ConnectionManager");
         webSocket = client.newWebSocket(request, webSocketListener);
-        Log.d(TAG, "WebSocket initialized");
+        Log.d("Connection", "WebSocket initialized");
         lastInitializeTime = System.currentTimeMillis();
     }
 
     private Request getRequest() {
         String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwianRpIjoiMzkyYTI4ODAtOGFkMy00N2NlLTgzZTktOWM2ODU2NTkwMDI1IiwiaWF0IjoxNzQwMDA5Mzc4LCJleHAiOjE3NDI2MDEzNzgsImlzcyI6ImFpY2hhdCIsImF1ZCI6ImFpY2hhdCJ9.2I2EaDB7mmkXeShLLvH2AkPcQ5SeZVJRtA2oGDWX7RI";
-        String URL = "wss://192.168.100.11:8888/";
+        String URL = "wss://192.168.165.151:8888/";
         if (token != null) {
             return new Request.Builder()
                     .url(URL)
@@ -99,7 +99,7 @@ public class ConnectionManager {
         if (currentTime - lastInitializeTime >= RECONNECT_INTERVAL_MS) {
             Initialize();
         } else {
-            Log.d(TAG, "Retrying too soon, waiting...");
+            Log.d("Connection", "Retrying too soon, waiting...");
             // Schedule to retry after the remaining time to complete 1 second
             long delay = RECONNECT_INTERVAL_MS - (currentTime - lastInitializeTime);
             scheduler.schedule(this::Initialize, delay, TimeUnit.MILLISECONDS);
@@ -110,7 +110,7 @@ public class ConnectionManager {
         String commandString = JsonHelper.Serialize(command);
         if (webSocket != null && !commandString.isEmpty() && Connected) {
             webSocket.send(commandString);
-            Log.d(TAG, "Command sent: " + commandString);
+            Log.d("SendingCommand", "Command sent: " + commandString);
         }
         else{
             unsendedCommands.add(command);
@@ -120,12 +120,12 @@ public class ConnectionManager {
     public void Close() {
         if (webSocket != null) {
             webSocket.close(1000, "Приложение закрывается");
-            Log.d(TAG, "WebSocket closed");
+            Log.d("Connection", "WebSocket closed");
             webSocket = null;
         }
         if (client != null) {
             client.dispatcher().executorService().shutdown();
-            Log.d(TAG, "OkHttpClient shutdown");
+            Log.d("Connection", "OkHttpClient shutdown");
         }
     }
 
