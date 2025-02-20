@@ -3,7 +3,12 @@ package com.example.aichat;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -14,41 +19,52 @@ import javax.net.ssl.X509TrustManager;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.WebSocket;
 
 public class ConnectionManager {
     private static final String TAG = "MessengerClient";
-    private Context context;
     private WebSocket webSocket;
     private final OkHttpClient client;
+    private boolean Connected = false;
     private final Request request;
     private final EchoWebSocketListener webSocketListener;
-    private int userId = 1;
     private long lastInitializeTime = 0;
     private static final long RECONNECT_INTERVAL_MS = 1000;
-    private final String URL = "wss://192.168.165.151:8888/";
+    private final List<Command> unsendedCommands = new ArrayList<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public ConnectionManager(Context context) {
-        this.context = context;
         request = getRequest();
-        webSocketListener = new EchoWebSocketListener();
+        webSocketListener = new EchoWebSocketListener(){
+            @Override
+            public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
+                Connected = true;
+                for(Command c : unsendedCommands)
+                {
+                    SendCommand(c);
+                }
+                unsendedCommands.clear();
+            }
+
+            @Override
+            public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
+                Connected = false;
+                Log.d("connection", "close");
+
+            }
+
+            @Override
+            public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, @Nullable Response response) {
+                Connected = false;
+                Log.d("connection", "retry");
+                retryInitialize();
+            }
+        };
         webSocketListener.addGetCommandEvent(event -> {
             Message msg = event.getCommand().getData("message", Message.class);
             Log.d("commandGot", JsonHelper.Serialize(msg));
             Log.d("commandGot", msg.getTime().toString());
-        });
-        webSocketListener.addCloseEvent(new CloseEventListener() {
-            @Override
-            public void onClose() {
-                Log.d("connection", "close");
-            }
-
-            @Override
-            public void onFailure() {
-                Log.d("connection", "retry");
-                retryInitialize();
-            }
         });
         client = getUnsafeOkHttpClient();
         Initialize();
@@ -63,7 +79,8 @@ public class ConnectionManager {
     }
 
     private Request getRequest() {
-        String token = TokenManager.getToken(context);
+        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwianRpIjoiMzkyYTI4ODAtOGFkMy00N2NlLTgzZTktOWM2ODU2NTkwMDI1IiwiaWF0IjoxNzQwMDA5Mzc4LCJleHAiOjE3NDI2MDEzNzgsImlzcyI6ImFpY2hhdCIsImF1ZCI6ImFpY2hhdCJ9.2I2EaDB7mmkXeShLLvH2AkPcQ5SeZVJRtA2oGDWX7RI";
+        String URL = "wss://192.168.100.11:8888/";
         if (token != null) {
             return new Request.Builder()
                     .url(URL)
@@ -91,9 +108,12 @@ public class ConnectionManager {
 
     public void SendCommand(Command command) {
         String commandString = JsonHelper.Serialize(command);
-        if (webSocket != null && !commandString.isEmpty()) {
+        if (webSocket != null && !commandString.isEmpty() && Connected) {
             webSocket.send(commandString);
             Log.d(TAG, "Command sent: " + commandString);
+        }
+        else{
+            unsendedCommands.add(command);
         }
     }
 
@@ -147,6 +167,7 @@ public class ConnectionManager {
     }
 
     public int getUserId() {
+        int userId = 1;
         return userId;
     }
 }

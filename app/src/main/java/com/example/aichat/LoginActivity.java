@@ -1,5 +1,6 @@
 package com.example.aichat;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -10,15 +11,20 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.zxing.WriterException;
+
 public class LoginActivity extends AppCompatActivity {
 
+    private ConnectionManager connectionManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        connectionManager = new ConnectionManager(this);
         setContentView(R.layout.activity_login);
 
         final EditText usernameEditText = findViewById(R.id.username);
@@ -27,7 +33,16 @@ public class LoginActivity extends AppCompatActivity {
         final TextView usernameErrorText = findViewById(R.id.usernameError);
         final TextView passwordErrorText = findViewById(R.id.passwordError);
         final CheckBox showPasswordCheckBox = findViewById(R.id.showPassword);
-
+        final ImageView imageView = findViewById(R.id.imageView);
+        try {
+            imageView.setImageResource(R.drawable.loading);
+            // Генерация QR-кода
+            Bitmap qrCodeBitmap = QRCodeGenerator.generateQRCodeImage("Hello, World!", 300, 300);
+            // Установка QR-кода в ImageView
+            imageView.setImageBitmap(qrCodeBitmap);
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
         // Добавим слушатель изменения текста для username
         usernameEditText.addTextChangedListener(new TextWatcher() {
             @Override

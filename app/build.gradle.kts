@@ -52,6 +52,10 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.3")
     implementation("com.fasterxml.jackson.core:jackson-core:2.13.3")
     implementation("androidx.security:security-crypto:1.1.0-alpha03")
+    implementation ("com.google.zxing:core:3.5.2")
+
+    // Библиотека для работы с Bitmap (если вы используете AndroidX)
+    implementation ("androidx.appcompat:appcompat:1.6.1")
 
 
 }
