@@ -39,10 +39,19 @@ public class LoginActivity extends AppCompatActivity {
             // Генерация QR-кода
             Bitmap qrCodeBitmap = QRCodeGenerator.generateQRCodeImage("Hello, World!", 300, 300);
             // Установка QR-кода в ImageView
-            imageView.setImageBitmap(qrCodeBitmap);
+            //imageView.setImageBitmap(qrCodeBitmap);
         } catch (WriterException e) {
             e.printStackTrace();
         }
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Command command = new Command("LoginIn");
+                command.addData("username", usernameEditText.getText().toString().trim());
+                command.addData("password", passwordEditText.getText().toString().trim());
+                connectionManager.SendCommand(command);
+            }
+        });
         // Добавим слушатель изменения текста для username
         usernameEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -122,18 +131,6 @@ public class LoginActivity extends AppCompatActivity {
                 passwordEditText.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
             }
             passwordEditText.setSelection(passwordEditText.getText().length());
-        });
-
-        passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    if (loginButton.isEnabled()) {
-                        // Вход в систему
-                    }
-                }
-                return false;
-            }
         });
     }
 

@@ -33,7 +33,6 @@ public class ConnectionManager {
     private static final long RECONNECT_INTERVAL_MS = 1000;
     private final List<Command> unsendedCommands = new ArrayList<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
     public ConnectionManager(Context context) {
         request = getRequest();
         webSocketListener = new WebSocketListener(){
@@ -79,8 +78,8 @@ public class ConnectionManager {
     }
 
     private Request getRequest() {
-        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwianRpIjoiMzkyYTI4ODAtOGFkMy00N2NlLTgzZTktOWM2ODU2NTkwMDI1IiwiaWF0IjoxNzQwMDA5Mzc4LCJleHAiOjE3NDI2MDEzNzgsImlzcyI6ImFpY2hhdCIsImF1ZCI6ImFpY2hhdCJ9.2I2EaDB7mmkXeShLLvH2AkPcQ5SeZVJRtA2oGDWX7RI";
-        String URL = "wss://192.168.165.151:8888/";
+        String token = "1eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwianRpIjoiMzkyYTI4ODAtOGFkMy00N2NlLTgzZTktOWM2ODU2NTkwMDI1IiwiaWF0IjoxNzQwMDA5Mzc4LCJleHAiOjE3NDI2MDEzNzgsImlzcyI6ImFpY2hhdCIsImF1ZCI6ImFpY2hhdCJ9.2I2EaDB7mmkXeShLLvH2AkPcQ5SeZVJRtA2oGDWX7RI";
+        String URL = "wss://192.168.100.11:8888/";
         if (token != null) {
             return new Request.Builder()
                     .url(URL)
