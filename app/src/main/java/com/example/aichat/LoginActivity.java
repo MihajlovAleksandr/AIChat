@@ -192,8 +192,6 @@ public class LoginActivity extends AppCompatActivity {
         String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,6}$";
         return !TextUtils.isEmpty(email) && email.matches(emailPattern);
     }
-
-    // Проверка пароля с помощью регулярного выражения
     private boolean isPasswordValid(String password) {
         if (password.length() < 8) {
             return false;
