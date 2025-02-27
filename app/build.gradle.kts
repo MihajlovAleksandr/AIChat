@@ -43,6 +43,8 @@ dependencies {
     implementation(libs.annotation)
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.navigation.fragment)
+    implementation(libs.navigation.ui)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -54,6 +56,7 @@ dependencies {
     implementation("androidx.security:security-crypto:1.1.0-alpha03")
     implementation ("com.google.zxing:core:3.5.2")
     implementation ("androidx.appcompat:appcompat:1.6.1")
+    implementation ("com.google.android.material:material:1.9.0")
 
 
 }

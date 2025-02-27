@@ -33,12 +33,14 @@ public class ConnectionManager {
     private static final long RECONNECT_INTERVAL_MS = 1000;
     private final List<Command> unsendedCommands = new ArrayList<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private OnConnectionEvents connectionEvent;
     public ConnectionManager(Context context) {
         request = getRequest();
         webSocketListener = new WebSocketListener(){
             @Override
             public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
                 Connected = true;
+                new Thread(() -> connectionEvent.OnOpen()).start();
                 for(Command c : unsendedCommands)
                 {
                     SendCommand(c);
@@ -56,6 +58,7 @@ public class ConnectionManager {
             public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, @Nullable Response response) {
                 Connected = false;
                 Log.d("connection", "retry");
+                new Thread(() -> connectionEvent.OnConnectionFailed()).start();
                 retryInitialize();
             }
 
@@ -64,7 +67,11 @@ public class ConnectionManager {
                 Log.d("Command", text);
                 Command command = JsonHelper.Deserialize(text, Command.class);
                 Log.d("Command", command.toString());
+
+                // Асинхронная обработка команды
+                new Thread(() -> connectionEvent.OnCommandGot(command)).start();
             }
+
         };
         client = getUnsafeOkHttpClient();
         Initialize();
@@ -80,7 +87,7 @@ public class ConnectionManager {
 
     private Request getRequest() {
         String token = "1eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwianRpIjoiMzkyYTI4ODAtOGFkMy00N2NlLTgzZTktOWM2ODU2NTkwMDI1IiwiaWF0IjoxNzQwMDA5Mzc4LCJleHAiOjE3NDI2MDEzNzgsImlzcyI6ImFpY2hhdCIsImF1ZCI6ImFpY2hhdCJ9.2I2EaDB7mmkXeShLLvH2AkPcQ5SeZVJRtA2oGDWX7RI";
-        String URL = "wss://192.168.100.7:8888/";
+        String URL = "wss://192.168.100.11:8888/";
         if (token != null) {
             return new Request.Builder()
                     .url(URL)
@@ -171,9 +178,7 @@ public class ConnectionManager {
             throw new RuntimeException(e);
         }
     }
-
-    public int getUserId() {
-        int userId = 1;
-        return userId;
+    public void SetCommandGot(OnConnectionEvents listener){
+        connectionEvent = listener;
     }
 }

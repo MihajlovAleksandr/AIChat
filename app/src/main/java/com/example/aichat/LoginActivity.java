@@ -2,149 +2,203 @@ package com.example.aichat;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
+import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.EditText;
+import android.text.TextWatcher;
+import android.text.Editable;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
-import com.google.zxing.WriterException;
+import com.google.android.material.textfield.TextInputLayout;
 
 public class LoginActivity extends AppCompatActivity {
 
     private ConnectionManager connectionManager;
+
+    private TextInputLayout emailInputLayout;
+    private TextInputLayout passwordInputLayout;
+    private EditText emailEditText;
+    private EditText passwordEditText;
+    private Button loginButton;
+    private ImageView imageView;
+
+    private boolean isEmailValidFlag = false;
+    private boolean isPasswordValidFlag = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        connectionManager = new ConnectionManager(this);
         setContentView(R.layout.activity_login);
 
-        final EditText usernameEditText = findViewById(R.id.username);
-        final EditText passwordEditText = findViewById(R.id.password);
-        final Button loginButton = findViewById(R.id.login);
-        final TextView usernameErrorText = findViewById(R.id.usernameError);
-        final TextView passwordErrorText = findViewById(R.id.passwordError);
-        final CheckBox showPasswordCheckBox = findViewById(R.id.showPassword);
-        final ImageView imageView = findViewById(R.id.imageView);
-        try {
-            imageView.setImageResource(R.drawable.loading);
-            // Генерация QR-кода
-            Bitmap qrCodeBitmap = QRCodeGenerator.generateQRCodeImage("Hello, World!", 300, 300);
-            // Установка QR-кода в ImageView
-            //imageView.setImageBitmap(qrCodeBitmap);
-        } catch (WriterException e) {
-            e.printStackTrace();
-        }
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        // Инициализация элементов интерфейса
+        emailInputLayout = findViewById(R.id.emailInputLayout);
+        passwordInputLayout = findViewById(R.id.passwordInputLayout);
+        emailEditText = findViewById(R.id.email);
+        passwordEditText = findViewById(R.id.password);
+        loginButton = findViewById(R.id.login);
+        imageView = findViewById(R.id.imageView);
+
+        // Инициализация ConnectionManager
+        connectionManager = new ConnectionManager(this);
+        connectionManager.SetCommandGot(new OnConnectionEvents() {
             @Override
-            public void onClick(View v) {
-                Command command = new Command("LoginIn");
-                command.addData("username", usernameEditText.getText().toString().trim());
-                command.addData("password", passwordEditText.getText().toString().trim());
-                connectionManager.SendCommand(command);
+            public void OnCommandGot(Command command) {
+                switch (command.getOperation()) {
+                    case "EntryToken":
+                        Log.d("Token", command.getData("token", String.class));
+                        Bitmap bitmap = QRCodeGenerator.generateQRCodeImage(command.getData("token", String.class), 400, 400);
+                        runOnUiThread(() -> {
+                            imageView.setImageBitmap(bitmap);
+                        });
+                        break;
+                }
+            }
+
+            @Override
+            public void OnConnectionFailed() {
+                runOnUiThread(() -> {
+                    imageView.setImageResource(R.drawable.loading);
+                });
+            }
+
+            @Override
+            public void OnOpen() {
+                connectionManager.SendCommand(new Command("GetEntryToken"));
             }
         });
-        // Добавим слушатель изменения текста для username
-        usernameEditText.addTextChangedListener(new TextWatcher() {
+
+        // Установка слушателей потери фокуса для полей ввода
+        emailEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                validateEmail();
+                enableLoginButton();
+            }
+        });
+
+        passwordEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                validatePassword();
+                enableLoginButton();
+            }
+        });
+
+        // Добавление TextWatcher для поля email
+        emailEditText.addTextChangedListener(new TextWatcher() {
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // игнорируем
+                // Не требуется
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // игнорируем
+                // Не требуется
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-                String username = usernameEditText.getText().toString().trim();
-                if (isUsernameValid(username)) {
-                    usernameErrorText.setVisibility(View.GONE);
+                String email = emailEditText.getText().toString().trim();
+                if (emailInputLayout.getError() != null) {
+                    if (isEmailValid(email)) {
+                        emailInputLayout.setError(null);
+                        isEmailValidFlag = true;
+                        enableLoginButton();
+                    } else {
+                        isEmailValidFlag = false;
+                        enableLoginButton();
+                    }
                 }
-                enableLoginButton(usernameEditText, passwordEditText, loginButton);
             }
         });
 
-        // Добавим слушатель изменения текста для password
+        // Добавление TextWatcher для поля пароля
         passwordEditText.addTextChangedListener(new TextWatcher() {
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // игнорируем
+                // Не требуется
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // игнорируем
+                // Не требуется
             }
 
             @Override
             public void afterTextChanged(Editable s) {
                 String password = passwordEditText.getText().toString().trim();
-                if (isPasswordValid(password)) {
-                    passwordErrorText.setVisibility(View.GONE);
-                }
-                enableLoginButton(usernameEditText, passwordEditText, loginButton);
-            }
-        });
-
-        // Добавим слушатель ухода фокуса для username
-        usernameEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    String username = usernameEditText.getText().toString().trim();
-                    if (!isUsernameValid(username)) {
-                        usernameErrorText.setText("Имя пользователя должно быть не менее 3 символов");
-                        usernameErrorText.setVisibility(View.VISIBLE);
+                if (passwordInputLayout.getError() != null) {
+                    if (isPasswordValid(password)) {
+                        passwordInputLayout.setError(null);
+                        isPasswordValidFlag = true;
+                        enableLoginButton();
+                    } else {
+                        isPasswordValidFlag = false;
+                        enableLoginButton();
                     }
                 }
             }
         });
 
-        // Добавим слушатель ухода фокуса для password
-        passwordEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    String password = passwordEditText.getText().toString().trim();
-                    if (!isPasswordValid(password)) {
-                        passwordErrorText.setText("Пароль должен быть не менее 8 символов");
-                        passwordErrorText.setVisibility(View.VISIBLE);
-                    }
-                }
-            }
+        // Кнопка входа
+        loginButton.setOnClickListener(v -> {
+            Command command = new Command("LoginIn");
+            command.addData("email", emailEditText.getText().toString().trim());
+            command.addData("password", passwordEditText.getText().toString().trim());
+            connectionManager.SendCommand(command);
         });
 
-        showPasswordCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                passwordEditText.setInputType(android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-            } else {
-                passwordEditText.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
-            }
-            passwordEditText.setSelection(passwordEditText.getText().length());
-        });
+        // Изначально кнопка отключена
+        loginButton.setEnabled(false);
     }
 
-    private boolean isUsernameValid(String username) {
-        return !TextUtils.isEmpty(username) && username.length() >= 3;
+    // Проверка валидности email
+    private void validateEmail() {
+        String email = emailEditText.getText().toString().trim();
+        if (!isEmailValid(email)) {
+            emailInputLayout.setError("Пожалуйста, введите корректный email адрес");
+            isEmailValidFlag = false;
+        } else {
+            emailInputLayout.setError(null);
+            isEmailValidFlag = true;
+        }
     }
 
-    private boolean isPasswordValid(String password) {
-        return password.length() >= 8;
-    }
-
-    private void enableLoginButton(EditText usernameEditText, EditText passwordEditText, Button loginButton) {
-        String username = usernameEditText.getText().toString().trim();
+    // Проверка валидности пароля
+    private void validatePassword() {
         String password = passwordEditText.getText().toString().trim();
-        loginButton.setEnabled(isUsernameValid(username) && isPasswordValid(password));
+        if (!isPasswordValid(password)) {
+            passwordInputLayout.setError("Пароль должен содержать не менее 8 символов, включая заглавные и строчные буквы, цифры и специальные символы");
+            isPasswordValidFlag = false;
+        } else {
+            passwordInputLayout.setError(null);
+            isPasswordValidFlag = true;
+        }
+    }
+
+    // Включение/отключение кнопки входа
+    private void enableLoginButton() {
+        loginButton.setEnabled(isEmailValidFlag && isPasswordValidFlag);
+    }
+
+    // Проверка email с помощью регулярного выражения
+    private boolean isEmailValid(String email) {
+        String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,6}$";
+        return !TextUtils.isEmpty(email) && email.matches(emailPattern);
+    }
+
+    // Проверка пароля с помощью регулярного выражения
+    private boolean isPasswordValid(String password) {
+        if (password.length() < 8) {
+            return false;
+        }
+        String passwordPattern = "^(?=.*[0-9])(?=.*[a-zа-я])(?=.*[A-ZА-Я])(?=.*[@#$%^&+=!]).{8,}$";
+        return password.matches(passwordPattern);
     }
 }
