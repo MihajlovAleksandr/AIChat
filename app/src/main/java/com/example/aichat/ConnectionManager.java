@@ -61,6 +61,7 @@ public class ConnectionManager {
 
             @Override
             public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
+                Log.d("Command", text);
                 Command command = JsonHelper.Deserialize(text, Command.class);
                 Log.d("Command", command.toString());
             }
@@ -79,7 +80,7 @@ public class ConnectionManager {
 
     private Request getRequest() {
         String token = "1eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwianRpIjoiMzkyYTI4ODAtOGFkMy00N2NlLTgzZTktOWM2ODU2NTkwMDI1IiwiaWF0IjoxNzQwMDA5Mzc4LCJleHAiOjE3NDI2MDEzNzgsImlzcyI6ImFpY2hhdCIsImF1ZCI6ImFpY2hhdCJ9.2I2EaDB7mmkXeShLLvH2AkPcQ5SeZVJRtA2oGDWX7RI";
-        String URL = "wss://192.168.100.11:8888/";
+        String URL = "wss://192.168.100.7:8888/";
         if (token != null) {
             return new Request.Builder()
                     .url(URL)
@@ -113,6 +114,12 @@ public class ConnectionManager {
         }
         else{
             unsendedCommands.add(command);
+        }
+    }
+    public void SendCommand(String jsonCommand){
+        if (webSocket != null && !jsonCommand.isEmpty() && Connected) {
+            webSocket.send(jsonCommand);
+            Log.d("SendingCommand", "Command sent: " + jsonCommand);
         }
     }
 

@@ -47,14 +47,12 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
-    implementation("com.squareup.okhttp3:okhttp-sse:4.9.3") // Добавьте эту зависимость для поддержки веб-сокетов
+    implementation("com.squareup.okhttp3:okhttp-sse:4.9.3")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.3")
     implementation("com.fasterxml.jackson.core:jackson-core:2.13.3")
     implementation("androidx.security:security-crypto:1.1.0-alpha03")
     implementation ("com.google.zxing:core:3.5.2")
-
-    // Библиотека для работы с Bitmap (если вы используете AndroidX)
     implementation ("androidx.appcompat:appcompat:1.6.1")
 
 

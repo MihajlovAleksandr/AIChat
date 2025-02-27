@@ -33,6 +33,9 @@ public class Command {
     public <T> void addData(String name, T obj) {
         data.put(name, JsonHelper.Serialize(obj));
     }
+    public void addDataInJson(String name, String json){
+
+    }
 
     public <T> T getData(String name, Class<T> type) {
         if (data.containsKey(name)) {
