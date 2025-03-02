@@ -1,8 +1,10 @@
 package com.example.aichat;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -10,34 +12,44 @@ import androidx.appcompat.app.AppCompatActivity;
 
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final String TAG = "MessengerClient";
     private EditText messageEditText;
-    private Button sendButton;
     private ConnectionManager connectionManager;
+    private int userId;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String token = "1eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwianRpIjoiMzkyYTI4ODAtOGFkMy00N2NlLTgzZTktOWM2ODU2NTkwMDI1IiwiaWF0IjoxNzQwMDA5Mzc4LCJleHAiOjE3NDI2MDEzNzgsImlzcyI6ImFpY2hhdCIsImF1ZCI6ImFpY2hhdCJ9.2I2EaDB7mmkXeShLLvH2AkPcQ5SeZVJRtA2oGDWX7RI";
-        if (token != null)
-            Log.d("Token", token);
         setContentView(R.layout.activity_main);
         messageEditText = findViewById(R.id.tiMessage);
-        sendButton = findViewById(R.id.bSendMessage);
-        sendButton.setOnClickListener(new View.OnClickListener() {
+        Button sendButton = findViewById(R.id.bSendMessage);
+        sendButton.setOnClickListener(v -> {
+            Message message = new Message(Build.MODEL, 1, 1);
+            Command command = new Command("SendMessage");
+            command.addData("message", message);
+            connectionManager.SendCommand(command);
+        });
+        connectionManager = Singleton.getInstance().getConnectionManager();
+        if(connectionManager == null) {
+            connectionManager = new ConnectionManager(TokenManager.getToken(this));
+        }
+        connectionManager.SetCommandGot(new OnConnectionEvents() {
             @Override
-            public void onClick(View v) {
-                //Message message = new Message(messageEditText.getText().toString(), connectionManager.getUserId(), 1);
-                //Command command = new Command("SendMessage");
-                //command.addData("message", message);
-                //connectionManager.SendCommand(command);
+            public void OnCommandGot(Command command) {
+                Log.d("CommandToMaiActivity", command.toString());
+            }
+            @Override
+            public void OnConnectionFailed() {
+                //Ignore
+            }
 
-                connectionManager.SendCommand(messageEditText.getText().toString());
+            @Override
+            public void OnOpen() {
+                //Ignore
             }
         });
-        connectionManager = new ConnectionManager(this);
+
     }
 
     @Override

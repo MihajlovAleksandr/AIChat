@@ -1,6 +1,4 @@
 package com.example.aichat;
-
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -34,8 +32,8 @@ public class ConnectionManager {
     private final List<Command> unsendedCommands = new ArrayList<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private OnConnectionEvents connectionEvent;
-    public ConnectionManager(Context context) {
-        request = getRequest();
+    public ConnectionManager(String token) {
+        request = getRequest(token);
         webSocketListener = new WebSocketListener(){
             @Override
             public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
@@ -66,6 +64,7 @@ public class ConnectionManager {
             public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
                 Log.d("Command", text);
                 Command command = JsonHelper.Deserialize(text, Command.class);
+                if (command == null) throw new AssertionError();
                 Log.d("Command", command.toString());
 
                 // Асинхронная обработка команды
@@ -85,8 +84,7 @@ public class ConnectionManager {
         lastInitializeTime = System.currentTimeMillis();
     }
 
-    private Request getRequest() {
-        String token = "1eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwianRpIjoiMzkyYTI4ODAtOGFkMy00N2NlLTgzZTktOWM2ODU2NTkwMDI1IiwiaWF0IjoxNzQwMDA5Mzc4LCJleHAiOjE3NDI2MDEzNzgsImlzcyI6ImFpY2hhdCIsImF1ZCI6ImFpY2hhdCJ9.2I2EaDB7mmkXeShLLvH2AkPcQ5SeZVJRtA2oGDWX7RI";
+    private Request getRequest(String token) {
         String URL = "wss://192.168.100.11:8888/";
         if (token != null) {
             return new Request.Builder()

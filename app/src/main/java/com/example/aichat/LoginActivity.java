@@ -1,11 +1,10 @@
 package com.example.aichat;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.EditText;
@@ -13,14 +12,12 @@ import android.text.TextWatcher;
 import android.text.Editable;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 
 import com.google.android.material.textfield.TextInputLayout;
 
 public class LoginActivity extends AppCompatActivity {
 
     private ConnectionManager connectionManager;
-
     private TextInputLayout emailInputLayout;
     private TextInputLayout passwordInputLayout;
     private EditText emailEditText;
@@ -35,17 +32,13 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        // Инициализация элементов интерфейса
         emailInputLayout = findViewById(R.id.emailInputLayout);
         passwordInputLayout = findViewById(R.id.passwordInputLayout);
         emailEditText = findViewById(R.id.email);
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.login);
         imageView = findViewById(R.id.imageView);
-
-        // Инициализация ConnectionManager
-        connectionManager = new ConnectionManager(this);
+        connectionManager = new ConnectionManager(TokenManager.getToken(this));
         connectionManager.SetCommandGot(new OnConnectionEvents() {
             @Override
             public void OnCommandGot(Command command) {
@@ -53,18 +46,23 @@ public class LoginActivity extends AppCompatActivity {
                     case "EntryToken":
                         Log.d("Token", command.getData("token", String.class));
                         Bitmap bitmap = QRCodeGenerator.generateQRCodeImage(command.getData("token", String.class), 400, 400);
-                        runOnUiThread(() -> {
-                            imageView.setImageBitmap(bitmap);
-                        });
+                        runOnUiThread(() -> imageView.setImageBitmap(bitmap));
+                        break;
+                    case "CreateToken":
+                        String token = command.getData("token", String.class);
+                        TokenManager.saveToken(LoginActivity.this, token);
+                        break;
+                    case "LoginIn":
+                        Singleton.getInstance().setConnectionManager(connectionManager);
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        intent.putExtra("userId", command.getData("userId", int.class));
+                        startActivity(intent);
                         break;
                 }
             }
-
             @Override
             public void OnConnectionFailed() {
-                runOnUiThread(() -> {
-                    imageView.setImageResource(R.drawable.loading);
-                });
+                runOnUiThread(() -> imageView.setImageResource(R.drawable.loading));
             }
 
             @Override
@@ -77,14 +75,12 @@ public class LoginActivity extends AppCompatActivity {
         emailEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 validateEmail();
-                enableLoginButton();
             }
         });
 
         passwordEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 validatePassword();
-                enableLoginButton();
             }
         });
 
@@ -104,7 +100,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 String email = emailEditText.getText().toString().trim();
-                if (emailInputLayout.getError() != null) {
                     if (isEmailValid(email)) {
                         emailInputLayout.setError(null);
                         isEmailValidFlag = true;
@@ -113,7 +108,7 @@ public class LoginActivity extends AppCompatActivity {
                         isEmailValidFlag = false;
                         enableLoginButton();
                     }
-                }
+
             }
         });
 
@@ -133,7 +128,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 String password = passwordEditText.getText().toString().trim();
-                if (passwordInputLayout.getError() != null) {
                     if (isPasswordValid(password)) {
                         passwordInputLayout.setError(null);
                         isPasswordValidFlag = true;
@@ -143,7 +137,7 @@ public class LoginActivity extends AppCompatActivity {
                         enableLoginButton();
                     }
                 }
-            }
+
         });
 
         // Кнопка входа

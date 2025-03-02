@@ -13,7 +13,7 @@ public class QRCodeGenerator {
 
     public static Bitmap generateQRCodeImage(String text, int width, int height) {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        BitMatrix bitMatrix = null;
+        BitMatrix bitMatrix;
         try {
             bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height);
         } catch (WriterException e) {
