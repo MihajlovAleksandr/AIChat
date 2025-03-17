@@ -12,6 +12,7 @@
         android:paddingTop="32dp"
         android:paddingRight="32dp"
         android:paddingBottom="32dp">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -84,6 +85,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="Войти" />
+
+            <!-- Текст с возможностью перехода на регистрацию -->
+            <TextView
+                android:id="@+id/registerTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="Еще нет аккаунта? Зарегистрироваться"
+                android:textColorLink="@color/link_color"
+            android:clickable="true"
+            android:focusable="true" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
