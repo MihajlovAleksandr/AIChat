@@ -78,11 +78,24 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button
-                android:id="@+id/login"
+                android:id="@+id/Registration"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Войти" />
+                android:text="Зарегистрироваться" />
+
+            <!-- Текст с возможностью нажатия на "Войти" -->
+            <TextView
+                android:id="@+id/loginTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="Уже есть аккаунт? Войти"
+                android:textColorLink="@color/link_color"
+                android:autoLink="web"
+            android:clickable="true"
+            android:focusable="true" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

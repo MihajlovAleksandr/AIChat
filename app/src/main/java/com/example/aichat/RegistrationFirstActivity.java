@@ -2,15 +2,24 @@ package com.example.aichat;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -22,7 +31,7 @@ public class RegistrationFirstActivity extends AppCompatActivity {
     private EditText emailEditText;
     private EditText passwordEditText;
     private EditText confirmPasswordEditText;
-    private Button loginButton;
+    private Button registrationButton;
     private boolean isEmailValidFlag = false;
     private boolean isPasswordValidFlag = false;
     private boolean isConfirmPasswordValidFlag = false;
@@ -32,6 +41,30 @@ public class RegistrationFirstActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         TokenManager.removeToken(this);
         setContentView(R.layout.activity_registration_first);
+        TextView loginTextView = findViewById(R.id.loginTextView);
+        String text = "Уже есть аккаунт? Войти";
+        SpannableString spannableString = new SpannableString(text);
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                Singleton.getInstance().setConnectionManager(connectionManager);
+                Intent intent = new Intent(RegistrationFirstActivity.this, LoginActivity.class);
+                startActivity(intent);
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setColor(ContextCompat.getColor(RegistrationFirstActivity.this, R.color.link_color));
+                ds.setUnderlineText(true);
+            }
+        };
+
+        int startIndex = text.indexOf("Войти");
+        int endIndex = startIndex + "Войти".length();
+        spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        loginTextView.setText(spannableString);
+        loginTextView.setMovementMethod(LinkMovementMethod.getInstance());
         connectionManager = Singleton.getInstance().getConnectionManager();
         if(connectionManager == null) {
             connectionManager = new ConnectionManager(TokenManager.getToken(this));
@@ -69,7 +102,7 @@ public class RegistrationFirstActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.email);
         passwordEditText = findViewById(R.id.password);
         confirmPasswordEditText = findViewById(R.id.confirmPassword);
-        loginButton = findViewById(R.id.login);
+        registrationButton = findViewById(R.id.Registration);
 
         emailEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
@@ -144,7 +177,7 @@ public class RegistrationFirstActivity extends AppCompatActivity {
             }
         });
 
-        loginButton.setOnClickListener(v -> {
+        registrationButton.setOnClickListener(v -> {
             String email = emailEditText.getText().toString().trim();
             String password = passwordEditText.getText().toString().trim();
             Command command = new Command("Registration");
@@ -153,7 +186,7 @@ public class RegistrationFirstActivity extends AppCompatActivity {
             connectionManager.SendCommand(command);
         });
 
-        loginButton.setEnabled(false);
+        registrationButton.setEnabled(false);
     }
 
     private void validateEmail() {
@@ -194,7 +227,7 @@ public class RegistrationFirstActivity extends AppCompatActivity {
     }
 
     private void enableLoginButton() {
-        loginButton.setEnabled(isEmailValidFlag && isPasswordValidFlag && isConfirmPasswordValidFlag);
+        registrationButton.setEnabled(isEmailValidFlag && isPasswordValidFlag && isConfirmPasswordValidFlag);
     }
 
     private boolean isEmailValid(String email) {

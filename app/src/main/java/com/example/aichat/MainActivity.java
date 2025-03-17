@@ -32,11 +32,18 @@ public class MainActivity extends AppCompatActivity {
         });
         connectionManager = Singleton.getInstance().getConnectionManager();
         if(connectionManager == null) {
-            connectionManager = new ConnectionManager(TokenManager.getToken(this));
+            String token = TokenManager.getToken(this);
+            connectionManager = new ConnectionManager(token);
+            if(token == null) {
+                LogOut();
+            }
         }
         connectionManager.SetCommandGot(new OnConnectionEvents() {
             @Override
             public void OnCommandGot(Command command) {
+                if(command.getOperation().equals("LogOut")){
+                    LogOut();
+                }
                 Log.d("CommandToMaiActivity", command.toString());
             }
             @Override
@@ -51,7 +58,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
+    private void LogOut(){
+        Singleton.getInstance().setConnectionManager(connectionManager);
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();

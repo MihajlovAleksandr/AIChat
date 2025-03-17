@@ -3,15 +3,23 @@ package com.example.aichat;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.EditText;
 import android.text.TextWatcher;
 import android.text.Editable;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -32,13 +40,44 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        TextView registerTextView = findViewById(R.id.registerTextView);
+        String text = "Еще нет аккаунта? Зарегистрироваться";
+        SpannableString spannableString = new SpannableString(text);
+
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                Singleton.getInstance().setConnectionManager(connectionManager);
+                Intent intent = new Intent(LoginActivity.this, RegistrationFirstActivity.class);
+                startActivity(intent);
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setColor(ContextCompat.getColor(LoginActivity.this, R.color.link_color));
+                ds.setUnderlineText(true);
+            }
+        };
+
+        int startIndex = text.indexOf("Зарегистрироваться");
+        int endIndex = startIndex + "Зарегистрироваться".length();
+        spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        registerTextView.setText(spannableString);
+        registerTextView.setMovementMethod(LinkMovementMethod.getInstance());
         emailInputLayout = findViewById(R.id.emailInputLayout);
         passwordInputLayout = findViewById(R.id.passwordInputLayout);
         emailEditText = findViewById(R.id.email);
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.login);
         imageView = findViewById(R.id.imageView);
-        connectionManager = new ConnectionManager(TokenManager.getToken(this));
+        connectionManager = Singleton.getInstance().getConnectionManager();
+        if(connectionManager == null) {
+            connectionManager = new ConnectionManager(TokenManager.getToken(this));
+        }
+        else{
+            connectionManager.SendCommand(new Command("GetEntryToken"));
+        }
         connectionManager.SetCommandGot(new OnConnectionEvents() {
             @Override
             public void OnCommandGot(Command command) {
