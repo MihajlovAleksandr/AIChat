@@ -2,6 +2,7 @@ package com.example.aichat;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
@@ -46,13 +47,30 @@ public class TokenManager {
                     EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                     EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             );
-
-            // Get token
-            //return "";
             return sharedPreferences.getString(TOKEN_KEY, null);
         } catch (GeneralSecurityException | IOException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+    public static void removeToken(Context context) {
+        try {
+            Log.e("TokenManager", "Method removeToken should use for debug only");
+            MasterKey masterKey = new MasterKey.Builder(context)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .build();
+            SharedPreferences sharedPreferences = EncryptedSharedPreferences.create(
+                    context,
+                    SHARED_PREFS_FILE,
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.remove(TOKEN_KEY);
+            editor.apply();
+        } catch (GeneralSecurityException | IOException e) {
+            e.printStackTrace();
         }
     }
 }

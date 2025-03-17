@@ -66,8 +66,6 @@ public class ConnectionManager {
                 Command command = JsonHelper.Deserialize(text, Command.class);
                 if (command == null) throw new AssertionError();
                 Log.d("Command", command.toString());
-
-                // Асинхронная обработка команды
                 new Thread(() -> connectionEvent.OnCommandGot(command)).start();
             }
 
@@ -85,7 +83,7 @@ public class ConnectionManager {
     }
 
     private Request getRequest(String token) {
-        String URL = "wss://192.168.100.11:8888/";
+        String URL = "wss://192.168.100.15:8888/";
         if (token != null) {
             return new Request.Builder()
                     .url(URL)
@@ -105,7 +103,6 @@ public class ConnectionManager {
             Initialize();
         } else {
             Log.d("Connection", "Retrying too soon, waiting...");
-            // Schedule to retry after the remaining time to complete 1 second
             long delay = RECONNECT_INTERVAL_MS - (currentTime - lastInitializeTime);
             scheduler.schedule(this::Initialize, delay, TimeUnit.MILLISECONDS);
         }
