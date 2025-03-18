@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
         messageEditText = findViewById(R.id.tiMessage);
         Button sendButton = findViewById(R.id.bSendMessage);
         sendButton.setOnClickListener(v -> {
-            Message message = new Message(Build.MODEL, 1, 1);
+            Message message = new Message(messageEditText.getText().toString(), 1, 1);
             Command command = new Command("SendMessage");
             command.addData("message", message);
             connectionManager.SendCommand(command);

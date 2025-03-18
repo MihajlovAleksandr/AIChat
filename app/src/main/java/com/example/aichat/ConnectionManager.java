@@ -1,5 +1,7 @@
 package com.example.aichat;
+import android.os.Build;
 import android.util.Log;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -83,15 +85,18 @@ public class ConnectionManager {
     }
 
     private Request getRequest(String token) {
-        String URL = "wss://192.168.100.15:8888/";
+        String URL = BuildConfig.SERVER_URL;
+
         if (token != null) {
             return new Request.Builder()
                     .url(URL)
                     .addHeader("token", token)
+                    .addHeader("device", Build.MODEL)
                     .build();
         } else {
             return new Request.Builder()
                     .url(URL)
+                    .addHeader("device", Build.MODEL)
                     .build();
         }
     }

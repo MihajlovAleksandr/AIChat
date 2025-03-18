@@ -39,7 +39,6 @@ public class RegistrationFirstActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TokenManager.removeToken(this);
         setContentView(R.layout.activity_registration_first);
         TextView loginTextView = findViewById(R.id.loginTextView);
         String text = "Уже есть аккаунт? Войти";
