@@ -50,6 +50,7 @@ public class LoginActivity extends AppCompatActivity {
                 Singleton.getInstance().setConnectionManager(connectionManager);
                 Intent intent = new Intent(LoginActivity.this, RegistrationFirstActivity.class);
                 startActivity(intent);
+                finish();
             }
 
             @Override
@@ -96,6 +97,7 @@ public class LoginActivity extends AppCompatActivity {
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.putExtra("userId", command.getData("userId", int.class));
                         startActivity(intent);
+                        finish();
                         break;
                 }
             }

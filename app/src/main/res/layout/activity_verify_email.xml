@@ -7,6 +7,7 @@
     android:fitsSystemWindows="true"
     tools:context=".VerifyEmailActivity">
 
+    <!-- AppBar -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,74 +20,124 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- Основной контент -->
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_marginTop="?attr/actionBarSize">
+
+        <!-- Поля для ввода кода -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="66dp"
+            android:layout_marginTop="50dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/code1"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/edittext_border"
+                android:gravity="center"
+                android:inputType="number"
+                android:maxLength="1" />
+
+            <EditText
+                android:id="@+id/code2"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/edittext_border"
+                android:gravity="center"
+                android:inputType="number"
+                android:maxLength="1" />
+
+            <EditText
+                android:id="@+id/code3"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/edittext_border"
+                android:gravity="center"
+                android:inputType="number"
+                android:maxLength="1" />
+
+            <EditText
+                android:id="@+id/code4"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/edittext_border"
+                android:gravity="center"
+                android:inputType="number"
+                android:maxLength="1" />
+
+            <EditText
+                android:id="@+id/code5"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/edittext_border"
+                android:gravity="center"
+                android:inputType="number"
+                android:maxLength="1" />
+
+            <EditText
+                android:id="@+id/code6"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/edittext_border"
+                android:gravity="center"
+                android:inputType="number"
+                android:maxLength="1" />
+        </LinearLayout>
+
+        <!-- Пустое пространство для выталкивания точек вниз -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+    <!-- Точки прогресса -->
+    <LinearLayout
+        android:id="@+id/progressDots"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_gravity="center"
-        android:layout_marginTop="50dp"
-        android:padding="16dp">
-
-        <EditText
-            android:id="@+id/code1"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:maxLength="1"
-            android:inputType="number"
-            android:gravity="center"
-            android:background="@drawable/edittext_border"
-            android:layout_margin="5dp"/>
-
-        <EditText
-            android:id="@+id/code2"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:maxLength="1"
-            android:inputType="number"
-            android:gravity="center"
-            android:background="@drawable/edittext_border"
-            android:layout_margin="5dp"/>
-
-        <EditText
-            android:id="@+id/code3"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:maxLength="1"
-            android:inputType="number"
-            android:gravity="center"
-            android:background="@drawable/edittext_border"
-            android:layout_margin="5dp"/>
-
-        <EditText
-            android:id="@+id/code4"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:maxLength="1"
-            android:inputType="number"
-            android:gravity="center"
-            android:background="@drawable/edittext_border"
-            android:layout_margin="5dp"/>
-
-        <EditText
-            android:id="@+id/code5"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:maxLength="1"
-            android:inputType="number"
-            android:gravity="center"
-            android:background="@drawable/edittext_border"
-            android:layout_margin="5dp"/>
-
-        <EditText
-            android:id="@+id/code6"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:maxLength="1"
-            android:inputType="number"
-            android:gravity="center"
-            android:background="@drawable/edittext_border"
-            android:layout_margin="5dp"/>
-
+        android:gravity="center"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:layout_gravity="bottom">
+        <View
+            android:id="@+id/dot1"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:background="@drawable/dot_done"
+            android:layout_margin="4dp"/>
+        <View
+            android:id="@+id/dot2"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:background="@drawable/dot_active"
+            android:layout_margin="4dp"/>
+        <View
+            android:id="@+id/dot3"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:background="@drawable/dot_default"
+            android:layout_margin="4dp"/>
+        <View
+            android:id="@+id/dot4"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:background="@drawable/dot_default"
+            android:layout_margin="4dp"/>
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

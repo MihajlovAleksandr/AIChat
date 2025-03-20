@@ -33,6 +33,7 @@ public class VerifyEmailActivity extends AppCompatActivity {
                         Singleton.getInstance().setConnectionManager(connectionManager);
                         Intent intent = new Intent(VerifyEmailActivity.this, UserDataActivity.class);
                         startActivity(intent);
+                        finish();
                     } else {
                         new Thread(() -> changeColorForEditText(50, Color.RED)).start();
                     }
@@ -74,7 +75,7 @@ public class VerifyEmailActivity extends AppCompatActivity {
 
             runOnUiThread(() -> {
                 GradientDrawable drawable = (GradientDrawable) editText.getBackground();
-                drawable.setStroke(2, color);
+                drawable.setStroke(5, color);
             });
         }
     }

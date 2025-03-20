@@ -62,10 +62,10 @@ public class MainActivity extends AppCompatActivity {
         Singleton.getInstance().setConnectionManager(connectionManager);
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
+        finish();
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        connectionManager.Close();
     }
 }

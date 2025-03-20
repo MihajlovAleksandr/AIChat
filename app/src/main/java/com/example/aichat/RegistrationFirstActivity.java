@@ -49,6 +49,7 @@ public class RegistrationFirstActivity extends AppCompatActivity {
                 Singleton.getInstance().setConnectionManager(connectionManager);
                 Intent intent = new Intent(RegistrationFirstActivity.this, LoginActivity.class);
                 startActivity(intent);
+                finish();
             }
 
             @Override
@@ -81,6 +82,7 @@ public class RegistrationFirstActivity extends AppCompatActivity {
                         Singleton.getInstance().setConnectionManager(connectionManager);
                         Intent intent = new Intent(RegistrationFirstActivity.this, VerifyEmailActivity.class);
                         startActivity(intent);
+                        finish();
                         break;
                 }
             }

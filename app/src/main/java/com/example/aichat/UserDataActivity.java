@@ -47,6 +47,7 @@ public class UserDataActivity extends AppCompatActivity {
                     Singleton.getInstance().setConnectionManager(connectionManager);
                     Intent intent = new Intent(UserDataActivity.this, PreferenceActivity.class);
                     startActivity(intent);
+                    finish();
                 }
             }
 

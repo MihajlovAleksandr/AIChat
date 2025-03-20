@@ -52,6 +52,7 @@ public class PreferenceActivity extends AppCompatActivity {
                         Intent intent = new Intent(PreferenceActivity.this, MainActivity.class);
                         intent.putExtra("userId", command.getData("userId", int.class));
                         startActivity(intent);
+                        finish();
                         break;
                 }
             }
