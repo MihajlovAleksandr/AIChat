@@ -5,22 +5,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- RecyclerView для сообщений: его высота определяется ограничениями от верхней части экрана до начала поля ввода -->
+    <!-- Добавленная кнопка назад -->
+    <ImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@android:drawable/ic_menu_revert"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_margin="8dp"/>
+
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvMessages"
+        android:id="@+id/rv_messages"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:scrollbars="vertical"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/tiMessage"
+        app:layout_constraintTop_toBottomOf="@+id/btn_back"
+        app:layout_constraintBottom_toTopOf="@+id/ti_message"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Поле для ввода текста: оно занимает ровно столько места, сколько нужно (от 1 до 5 строк) -->
+    <!-- Остальные элементы остаются без изменений -->
     <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/tiMessage"
+        android:id="@+id/ti_message"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -31,23 +41,20 @@
         android:minLines="1"
         android:gravity="top|start"
         android:minHeight="48dp"
-    android:maxHeight="150dp"
-    android:scrollbars="vertical"
-    android:inputType="textMultiLine"
-    app:layout_constraintTop_toBottomOf="@+id/rvMessages"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toStartOf="@+id/bSendMessage" />
+        android:maxHeight="150dp"
+        android:scrollbars="vertical"
+        android:inputType="textMultiLine"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/b_send_message" />
 
-    <!-- Кнопка отправки -->
     <Button
-        android:id="@+id/bSendMessage"
+        android:id="@+id/b_send_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
         android:text="Отправить"
-        app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

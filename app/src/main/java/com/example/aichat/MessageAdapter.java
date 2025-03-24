@@ -6,14 +6,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
     private List<Message> messages;
-    private int currentUserId; // ID текущего пользователя
+    private int currentUserId;
 
     public MessageAdapter(List<Message> messages, int currentUserId) {
         this.messages = messages;
@@ -23,17 +22,18 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @NonNull
     @Override
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Используем разные макеты для "моих" и "чужих" сообщений
         int layoutRes = viewType == 0 ? R.layout.my_message : R.layout.other_message;
         View view = LayoutInflater.from(parent.getContext()).inflate(layoutRes, parent, false);
         return new MessageViewHolder(view);
     }
-
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message message = messages.get(position);
         holder.messageText.setText(message.getText());
-        holder.timeText.setText(message.getTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+
+        // Можно отображать ID чата для отладки
+        holder.timeText.setText(message.getTime().format(DateTimeFormatter.ofPattern("HH:mm"))
+                + " (Чат " + message.getChat() + ")");
     }
 
     @Override
@@ -43,7 +43,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     @Override
     public int getItemViewType(int position) {
-        // Возвращаем 0, если сообщение "мое", и 1, если "чужое"
         return messages.get(position).isMyMessage(currentUserId) ? 0 : 1;
     }
 
