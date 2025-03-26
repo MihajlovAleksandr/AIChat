@@ -14,6 +14,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.aichat.model.AppDatabase;
+import com.example.aichat.model.DatabaseClient;
+import com.example.aichat.model.Message;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +36,6 @@ public class ChatFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
-        // Получаем ID чата из аргументов
         if (getArguments() != null) {
             chatId = getArguments().getInt("chatId", -1);
         }
@@ -72,16 +75,6 @@ public class ChatFragment extends Fragment {
         }
     }
     private void loadMessages(int chatId) {
-        messages.clear();
-        if (chatId == 1) {
-            messages.add(new Message("Привет из чата #1!", currentUserId, chatId));
-            messages.add(new Message("Как дела в первом чате?", 2, chatId));
-        } else if (chatId == 2) {
-            messages.add(new Message("Это чат номер 2", currentUserId, chatId));
-            messages.add(new Message("Здесь другое обсуждение", 3, chatId));
-        } else {
-            messages.add(new Message("Добро пожаловать в чат #" + chatId, currentUserId, chatId));
-        }
         messageAdapter.notifyDataSetChanged();
     }
 }

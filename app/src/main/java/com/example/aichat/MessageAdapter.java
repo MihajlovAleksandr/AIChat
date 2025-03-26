@@ -7,6 +7,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.aichat.model.Message;
+
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -31,8 +33,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message message = messages.get(position);
         holder.messageText.setText(message.getText());
-
-        // Можно отображать ID чата для отладки
         holder.timeText.setText(message.getTimeFormat().format(DateTimeFormatter.ofPattern("HH:mm"))
                 + " (Чат " + message.getChat() + ")");
     }

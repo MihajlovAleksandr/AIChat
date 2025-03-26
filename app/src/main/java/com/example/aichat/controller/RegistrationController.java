@@ -1,27 +1,25 @@
-package com.example.aichat;
+package com.example.aichat.controller;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.text.Editable;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-
+import com.example.aichat.view.RegistrationActivity;
+import com.example.aichat.model.Command;
+import com.example.aichat.model.ConnectionManager;
+import com.example.aichat.model.ConnectionSingleton;
+import com.example.aichat.model.OnConnectionEvents;
+import com.example.aichat.model.TokenManager;
 import com.google.android.material.textfield.TextInputLayout;
 
-public class RegistrationActivity extends AppCompatActivity {
+public class RegistrationController {
+
+    private RegistrationActivity activity;
     private ConnectionManager connectionManager;
+
     private TextInputLayout emailInputLayout;
     private TextInputLayout passwordInputLayout;
     private TextInputLayout confirmPasswordInputLayout;
@@ -33,93 +31,80 @@ public class RegistrationActivity extends AppCompatActivity {
     private boolean isPasswordValidFlag = false;
     private boolean isConfirmPasswordValidFlag = false;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registration);
-        TextView loginTextView = findViewById(R.id.loginTextView);
-        String text = "Уже есть аккаунт? Войти";
-        SpannableString spannableString = new SpannableString(text);
-        ClickableSpan clickableSpan = new ClickableSpan() {
-            @Override
-            public void onClick(View widget) {
-                ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
-                Intent intent = new Intent(RegistrationActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
-            }
+    public RegistrationController(RegistrationActivity activity,
+                                  TextInputLayout emailInputLayout,
+                                  TextInputLayout passwordInputLayout,
+                                  TextInputLayout confirmPasswordInputLayout,
+                                  EditText emailEditText,
+                                  EditText passwordEditText,
+                                  EditText confirmPasswordEditText,
+                                  Button registrationButton) {
+        this.activity = activity;
+        this.emailInputLayout = emailInputLayout;
+        this.passwordInputLayout = passwordInputLayout;
+        this.confirmPasswordInputLayout = confirmPasswordInputLayout;
+        this.emailEditText = emailEditText;
+        this.passwordEditText = passwordEditText;
+        this.confirmPasswordEditText = confirmPasswordEditText;
+        this.registrationButton = registrationButton;
 
-            @Override
-            public void updateDrawState(TextPaint ds) {
-                super.updateDrawState(ds);
-                ds.setColor(ContextCompat.getColor(RegistrationActivity.this, R.color.link_color));
-                ds.setUnderlineText(true);
-            }
-        };
-
-        int startIndex = text.indexOf("Войти");
-        int endIndex = startIndex + "Войти".length();
-        spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        loginTextView.setText(spannableString);
-        loginTextView.setMovementMethod(LinkMovementMethod.getInstance());
         connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
-        if(connectionManager == null) {
-            connectionManager = new ConnectionManager(TokenManager.getToken(this));
+        if (connectionManager == null) {
+            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(TokenManager.getToken(activity)));
+            connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         }
+
+        setupConnectionCallbacks();
+        setupFieldListeners();
+        setupRegistrationButton();
+
+        registrationButton.setEnabled(false);
+    }
+    private void setupConnectionCallbacks() {
         connectionManager.SetCommandGot(new OnConnectionEvents() {
             @Override
             public void OnCommandGot(Command command) {
                 switch (command.getOperation()) {
                     case "EmailIsBusy":
-                        runOnUiThread(()->{
-                            emailInputLayout.setError("email уже используется...");
-                        });
+                        activity.runOnUiThread(() -> emailInputLayout.setError("email уже используется..."));
                         break;
                     case "VerificationCodeSend":
                         ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
-                        Intent intent = new Intent(RegistrationActivity.this, VerifyEmailActivity.class);
-                        startActivity(intent);
-                        finish();
+                        Intent intent = new Intent(activity, com.example.aichat.view.VerifyEmailActivity.class);
+                        activity.startActivity(intent);
+                        activity.finish();
+                        break;
+                    default:
                         break;
                 }
             }
+
             @Override
             public void OnConnectionFailed() {
-
             }
 
             @Override
             public void OnOpen() {
-
             }
         });
-
-        emailInputLayout = findViewById(R.id.emailInputLayout);
-        passwordInputLayout = findViewById(R.id.passwordInputLayout);
-        confirmPasswordInputLayout = findViewById(R.id.confirmPasswordInputLayout);
-        emailEditText = findViewById(R.id.email);
-        passwordEditText = findViewById(R.id.password);
-        confirmPasswordEditText = findViewById(R.id.confirmPassword);
-        registrationButton = findViewById(R.id.Registration);
-
+    }
+    private void setupFieldListeners() {
         emailEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 validateEmail();
-                enableLoginButton();
+                enableRegistrationButton();
             }
         });
-
         passwordEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 validatePassword();
-                enableLoginButton();
+                enableRegistrationButton();
             }
         });
-
         confirmPasswordEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 validateConfirmPassword();
-                enableLoginButton();
+                enableRegistrationButton();
             }
         });
 
@@ -132,14 +117,13 @@ public class RegistrationActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 emailInputLayout.setError(null);
                 isEmailValidFlag = isEmailValid(s.toString().trim());
-                enableLoginButton();
+                enableRegistrationButton();
             }
 
             @Override
             public void afterTextChanged(Editable s) {
             }
         });
-
         passwordEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -150,7 +134,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 passwordInputLayout.setError(null);
                 isPasswordValidFlag = isPasswordValid(s.toString().trim());
                 validateConfirmPassword();
-                enableLoginButton();
+                enableRegistrationButton();
             }
 
             @Override
@@ -167,14 +151,16 @@ public class RegistrationActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 confirmPasswordInputLayout.setError(null);
                 isConfirmPasswordValidFlag = s.toString().trim().equals(passwordEditText.getText().toString().trim());
-                enableLoginButton();
+                enableRegistrationButton();
             }
 
             @Override
             public void afterTextChanged(Editable s) {
             }
         });
+    }
 
+    private void setupRegistrationButton() {
         registrationButton.setOnClickListener(v -> {
             String email = emailEditText.getText().toString().trim();
             String password = passwordEditText.getText().toString().trim();
@@ -183,8 +169,6 @@ public class RegistrationActivity extends AppCompatActivity {
             command.addData("password", password);
             connectionManager.SendCommand(command);
         });
-
-        registrationButton.setEnabled(false);
     }
 
     private void validateEmail() {
@@ -213,7 +197,6 @@ public class RegistrationActivity extends AppCompatActivity {
         if (!confirmPasswordEditText.getText().toString().isEmpty()) {
             String password = passwordEditText.getText().toString().trim();
             String confirmPassword = confirmPasswordEditText.getText().toString().trim();
-
             if (!confirmPassword.equals(password)) {
                 confirmPasswordInputLayout.setError("Пароли не совпадают");
                 isConfirmPasswordValidFlag = false;
@@ -224,7 +207,7 @@ public class RegistrationActivity extends AppCompatActivity {
         }
     }
 
-    private void enableLoginButton() {
+    private void enableRegistrationButton() {
         registrationButton.setEnabled(isEmailValidFlag && isPasswordValidFlag && isConfirmPasswordValidFlag);
     }
 

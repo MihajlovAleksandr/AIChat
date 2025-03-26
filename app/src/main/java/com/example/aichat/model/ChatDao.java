@@ -1,4 +1,4 @@
-package com.example.aichat;
+package com.example.aichat.model;
 
 import androidx.room.Dao;
 import androidx.room.Insert;

@@ -1,4 +1,4 @@
-package com.example.aichat;
+package com.example.aichat.model;
 
 import androidx.room.Database;
 import androidx.room.RoomDatabase;

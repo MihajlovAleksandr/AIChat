@@ -1,4 +1,4 @@
-package com.example.aichat;
+package com.example.aichat.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

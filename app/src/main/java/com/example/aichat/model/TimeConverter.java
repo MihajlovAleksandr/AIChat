@@ -1,4 +1,4 @@
-package com.example.aichat;
+package com.example.aichat.model;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;

@@ -1,10 +1,12 @@
-package com.example.aichat;
+package com.example.aichat.model;
 import android.os.Build;
 import android.util.Log;
 
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.example.aichat.BuildConfig;
 
 import java.security.cert.CertificateException;
 import java.util.ArrayList;

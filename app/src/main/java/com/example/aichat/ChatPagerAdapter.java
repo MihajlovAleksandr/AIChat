@@ -7,6 +7,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.example.aichat.model.Command;
+import com.example.aichat.model.ConnectionManager;
+import com.example.aichat.model.OnConnectionEvents;
+
 public class ChatPagerAdapter extends FragmentStateAdapter {
 
     private int currentChatId = -1;

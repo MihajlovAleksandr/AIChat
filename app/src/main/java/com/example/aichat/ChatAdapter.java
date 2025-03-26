@@ -5,21 +5,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import com.example.aichat.controller.ChatController;
+import com.example.aichat.model.Chat;
+
 import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
 
     private List<Chat> chatList;
     private OnChatClickListener listener;
+    private ChatController chatController;
 
     public ChatAdapter(List<Chat> chatList, OnChatClickListener listener) {
         this.chatList = chatList;
         this.listener = listener;
+        this.chatController = new ChatController();
     }
 
     @NonNull
@@ -47,7 +51,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         return chatList.size();
     }
 
-    static class ChatViewHolder extends RecyclerView.ViewHolder {
+    class ChatViewHolder extends RecyclerView.ViewHolder {
         private TextView tvLastMessage;
         private TextView tvTime;
         private ImageView ivChatStatus;
@@ -61,15 +65,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
         public void bind(Chat chat) {
             tvLastMessage.setText("text");
-
-            LocalDateTime displayTime = chat.isActive() ?
-                    chat.getCreationTimeFormat() : chat.getEndTimeFormat();
-            tvTime.setText(displayTime.format(DateTimeFormatter.ofPattern("HH:mm")));
-
-            int statusIcon = chat.isActive() ?
-                    android.R.drawable.presence_online :
-                    android.R.drawable.presence_invisible;
-            ivChatStatus.setImageResource(statusIcon);
+            tvTime.setText(chatController.getFormattedTime(chat));
+            ivChatStatus.setImageResource(chatController.getStatusIcon(chat));
         }
     }
 

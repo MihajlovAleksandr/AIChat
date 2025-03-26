@@ -15,24 +15,24 @@
         android:theme="@style/Theme.AIChat"
         tools:targetApi="31">
         <activity
-            android:name=".PreferenceActivity"
+            android:name=".view.PreferenceActivity"
             android:exported="true" >
 
         </activity>
         <activity
-            android:name=".UserDataActivity"
+            android:name=".view.UserDataActivity"
             android:exported="true">
         </activity>
         <activity
-            android:name=".VerifyEmailActivity"
+            android:name=".view.VerifyEmailActivity"
             android:exported="false"
             android:theme="@style/Theme.AIChat" />
         <activity
-            android:name=".RegistrationActivity"
+            android:name=".view.RegistrationActivity"
             android:exported="true">
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name=".view.LoginActivity"
             android:exported="true"
             android:label="@string/title_activity_login">
         </activity>

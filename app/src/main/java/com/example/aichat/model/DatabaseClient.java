@@ -1,4 +1,4 @@
-package com.example.aichat;
+package com.example.aichat.model;
 
 import android.content.Context;
 import androidx.room.Room;

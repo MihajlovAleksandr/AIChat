@@ -1,4 +1,4 @@
-package com.example.aichat;
+package com.example.aichat.model;
 
 public class ConnectionSingleton {
     private static final ConnectionSingleton instance = new ConnectionSingleton();

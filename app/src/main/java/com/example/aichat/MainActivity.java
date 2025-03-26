@@ -5,6 +5,11 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.aichat.model.ConnectionManager;
+import com.example.aichat.model.ConnectionSingleton;
+import com.example.aichat.model.DatabaseManager;
+import com.example.aichat.model.TokenManager;
+
 public class MainActivity extends AppCompatActivity {
 
     private ViewPager2 viewPager;
@@ -15,9 +20,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        DatabaseManager.init(this);
         ConnectionManager connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         if(connectionManager == null) {
-            connectionManager = new ConnectionManager(TokenManager.getToken(this));
+            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(TokenManager.getToken(this)));
+            connectionManager =  ConnectionSingleton.getInstance().getConnectionManager();
         }
         viewPager = findViewById(R.id.view_pager);
         pagerAdapter = new ChatPagerAdapter(this, connectionManager);

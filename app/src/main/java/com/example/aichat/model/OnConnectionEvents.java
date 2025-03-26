@@ -1,4 +1,4 @@
-package com.example.aichat;
+package com.example.aichat.model;
 
 public interface OnConnectionEvents {
     void OnCommandGot(Command command);

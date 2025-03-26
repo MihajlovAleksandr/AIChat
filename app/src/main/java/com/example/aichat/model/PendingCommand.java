@@ -1,4 +1,4 @@
-package com.example.aichat;
+package com.example.aichat.model;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
