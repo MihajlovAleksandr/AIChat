@@ -1,7 +1,6 @@
 package com.example.aichat;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -35,7 +34,7 @@ public class UserDataActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        connectionManager = Singleton.getInstance().getConnectionManager();
+        connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         if (connectionManager == null) {
             connectionManager = new ConnectionManager(TokenManager.getToken(this));
         }
@@ -44,7 +43,7 @@ public class UserDataActivity extends AppCompatActivity {
             @Override
             public void OnCommandGot(Command command) {
                 if (Objects.equals(command.getOperation(), "UserDataAdded")) {
-                    Singleton.getInstance().setConnectionManager(connectionManager);
+                    ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
                     Intent intent = new Intent(UserDataActivity.this, PreferenceActivity.class);
                     startActivity(intent);
                     finish();

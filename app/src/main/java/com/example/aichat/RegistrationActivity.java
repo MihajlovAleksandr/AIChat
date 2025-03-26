@@ -1,8 +1,6 @@
 package com.example.aichat;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.SpannableString;
@@ -12,7 +10,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,7 +20,7 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputLayout;
 
-public class RegistrationFirstActivity extends AppCompatActivity {
+public class RegistrationActivity extends AppCompatActivity {
     private ConnectionManager connectionManager;
     private TextInputLayout emailInputLayout;
     private TextInputLayout passwordInputLayout;
@@ -39,15 +36,15 @@ public class RegistrationFirstActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registration_first);
+        setContentView(R.layout.activity_registration);
         TextView loginTextView = findViewById(R.id.loginTextView);
         String text = "Уже есть аккаунт? Войти";
         SpannableString spannableString = new SpannableString(text);
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                Singleton.getInstance().setConnectionManager(connectionManager);
-                Intent intent = new Intent(RegistrationFirstActivity.this, LoginActivity.class);
+                ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
+                Intent intent = new Intent(RegistrationActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -55,7 +52,7 @@ public class RegistrationFirstActivity extends AppCompatActivity {
             @Override
             public void updateDrawState(TextPaint ds) {
                 super.updateDrawState(ds);
-                ds.setColor(ContextCompat.getColor(RegistrationFirstActivity.this, R.color.link_color));
+                ds.setColor(ContextCompat.getColor(RegistrationActivity.this, R.color.link_color));
                 ds.setUnderlineText(true);
             }
         };
@@ -65,7 +62,7 @@ public class RegistrationFirstActivity extends AppCompatActivity {
         spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         loginTextView.setText(spannableString);
         loginTextView.setMovementMethod(LinkMovementMethod.getInstance());
-        connectionManager = Singleton.getInstance().getConnectionManager();
+        connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         if(connectionManager == null) {
             connectionManager = new ConnectionManager(TokenManager.getToken(this));
         }
@@ -79,8 +76,8 @@ public class RegistrationFirstActivity extends AppCompatActivity {
                         });
                         break;
                     case "VerificationCodeSend":
-                        Singleton.getInstance().setConnectionManager(connectionManager);
-                        Intent intent = new Intent(RegistrationFirstActivity.this, VerifyEmailActivity.class);
+                        ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
+                        Intent intent = new Intent(RegistrationActivity.this, VerifyEmailActivity.class);
                         startActivity(intent);
                         finish();
                         break;

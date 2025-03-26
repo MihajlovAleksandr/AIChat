@@ -28,7 +28,7 @@
             android:exported="false"
             android:theme="@style/Theme.AIChat" />
         <activity
-            android:name=".RegistrationFirstActivity"
+            android:name=".RegistrationActivity"
             android:exported="true">
         </activity>
         <activity

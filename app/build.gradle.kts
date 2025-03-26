@@ -13,7 +13,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "SERVER_URL", "\"wss://192.168.100.7:8888/\"")
+        buildConfigField("String", "SERVER_URL", "\"wss://192.168.100.5:8888/\"")
     }
 
     buildTypes {
@@ -59,4 +59,6 @@ dependencies {
     implementation("com.google.zxing:core:3.5.2")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0")
+    implementation ("androidx.room:room-runtime:2.5.0")
+    annotationProcessor ("androidx.room:room-compiler:2.5.0")
 }

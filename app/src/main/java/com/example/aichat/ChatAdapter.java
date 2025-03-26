@@ -60,10 +60,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         }
 
         public void bind(Chat chat) {
-            tvLastMessage.setText(chat.getLastMessage());
+            tvLastMessage.setText("text");
 
             LocalDateTime displayTime = chat.isActive() ?
-                    chat.getCreationTime() : chat.getEndTime();
+                    chat.getCreationTimeFormat() : chat.getEndTimeFormat();
             tvTime.setText(displayTime.format(DateTimeFormatter.ofPattern("HH:mm")));
 
             int statusIcon = chat.isActive() ?

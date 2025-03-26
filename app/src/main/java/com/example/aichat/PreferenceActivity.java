@@ -1,7 +1,6 @@
 package com.example.aichat;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -34,7 +33,7 @@ public class PreferenceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        connectionManager = Singleton.getInstance().getConnectionManager();
+        connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         if (connectionManager == null) {
             connectionManager = new ConnectionManager(TokenManager.getToken(this));
         }
@@ -48,7 +47,7 @@ public class PreferenceActivity extends AppCompatActivity {
                         TokenManager.saveToken(PreferenceActivity.this, token);
                         break;
                     case "LoginIn":
-                        Singleton.getInstance().setConnectionManager(connectionManager);
+                        ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
                         Intent intent = new Intent(PreferenceActivity.this, MainActivity.class);
                         intent.putExtra("userId", command.getData("userId", int.class));
                         startActivity(intent);

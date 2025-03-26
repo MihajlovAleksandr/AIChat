@@ -1,12 +1,12 @@
 package com.example.aichat;
 
-public class Singleton {
-    private static final Singleton instance = new Singleton();
+public class ConnectionSingleton {
+    private static final ConnectionSingleton instance = new ConnectionSingleton();
     private ConnectionManager connectionManager;
 
-    private Singleton() {}
+    private ConnectionSingleton() {}
 
-    public static Singleton getInstance() {
+    public static ConnectionSingleton getInstance() {
         return instance;
     }
 

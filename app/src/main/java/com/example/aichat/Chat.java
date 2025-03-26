@@ -1,47 +1,56 @@
 package com.example.aichat;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Objects;
 
+@Entity(tableName = "Chats")
 public class Chat implements Comparable<Chat> {
+
+    @PrimaryKey
     private int id;
+
     private String creationTime;
     private String endTime;
-    private int[] users;
-    private String lastMessage;
 
     public Chat() {
-        this.creationTime = ZonedDateTime.now(ZoneId.of("UTC"))
-                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        this.creationTime = TimeConverter.getString(LocalDateTime.now());
+    }
+    public int getId() {
+        return id;
     }
 
-    public Chat(int id, int[] users, String lastMessage, boolean isActive) {
-        this.id = id; // Убедитесь, что ID сохраняется
-        this.users = users;
-        this.lastMessage = lastMessage;
-        this.creationTime = ZonedDateTime.now(ZoneId.of("UTC"))
-                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-        if (!isActive) {
-            this.endTime = ZonedDateTime.now(ZoneId.of("UTC"))
-                    .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-        }
-    }
-    private LocalDateTime getLocalTime(String time) {
-        if (time == null) return null;
-        ZonedDateTime utcDateTime = ZonedDateTime.parse(time, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-        return utcDateTime.withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public LocalDateTime getCreationTime() {
-        return getLocalTime(creationTime);
+    public String getCreationTime() {
+        return creationTime;
+    }
+    public LocalDateTime getCreationTimeFormat(){
+        return TimeConverter.getLocalDateTime(creationTime);
+    }
+    public LocalDateTime getEndTimeFormat(){
+        return TimeConverter.getLocalDateTime(endTime);
     }
 
-    public LocalDateTime getEndTime() {
-        return getLocalTime(endTime);
+    public void setCreationTime(String creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+
+    public boolean isActive() {
+        return endTime == null;
     }
 
     @Override
@@ -60,30 +69,5 @@ public class Chat implements Comparable<Chat> {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public int[] getUsers() {
-        return users;
-    }
-
-    public String getLastMessage() {
-        return lastMessage;
-    }
-
-    public boolean isActive() {
-        return endTime == null;
-    }
-
-    public void setLastMessage(String lastMessage) {
-        this.lastMessage = lastMessage;
-    }
-
-    public void endChat() {
-        this.endTime = ZonedDateTime.now(ZoneId.of("UTC"))
-                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     }
 }

@@ -41,7 +41,6 @@ public class Command {
         return null;
     }
 
-
     @NonNull
     @Override
     public String toString() {

@@ -47,8 +47,8 @@ public class LoginActivity extends AppCompatActivity {
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                Singleton.getInstance().setConnectionManager(connectionManager);
-                Intent intent = new Intent(LoginActivity.this, RegistrationFirstActivity.class);
+                ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
+                Intent intent = new Intent(LoginActivity.this, RegistrationActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -72,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.login);
         imageView = findViewById(R.id.imageView);
-        connectionManager = Singleton.getInstance().getConnectionManager();
+        connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         if(connectionManager == null) {
             connectionManager = new ConnectionManager(TokenManager.getToken(this));
         }
@@ -93,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
                         TokenManager.saveToken(LoginActivity.this, token);
                         break;
                     case "LoginIn":
-                        Singleton.getInstance().setConnectionManager(connectionManager);
+                        ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.putExtra("userId", command.getData("userId", int.class));
                         startActivity(intent);

@@ -1,27 +1,42 @@
 package com.example.aichat;
 
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
+import androidx.room.ForeignKey;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 
+@Entity(tableName = "Messages",
+        foreignKeys = @ForeignKey(entity = Chat.class,
+                parentColumns = "id",
+                childColumns = "chat",
+                onDelete = ForeignKey.CASCADE),
+        indices = {@Index(value = "chat")})
 public class Message {
+
+    @PrimaryKey
     @JsonProperty
     private int id;
+
     @JsonProperty
     private String text;
+
     @JsonProperty
     private int sender;
+
     @JsonProperty
     private int chat;
+
     @JsonProperty
     private String time;
+
     @JsonProperty
     private String lastUpdate;
-
+    @Ignore
     public Message(String text, int sender, int chat) {
         this.text = text;
         this.sender = sender;
@@ -30,38 +45,70 @@ public class Message {
     }
 
     public Message() {
-        time = "2025-03-22T20:27:12.961465Z";
     }
 
     @JsonIgnore
     public int getId() {
         return id;
     }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     @JsonIgnore
     public String getText() {
         return text;
     }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
     @JsonIgnore
     public int getSender() {
         return sender;
     }
+
+    public void setSender(int sender) {
+        this.sender = sender;
+    }
+
     @JsonIgnore
     public int getChat() {
         return chat;
     }
-    @JsonIgnore
-    public LocalDateTime getTime() {
-        return getLocalTime(time);
-    }
-    @JsonIgnore
-    public LocalDateTime getLastUpdate() {
-        return getLocalTime(lastUpdate);
+
+    public void setChat(int chat) {
+        this.chat = chat;
     }
 
     @JsonIgnore
-    private LocalDateTime getLocalTime(String  time) {
-        ZonedDateTime utcDateTime = ZonedDateTime.parse(time, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-        return utcDateTime.withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    @JsonIgnore
+    public LocalDateTime getTimeFormat() {
+        return TimeConverter.getLocalDateTime(time);
+    }
+
+    @JsonIgnore
+    public String getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(String lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    @JsonIgnore
+    public LocalDateTime getLastUpdateFormat() {
+        return TimeConverter.getLocalDateTime(lastUpdate);
     }
 
     @JsonIgnore

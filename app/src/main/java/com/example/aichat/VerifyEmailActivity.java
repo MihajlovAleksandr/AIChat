@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.View;
 import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.aichat.databinding.ActivityVerifyEmailBinding;
@@ -20,7 +19,7 @@ public class VerifyEmailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        connectionManager = Singleton.getInstance().getConnectionManager();
+        connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         if (connectionManager == null) {
             connectionManager = new ConnectionManager(TokenManager.getToken(this));
         }
@@ -30,7 +29,7 @@ public class VerifyEmailActivity extends AppCompatActivity {
             public void OnCommandGot(Command command) {
                 if (command.getOperation().equals("VerificationCodeAnswer")) {
                     if (command.getData("answer", int.class) == 1) {
-                        Singleton.getInstance().setConnectionManager(connectionManager);
+                        ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
                         Intent intent = new Intent(VerifyEmailActivity.this, UserDataActivity.class);
                         startActivity(intent);
                         finish();
