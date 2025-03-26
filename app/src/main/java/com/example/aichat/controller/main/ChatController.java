@@ -1,6 +1,6 @@
-package com.example.aichat.controller;
+package com.example.aichat.controller.main;
 
-import com.example.aichat.model.Chat;
+import com.example.aichat.model.entities.Chat;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

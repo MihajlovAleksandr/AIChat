@@ -1,4 +1,4 @@
-package com.example.aichat.model;
+package com.example.aichat.model.database;
 
 import android.content.Context;
 

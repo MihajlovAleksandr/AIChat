@@ -1,9 +1,11 @@
-package com.example.aichat.model;
+package com.example.aichat.model.database;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Delete;
 import androidx.room.Query;
+
+import com.example.aichat.model.entities.PendingCommand;
 
 import java.util.List;
 

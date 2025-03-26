@@ -1,4 +1,4 @@
-package com.example.aichat.model;
+package com.example.aichat.model.connection;
 import android.os.Build;
 import android.util.Log;
 
@@ -7,9 +7,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.aichat.BuildConfig;
+import com.example.aichat.model.entities.Command;
+import com.example.aichat.model.utils.JsonHelper;
+import com.example.aichat.model.entities.PendingCommand;
+import com.example.aichat.model.database.DatabaseManager;
 
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,19 +36,21 @@ public class ConnectionManager {
     private final WebSocketListener webSocketListener;
     private long lastInitializeTime = 0;
     private static final long RECONNECT_INTERVAL_MS = 1000;
-    private final List<Command> unsendedCommands = new ArrayList<>();
+    private List<PendingCommand> unsendedCommands;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private OnConnectionEvents connectionEvent;
     public ConnectionManager(String token) {
         request = getRequest(token);
+        new Thread(() -> unsendedCommands = DatabaseManager.getDatabase().pendingCommandDao().getAllCommands() ).start();
         webSocketListener = new WebSocketListener(){
             @Override
             public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
                 Connected = true;
                 new Thread(() -> connectionEvent.OnOpen()).start();
-                for(Command c : unsendedCommands)
+                for(PendingCommand c : unsendedCommands)
                 {
-                    SendCommand(c);
+                    SendCommand(c.getCommandFormat());
+                    new Thread(() -> DatabaseManager.getDatabase().pendingCommandDao().deleteCommand(c));
                 }
                 unsendedCommands.clear();
             }
@@ -122,13 +127,9 @@ public class ConnectionManager {
             Log.d("SendingCommand", "Command sent: " + commandString);
         }
         else{
-            unsendedCommands.add(command);
-        }
-    }
-    public void SendCommand(String jsonCommand){
-        if (webSocket != null && !jsonCommand.isEmpty() && Connected) {
-            webSocket.send(jsonCommand);
-            Log.d("SendingCommand", "Command sent: " + jsonCommand);
+            PendingCommand pendingCommand = new PendingCommand(command);
+            unsendedCommands.add(pendingCommand);
+            new Thread(() -> DatabaseManager.getDatabase().pendingCommandDao().insertCommand(pendingCommand));
         }
     }
 

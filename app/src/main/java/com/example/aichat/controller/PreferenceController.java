@@ -8,13 +8,13 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.example.aichat.MainActivity;
+import com.example.aichat.view.main.MainActivity;
 import com.example.aichat.view.PreferenceActivity;
-import com.example.aichat.model.Command;
-import com.example.aichat.model.ConnectionManager;
-import com.example.aichat.model.ConnectionSingleton;
-import com.example.aichat.model.OnConnectionEvents;
-import com.example.aichat.model.Preference;
+import com.example.aichat.model.entities.Command;
+import com.example.aichat.model.connection.ConnectionManager;
+import com.example.aichat.model.connection.ConnectionSingleton;
+import com.example.aichat.model.connection.OnConnectionEvents;
+import com.example.aichat.model.entities.Preference;
 import com.example.aichat.model.TokenManager;
 import com.google.android.material.textfield.TextInputLayout;
 

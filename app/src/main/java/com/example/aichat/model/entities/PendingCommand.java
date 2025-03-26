@@ -1,7 +1,9 @@
-package com.example.aichat.model;
+package com.example.aichat.model.entities;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
+import com.example.aichat.model.utils.JsonHelper;
 
 @Entity(tableName = "PendingCommands")
 public class PendingCommand {

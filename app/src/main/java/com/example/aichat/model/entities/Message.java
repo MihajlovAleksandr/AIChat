@@ -1,4 +1,4 @@
-package com.example.aichat.model;
+package com.example.aichat.model.entities;
 
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -6,6 +6,7 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.ForeignKey;
 
+import com.example.aichat.model.utils.TimeConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;

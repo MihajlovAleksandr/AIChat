@@ -1,7 +1,8 @@
-package com.example.aichat.model;
+package com.example.aichat.model.entities;
 
 import androidx.annotation.NonNull;
 
+import com.example.aichat.model.utils.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

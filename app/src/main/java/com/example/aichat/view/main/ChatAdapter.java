@@ -1,17 +1,16 @@
-package com.example.aichat;
+package com.example.aichat.view.main;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.aichat.controller.ChatController;
-import com.example.aichat.model.Chat;
-
+import com.example.aichat.R;
+import com.example.aichat.controller.main.ChatController;
+import com.example.aichat.model.entities.Chat;
 import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
@@ -38,7 +37,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         Chat chat = chatList.get(position);
         holder.bind(chat);
-
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onChatClick(chat);
@@ -64,7 +62,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         }
 
         public void bind(Chat chat) {
-            tvLastMessage.setText("text");
+            tvLastMessage.setText("Последнее сообщение");
             tvTime.setText(chatController.getFormattedTime(chat));
             ivChatStatus.setImageResource(chatController.getStatusIcon(chat));
         }

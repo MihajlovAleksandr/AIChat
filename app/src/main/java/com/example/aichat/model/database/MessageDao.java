@@ -1,8 +1,10 @@
-package com.example.aichat.model;
+package com.example.aichat.model.database;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+
+import com.example.aichat.model.entities.Message;
 
 import java.util.List;
 

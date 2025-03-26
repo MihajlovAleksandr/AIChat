@@ -7,18 +7,26 @@ import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.aichat.R;
 import com.example.aichat.controller.LoginController;
+import com.example.aichat.controller.main.MessageController;
+import com.example.aichat.model.entities.Message;
 import com.google.android.material.textfield.TextInputLayout;
+
+import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
     TextInputLayout emailInputLayout;
@@ -70,5 +78,52 @@ public class LoginActivity extends AppCompatActivity {
                 passwordEditText,
                 loginButton,
                 imageView);
+    }
+
+    public static class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
+
+        private List<Message> messages;
+        private MessageController messageController;
+
+        public MessageAdapter(List<Message> messages, int currentUserId) {
+            this.messages = messages;
+            this.messageController = new MessageController(currentUserId);
+        }
+
+        @NonNull
+        @Override
+        public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            int layoutRes = viewType == 0 ? R.layout.my_message : R.layout.other_message;
+            View view = LayoutInflater.from(parent.getContext()).inflate(layoutRes, parent, false);
+            return new MessageViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
+            Message message = messages.get(position);
+            holder.messageText.setText(message.getText());
+            holder.timeText.setText(messageController.getFormattedMessageTime(message));
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return messageController.isMyMessage(messages.get(position)) ? 0 : 1;
+        }
+
+        @Override
+        public int getItemCount() {
+            return messages.size();
+        }
+
+        static class MessageViewHolder extends RecyclerView.ViewHolder {
+            TextView messageText;
+            TextView timeText;
+
+            public MessageViewHolder(@NonNull View itemView) {
+                super(itemView);
+                messageText = itemView.findViewById(R.id.message_text);
+                timeText = itemView.findViewById(R.id.time_text);
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.aichat;
+package com.example.aichat.view.main;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -8,28 +8,25 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.aichat.model.AppDatabase;
-import com.example.aichat.model.DatabaseClient;
-import com.example.aichat.model.Message;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.example.aichat.R;
+import com.example.aichat.controller.main.ChatFragmentController;
+import com.example.aichat.model.entities.Message;
+import com.example.aichat.view.LoginActivity;
 
 public class ChatFragment extends Fragment {
 
     private RecyclerView rvMessages;
     private EditText tiMessage;
     private Button bSendMessage;
-    private MessageAdapter messageAdapter;
-    private List<Message> messages;
+    private LoginActivity.MessageAdapter messageAdapter;
     private int currentUserId = 1;
     private int chatId = -1;
+    private ChatFragmentController controller;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -47,34 +44,29 @@ public class ChatFragment extends Fragment {
         ImageButton btnBack = view.findViewById(R.id.btn_back);
         btnBack.setOnClickListener(v -> navigateBack());
 
-
-        messages = new ArrayList<>();
-        messageAdapter = new MessageAdapter(messages, currentUserId);
+        // Инициализация контроллера для данного чата
+        controller = new ChatFragmentController(chatId);
+        messageAdapter = new LoginActivity.MessageAdapter(controller.loadMessages(), currentUserId);
         rvMessages.setAdapter(messageAdapter);
-
-        loadMessages(chatId);
 
         tiMessage = view.findViewById(R.id.ti_message);
         bSendMessage = view.findViewById(R.id.b_send_message);
         bSendMessage.setOnClickListener(v -> {
             String messageText = tiMessage.getText().toString().trim();
             if (!messageText.isEmpty()) {
-                Message message = new Message(messageText, currentUserId, chatId);
-                messages.add(message);
-                messageAdapter.notifyItemInserted(messages.size() - 1);
-                rvMessages.scrollToPosition(messages.size() - 1);
+                Message newMessage = controller.sendMessage(messageText, currentUserId);
+                messageAdapter.notifyItemInserted(controller.getMessagesSize() - 1);
+                rvMessages.scrollToPosition(controller.getMessagesSize() - 1);
                 tiMessage.setText("");
             }
         });
 
         return view;
     }
+
     private void navigateBack() {
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).backToChats();
         }
-    }
-    private void loadMessages(int chatId) {
-        messageAdapter.notifyDataSetChanged();
     }
 }

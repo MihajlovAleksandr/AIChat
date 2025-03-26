@@ -9,10 +9,10 @@ import android.widget.EditText;
 
 import com.example.aichat.view.UserDataActivity;
 import com.example.aichat.view.VerifyEmailActivity;
-import com.example.aichat.model.Command;
-import com.example.aichat.model.ConnectionManager;
-import com.example.aichat.model.ConnectionSingleton;
-import com.example.aichat.model.OnConnectionEvents;
+import com.example.aichat.model.entities.Command;
+import com.example.aichat.model.connection.ConnectionManager;
+import com.example.aichat.model.connection.ConnectionSingleton;
+import com.example.aichat.model.connection.OnConnectionEvents;
 import com.example.aichat.model.TokenManager;
 
 public class VerifyEmailController {
