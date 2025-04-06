@@ -13,6 +13,7 @@ import com.example.aichat.model.entities.PendingCommand;
 import com.example.aichat.model.database.DatabaseManager;
 
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -38,19 +39,23 @@ public class ConnectionManager {
     private static final long RECONNECT_INTERVAL_MS = 1000;
     private List<PendingCommand> unsendedCommands;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private OnConnectionEvents connectionEvent;
+    private List<OnConnectionEvents> connectionEvents = new ArrayList<OnConnectionEvents>();
     public ConnectionManager(String token) {
         request = getRequest(token);
-        new Thread(() -> unsendedCommands = DatabaseManager.getDatabase().pendingCommandDao().getAllCommands() ).start();
+        new Thread(() ->{
+            unsendedCommands = DatabaseManager.getDatabase().pendingCommandDao().getAllCommands();
+            Log.d("NotSendCommand", "Initialised");} ).start();
         webSocketListener = new WebSocketListener(){
             @Override
             public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
                 Connected = true;
-                new Thread(() -> connectionEvent.OnOpen()).start();
+                invokeOnOpen();
+                Log.d("NotSendCommand", "Trying find");
                 for(PendingCommand c : unsendedCommands)
                 {
+                    Log.d("NotSendCommand", "Send");
                     SendCommand(c.getCommandFormat());
-                    new Thread(() -> DatabaseManager.getDatabase().pendingCommandDao().deleteCommand(c));
+                    new Thread(() -> DatabaseManager.getDatabase().pendingCommandDao().deleteCommand(c)).start();
                 }
                 unsendedCommands.clear();
             }
@@ -65,7 +70,7 @@ public class ConnectionManager {
             public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, @Nullable Response response) {
                 Connected = false;
                 Log.d("connection", "retry");
-                new Thread(() -> connectionEvent.OnConnectionFailed()).start();
+                invokeOnConnectionFailed();
                 retryInitialize();
             }
 
@@ -75,7 +80,7 @@ public class ConnectionManager {
                 Command command = JsonHelper.Deserialize(text, Command.class);
                 if (command == null) throw new AssertionError();
                 Log.d("Command", command.toString());
-                new Thread(() -> connectionEvent.OnCommandGot(command)).start();
+                invokeOnCommandGot(command);
             }
 
         };
@@ -129,7 +134,9 @@ public class ConnectionManager {
         else{
             PendingCommand pendingCommand = new PendingCommand(command);
             unsendedCommands.add(pendingCommand);
-            new Thread(() -> DatabaseManager.getDatabase().pendingCommandDao().insertCommand(pendingCommand));
+
+            Log.d("NotSendCommand", "Added");
+            new Thread(() -> DatabaseManager.getDatabase().pendingCommandDao().insertCommand(pendingCommand)).start();
         }
     }
 
@@ -181,7 +188,35 @@ public class ConnectionManager {
             throw new RuntimeException(e);
         }
     }
-    public void SetCommandGot(OnConnectionEvents listener){
-        connectionEvent = listener;
+    private void invokeOnOpen(){
+        for (OnConnectionEvents event:
+                connectionEvents) {
+            new Thread(() -> event.OnOpen()).start();
+        }
+    }
+    private void invokeOnCommandGot(Command command){
+        for (OnConnectionEvents event:
+                connectionEvents) {
+            new Thread(() -> event.OnCommandGot(command)).start();
+        }
+    }
+    private void invokeOnConnectionFailed(){
+        for (OnConnectionEvents event:
+                connectionEvents) {
+            new Thread(() -> event.OnConnectionFailed()).start();
+        }
+    }
+    public void setConnectionEvent(OnConnectionEvents listener){
+        clearConnectionEvents();
+        addConnectionEvent(listener);
+    }
+    public void addConnectionEvent(OnConnectionEvents listener){
+        connectionEvents.add(listener);
+    }
+    public void clearConnectionEvents(){
+        connectionEvents.clear();
+    }
+    public void removeConnectionEvent(OnConnectionEvents listener){
+        connectionEvents.remove(listener);
     }
 }

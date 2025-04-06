@@ -1,6 +1,8 @@
 package com.example.aichat.view.main;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,27 +12,26 @@ import com.example.aichat.R;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.database.DatabaseManager;
-import com.example.aichat.model.TokenManager;
+import com.example.aichat.model.SecurePreferencesManager;
 
 public class MainActivity extends AppCompatActivity {
 
     private ViewPager2 viewPager;
-    private ChatPagerAdapter pagerAdapter;
+    private MainActivityAdapter pagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         DatabaseManager.init(this);
-
         ConnectionManager connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         if (connectionManager == null) {
-            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(TokenManager.getToken(this)));
+            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(SecurePreferencesManager.getAuthToken(this)));
             connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         }
-
         viewPager = findViewById(R.id.view_pager);
-        pagerAdapter = new ChatPagerAdapter(this, connectionManager);
+        Intent intent = getIntent();
+        pagerAdapter = new MainActivityAdapter(this, connectionManager, intent.getIntExtra("userId", SecurePreferencesManager.getUserId(this)));
         viewPager.setAdapter(pagerAdapter);
         viewPager.setUserInputEnabled(false);
 
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void openChat(int chatId) {
+        pagerAdapter.setChatId(chatId);
         viewPager.setCurrentItem(1, true);
     }
 

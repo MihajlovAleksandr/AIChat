@@ -1,4 +1,4 @@
-package com.example.aichat;
+package com.example.aichat.controller;
 
 import android.content.Intent;
 import android.text.Editable;
@@ -12,7 +12,6 @@ import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.OnConnectionEvents;
-import com.example.aichat.model.TokenManager;
 import com.example.aichat.model.entities.UserData;
 import com.example.aichat.view.PreferenceActivity;
 import com.example.aichat.view.UserDataActivity;
@@ -41,11 +40,11 @@ public class UserDataController {
         this.submitButton = submitButton;
         connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         if (connectionManager == null) {
-            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(TokenManager.getToken(activity)));
+            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(""));
             connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         }
 
-        connectionManager.SetCommandGot(new OnConnectionEvents() {
+        connectionManager.setConnectionEvent(new OnConnectionEvents() {
             @Override
             public void OnCommandGot(Command command) {
                 if (Objects.equals(command.getOperation(), "UserDataAdded")) {

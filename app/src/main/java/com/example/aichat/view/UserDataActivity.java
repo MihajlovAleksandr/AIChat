@@ -23,7 +23,7 @@ public class UserDataActivity extends AppCompatActivity {
     private ImageView nameInfoIcon;
     private ImageView ageInfoIcon;
 
-    private com.example.aichat.UserDataController controller;
+    private com.example.aichat.controller.UserDataController controller;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +37,7 @@ public class UserDataActivity extends AppCompatActivity {
         nameInfoIcon = findViewById(R.id.nameInfoIcon);
         ageInfoIcon = findViewById(R.id.ageInfoIcon);
 
-        controller = new com.example.aichat.UserDataController(this, nameInputLayout, ageInputLayout, genderGroup, submitButton);
+        controller = new com.example.aichat.controller.UserDataController(this, nameInputLayout, ageInputLayout, genderGroup, submitButton);
 
         nameInfoIcon.setOnClickListener(v -> showPopup(v,
                 "Как бы вы хотели, чтобы вас называли? Напишите своё имя, ник или что угодно, что вам нравится.\nГлавное, чтобы оно было удобно и вы чувствовали себя комфортно."));

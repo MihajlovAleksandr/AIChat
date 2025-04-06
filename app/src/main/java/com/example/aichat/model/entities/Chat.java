@@ -49,6 +49,9 @@ public class Chat implements Comparable<Chat> {
     public void setEndTime(String endTime) {
         this.endTime = endTime;
     }
+    public void end(){
+        endTime = TimeConverter.getString(LocalDateTime.now());
+    }
 
 
     public boolean isActive() {

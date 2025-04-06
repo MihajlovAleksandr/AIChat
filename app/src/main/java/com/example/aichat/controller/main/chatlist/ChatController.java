@@ -1,4 +1,4 @@
-package com.example.aichat.controller.main;
+package com.example.aichat.controller.main.chatlist;
 
 import com.example.aichat.model.entities.Chat;
 

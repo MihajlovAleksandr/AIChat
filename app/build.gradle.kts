@@ -13,7 +13,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "SERVER_URL", "\"wss://192.168.100.5:8888/\"")
+        buildConfigField("String", "SERVER_URL", "\"wss://192.168.100.15:8888/\"")
     }
 
     buildTypes {

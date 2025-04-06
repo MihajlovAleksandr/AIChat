@@ -15,7 +15,7 @@ import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.OnConnectionEvents;
 import com.example.aichat.model.entities.Preference;
-import com.example.aichat.model.TokenManager;
+import com.example.aichat.model.SecurePreferencesManager;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class PreferenceController {
@@ -43,7 +43,7 @@ public class PreferenceController {
         this.skippButton = skippButton;
         connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         if (connectionManager == null) {
-            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(TokenManager.getToken(activity)));
+            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(""));
             connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         }
         setupConnectionCallbacks();
@@ -51,18 +51,20 @@ public class PreferenceController {
     }
 
     private void setupConnectionCallbacks() {
-        connectionManager.SetCommandGot(new OnConnectionEvents() {
+        connectionManager.setConnectionEvent(new OnConnectionEvents() {
             @Override
             public void OnCommandGot(Command command) {
                 switch (command.getOperation()) {
                     case "CreateToken":
                         String token = command.getData("token", String.class);
-                        TokenManager.saveToken(activity, token);
+                        SecurePreferencesManager.saveAuthToken(activity, token);
                         break;
                     case "LoginIn":
                         ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
                         Intent intent = new Intent(activity, MainActivity.class);
-                        intent.putExtra("userId", command.getData("userId", int.class));
+                        int userId = command.getData("userId", int.class);
+                        SecurePreferencesManager.saveUserId(activity, userId);
+                        intent.putExtra("userId", userId);
                         activity.startActivity(intent);
                         activity.finish();
                         break;

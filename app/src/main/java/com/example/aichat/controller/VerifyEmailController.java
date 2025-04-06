@@ -13,7 +13,6 @@ import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.OnConnectionEvents;
-import com.example.aichat.model.TokenManager;
 
 public class VerifyEmailController {
 
@@ -27,11 +26,11 @@ public class VerifyEmailController {
 
         connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         if (connectionManager == null) {
-            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(TokenManager.getToken(activity)));
+            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(""));
             connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         }
 
-        connectionManager.SetCommandGot(new OnConnectionEvents() {
+        connectionManager.setConnectionEvent(new OnConnectionEvents() {
             @Override
             public void OnCommandGot(Command command) {
                 if (command.getOperation().equals("VerificationCodeAnswer")) {

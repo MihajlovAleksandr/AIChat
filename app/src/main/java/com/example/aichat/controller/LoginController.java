@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 
+import com.example.aichat.model.SecurePreferencesManager;
 import com.example.aichat.view.LoginActivity;
 import com.example.aichat.view.main.MainActivity;
 import com.example.aichat.R;
@@ -15,7 +16,6 @@ import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.OnConnectionEvents;
 import com.example.aichat.model.QRCodeGenerator;
-import com.example.aichat.model.TokenManager;
 import com.google.android.material.textfield.TextInputLayout;
 
 import android.widget.Button;
@@ -54,7 +54,7 @@ public class LoginController {
 
         connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         if (connectionManager == null) {
-            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(TokenManager.getToken(activity)));
+            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(""));
             connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
 
         } else {
@@ -68,7 +68,7 @@ public class LoginController {
     }
 
     private void setupConnectionCallbacks() {
-        connectionManager.SetCommandGot(new OnConnectionEvents() {
+        connectionManager.setConnectionEvent(new OnConnectionEvents() {
             @Override
             public void OnCommandGot(Command command) {
                 switch (command.getOperation()) {
@@ -80,12 +80,13 @@ public class LoginController {
                         break;
                     case "CreateToken":
                         String tokenCreated = command.getData("token", String.class);
-                        TokenManager.saveToken(activity, tokenCreated);
+                        SecurePreferencesManager.saveAuthToken(activity, tokenCreated);
                         break;
                     case "LoginIn":
                         ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
-                        Intent intent = new Intent(activity, MainActivity.class);
                         int userId = command.getData("userId", int.class);
+                        SecurePreferencesManager.saveUserId(activity, userId);
+                        Intent intent = new Intent(activity, MainActivity.class);
                         intent.putExtra("userId", userId);
                         activity.startActivity(intent);
                         activity.finish();

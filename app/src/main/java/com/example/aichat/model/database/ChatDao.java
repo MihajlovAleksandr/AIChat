@@ -3,9 +3,11 @@ package com.example.aichat.model.database;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import com.example.aichat.model.entities.Chat;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Dao
@@ -18,4 +20,6 @@ public interface ChatDao {
 
     @Query("SELECT * FROM Chats WHERE id = :chatId LIMIT 1")
     Chat getChatById(int chatId);
+    @Query("UPDATE Chats SET endTime = :endTime WHERE id=:id")
+    void endChat(int id, String endTime);
 }

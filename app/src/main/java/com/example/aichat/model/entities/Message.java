@@ -42,7 +42,7 @@ public class Message {
         this.text = text;
         this.sender = sender;
         this.chat = chat;
-        time = "2025-03-22T20:27:12.961465Z";
+        time = null;
     }
 
     public Message() {
