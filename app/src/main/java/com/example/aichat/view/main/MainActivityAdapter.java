@@ -9,6 +9,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.aichat.controller.main.MainActivityController;
 import com.example.aichat.model.connection.ConnectionManager;
+import com.example.aichat.model.database.DatabaseClient;
 import com.example.aichat.view.main.chat.ChatFragment;
 import com.example.aichat.view.main.chatlist.ChatsListFragment;
 
@@ -25,7 +26,7 @@ public class MainActivityAdapter extends FragmentStateAdapter {
         super(fragmentActivity);
         this.fragmentActivity = fragmentActivity;
         this.currentUserId = currentUserId;
-        this.chatPageController = new MainActivityController(connectionManager);
+        this.chatPageController = new MainActivityController(connectionManager, fragmentActivity);
         this.connectionManager = connectionManager;
     }
 

@@ -22,4 +22,8 @@ public interface ChatDao {
     Chat getChatById(int chatId);
     @Query("UPDATE Chats SET endTime = :endTime WHERE id=:id")
     void endChat(int id, String endTime);
+    @Update
+    void updateChat(Chat chat);
+    @Query("DELETE FROM Chats")
+    void clearTable();
 }

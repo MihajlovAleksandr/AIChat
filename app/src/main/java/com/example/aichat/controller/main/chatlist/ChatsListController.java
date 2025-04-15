@@ -7,6 +7,7 @@ import com.example.aichat.model.connection.OnConnectionEvents;
 import com.example.aichat.model.entities.Chat;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.entities.Command;
+import com.example.aichat.model.entities.Message;
 import com.example.aichat.view.main.chatlist.ChatsListFragment;
 
 import java.util.ArrayList;
@@ -22,15 +23,29 @@ public class ChatsListController {
     private OnConnectionEvents connectionEvents = new OnConnectionEvents() {
         @Override
         public void OnCommandGot(Command command) {
-            if(command.getOperation().equals("CreateChat")){
-                Chat chat = command.getData("chat", Chat.class);
-                fragment.createChat(chat);
-                fragment.setFabAddChatState(true);
-                isChatSearching = false;
-            }
-            else if(command.getOperation().equals("EndChat")){
-                Chat chat = command.getData("chat", Chat.class);
-                fragment.endChat(chat);
+            switch (command.getOperation()) {
+                case "CreateChat":
+                    Chat createdChat = command.getData("chat", Chat.class);
+                    fragment.createChat(createdChat);
+                    fragment.setFabAddChatState(true);
+                    isChatSearching = false;
+                    break;
+                case "EndChat":
+                    Chat endedChat = command.getData("chat", Chat.class);
+                    fragment.endChat(endedChat);
+                    break;
+                case "SyncDB":
+                    Chat[] newChats = command.getData("newChats", Chat[].class);
+                    for (Chat chat : newChats) {
+                        fragment.createChat(chat);
+                        fragment.setFabAddChatState(true);
+                        isChatSearching = false;
+                    }
+                    Chat[] oldChats = command.getData("oldChats", Chat[].class);
+                    for (Chat chat : oldChats) {
+                        fragment.endChat(chat);
+                    }
+                    break;
             }
         }
 

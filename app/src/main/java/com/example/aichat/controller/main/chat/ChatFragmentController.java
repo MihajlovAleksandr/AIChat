@@ -2,6 +2,7 @@ package com.example.aichat.controller.main.chat;
 
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.OnConnectionEvents;
+import com.example.aichat.model.entities.Chat;
 import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.entities.Message;
 import com.example.aichat.view.main.chat.ChatFragment;
@@ -18,6 +19,16 @@ public class ChatFragmentController {
                 case "SendMessage":
                     Message message =  command.getData("message", Message.class);
                     fragment.sendMessage(message);
+                    break;
+                case "SyncDB":
+                    Message[] newMessages = command.getData("newMessages", Message[].class);
+                    for (Message newMessage: newMessages) {
+                        fragment.sendMessage(newMessage);
+                    }
+                    Message[] oldMessages = command.getData("oldMessages", Message[].class);
+                    for (Message oldMessage: oldMessages) {
+                        //
+                    }
                     break;
             }
         }

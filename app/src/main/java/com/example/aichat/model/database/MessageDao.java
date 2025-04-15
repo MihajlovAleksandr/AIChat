@@ -3,6 +3,7 @@ package com.example.aichat.model.database;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import com.example.aichat.model.entities.Message;
 
@@ -18,4 +19,8 @@ public interface MessageDao {
 
     @Query("SELECT * FROM Messages WHERE Id = :messageId LIMIT 1")
     Message getMessageById(int messageId);
+    @Update
+    void updateMessage(Message message);
+    @Query("DELETE FROM Messages")
+    void clearTable();
 }

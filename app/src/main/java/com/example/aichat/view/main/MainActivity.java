@@ -13,6 +13,7 @@ import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.SecurePreferencesManager;
+import com.example.aichat.model.entities.Command;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,7 +32,14 @@ public class MainActivity extends AppCompatActivity {
         }
         viewPager = findViewById(R.id.view_pager);
         Intent intent = getIntent();
-        pagerAdapter = new MainActivityAdapter(this, connectionManager, intent.getIntExtra("userId", SecurePreferencesManager.getUserId(this)));
+        int userId = intent.getIntExtra("userId", -1);
+        if(userId==-1){
+            userId = SecurePreferencesManager.getUserId(this);
+        }
+        else{
+            connectionManager.SendCommand(new Command("SyncDB"));
+        }
+        pagerAdapter = new MainActivityAdapter(this, connectionManager, userId);
         viewPager.setAdapter(pagerAdapter);
         viewPager.setUserInputEnabled(false);
 
