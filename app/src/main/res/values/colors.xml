@@ -4,4 +4,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="error_color">#FF0000</color>
     <color name="link_color">#002FFF</color>
+    <color name="green_500">#4CAF50</color>
 </resources>

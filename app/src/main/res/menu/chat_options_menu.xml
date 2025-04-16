@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_end_chat"
+        android:title="Завершить чат" />
+    <item
+        android:id="@+id/menu_view_members"
+        android:title="Участники" />
+    <item
+        android:id="@+id/menu_search_words"
+        android:title="Поиск по словам" />
+</menu>

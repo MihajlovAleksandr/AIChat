@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Добавленная кнопка назад -->
     <ImageButton
         android:id="@+id/btn_back"
         android:layout_width="48dp"
@@ -13,6 +12,16 @@
         android:src="@android:drawable/ic_menu_revert"
         android:background="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_margin="8dp"/>
+
+    <ImageButton
+        android:id="@+id/btn_options"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_menu_more"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_margin="8dp"/>
 
@@ -28,7 +37,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Остальные элементы остаются без изменений -->
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/ti_message"
         android:layout_width="0dp"
@@ -57,5 +65,17 @@
         android:text="Отправить"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <include layout="@layout/chat_members_panel"
+        android:id="@+id/membersPanel"/>
+
+    <View
+        android:id="@+id/invisibleClickArea"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

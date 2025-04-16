@@ -5,7 +5,12 @@ import com.example.aichat.model.connection.OnConnectionEvents;
 import com.example.aichat.model.entities.Chat;
 import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.entities.Message;
+import com.example.aichat.model.entities.User;
+import com.example.aichat.model.entities.UserData;
 import com.example.aichat.view.main.chat.ChatFragment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChatFragmentController {
     private int chatId;
@@ -18,18 +23,36 @@ public class ChatFragmentController {
             switch (command.getOperation()){
                 case "SendMessage":
                     Message message =  command.getData("message", Message.class);
-                    fragment.sendMessage(message);
+                    if(message.getChat()==chatId)
+                        fragment.sendMessage(message);
                     break;
                 case "SyncDB":
                     Message[] newMessages = command.getData("newMessages", Message[].class);
                     for (Message newMessage: newMessages) {
-                        fragment.sendMessage(newMessage);
+                        if(newMessage.getChat()==chatId)
+                            fragment.sendMessage(newMessage);
                     }
                     Message[] oldMessages = command.getData("oldMessages", Message[].class);
                     for (Message oldMessage: oldMessages) {
                         //
                     }
                     break;
+                case "EndChat":
+                    Chat endedChat = command.getData("chat", Chat.class);
+                    if(endedChat.getId()==chatId)
+                        fragment.endChat();
+                    break;
+                case "LoadUsersInChat":
+                    int[] ids = command.getData("ids", int[].class);
+                    UserData[] userData = command.getData("userData", UserData[].class);
+                    boolean[] online = command.getData("isOnline", boolean[].class);
+                    List<User> users = new ArrayList<User>();
+                    for(int i=0;i<ids.length;i++){
+                        users.add(new User(ids[i], userData[i], online[i]));
+                    }
+                    fragment.loadUsers(users);
+                    break;
+
             }
         }
 
@@ -55,6 +78,16 @@ public class ChatFragmentController {
         Message message = new Message(text, currentUserId, chatId);
         Command command = new Command("SendMessage");
         command.addData("message", message);
+        connectionManager.SendCommand(command);
+    }
+    public void endChat(){
+        Command command = new Command("EndChat");
+        command.addData("chatId", chatId);
+        connectionManager.SendCommand(command);
+    }
+    public void loadUsers(){
+        Command command = new Command("LoadUsersInChat");
+        command.addData("chatId", chatId);
         connectionManager.SendCommand(command);
     }
     public void Destroy(){
