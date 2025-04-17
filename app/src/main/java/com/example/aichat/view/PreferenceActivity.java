@@ -16,7 +16,7 @@ import com.example.aichat.controller.PreferenceController;
 import com.google.android.material.textfield.TextInputLayout;
 import android.widget.RadioGroup;
 
-public class PreferenceActivity extends AppCompatActivity {
+public class PreferenceActivity extends BaseActivity {
 
     private PreferenceController controller;
     private TextInputLayout minAgeInputLayout;

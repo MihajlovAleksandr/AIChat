@@ -14,8 +14,9 @@ import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.SecurePreferencesManager;
 import com.example.aichat.model.entities.Command;
+import com.example.aichat.view.BaseActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private ViewPager2 viewPager;
     private MainActivityAdapter pagerAdapter;

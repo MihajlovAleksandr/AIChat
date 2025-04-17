@@ -21,7 +21,7 @@ import com.example.aichat.controller.LoginController;
 import com.example.aichat.model.database.DatabaseManager;
 import com.google.android.material.textfield.TextInputLayout;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
     TextInputLayout emailInputLayout;
     TextInputLayout passwordInputLayout;
     EditText emailEditText;

@@ -4,18 +4,23 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.activity.OnBackPressedCallback;
+import android.widget.Button;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.aichat.R;
 import com.example.aichat.controller.main.chatlist.ChatsListController;
 import com.example.aichat.model.connection.ConnectionManager;
+import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.entities.Chat;
 import com.example.aichat.view.main.MainActivity;
+import com.example.aichat.LanguageFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -25,12 +30,15 @@ public class ChatsListFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private FloatingActionButton fabAddChat;
+    private Button btnLanguage;
     private ChatAdapter chatAdapter;
     private ChatsListController controller;
     private final Executor databaseExecutor = Executors.newSingleThreadExecutor();
-
+    public ChatsListFragment() {
+        this.controller = new ChatsListController(this, ConnectionSingleton.getInstance().getConnectionManager());
+    }
     public ChatsListFragment(ConnectionManager connectionManager) {
-        controller = new ChatsListController(this, connectionManager);
+        this.controller = new ChatsListController(this, connectionManager);
     }
 
     @Override
@@ -38,24 +46,26 @@ public class ChatsListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chats_list, container, false);
 
+        // Инициализация RecyclerView
         recyclerView = view.findViewById(R.id.rv_chats);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Инициализируем адаптер с пустым списком вместо null
+        // Инициализация адаптера
         chatAdapter = new ChatAdapter(new ArrayList<>(), chat -> {
             ((MainActivity) requireActivity()).openChat(chat.getId());
         });
-
         recyclerView.setAdapter(chatAdapter);
-        chatAdapter.setRecyclerView(recyclerView);
 
-        // Загружаем чаты в отдельном потоке
-        loadChatsFromDatabase();
-
+        // Инициализация кнопок
+        btnLanguage = view.findViewById(R.id.btn_language);
         fabAddChat = view.findViewById(R.id.fab_add_chat);
-        fabAddChat.setOnClickListener(v -> {
-            controller.addStopChat();
-        });
+
+        // Установка обработчиков кликов
+        btnLanguage.setOnClickListener(v -> openLanguageSettings());
+        fabAddChat.setOnClickListener(v -> controller.addStopChat());
+
+        // Загрузка чатов из базы данных
+        loadChatsFromDatabase();
 
         return view;
     }
@@ -64,7 +74,6 @@ public class ChatsListFragment extends Fragment {
         databaseExecutor.execute(() -> {
             List<Chat> chats = DatabaseManager.getDatabase().chatDao().getAllChats();
             requireActivity().runOnUiThread(() -> {
-                // Вместо setChats, добавляем все чаты через addChat
                 for (Chat chat : chats) {
                     chatAdapter.addChat(chat);
                 }
@@ -72,19 +81,17 @@ public class ChatsListFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(),
-                new OnBackPressedCallback(false) {
-                    @Override
-                    public void handleOnBackPressed() {
-                    }
-                });
+    private void openLanguageSettings() {
+        // Простая замена фрагмента в контейнере активности
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_container, new LanguageFragment())
+                .addToBackStack(null)
+                .commit();
     }
 
+
     public void createChat(Chat chat) {
-        getActivity().runOnUiThread(() -> {
+        requireActivity().runOnUiThread(() -> {
             chatAdapter.addChat(chat);
             recyclerView.scrollToPosition(0);
         });
@@ -97,7 +104,7 @@ public class ChatsListFragment extends Fragment {
     }
 
     public void endChat(Chat chat) {
-        chatAdapter.endChat(chat);
+        requireActivity().runOnUiThread(() -> chatAdapter.endChat(chat));
     }
 
     @Override

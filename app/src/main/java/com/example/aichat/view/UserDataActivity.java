@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.aichat.R;
 import com.google.android.material.textfield.TextInputLayout;
 
-public class UserDataActivity extends AppCompatActivity {
+public class UserDataActivity extends BaseActivity {
     private TextInputLayout nameInputLayout;
     private TextInputLayout ageInputLayout;
     private RadioGroup genderGroup;

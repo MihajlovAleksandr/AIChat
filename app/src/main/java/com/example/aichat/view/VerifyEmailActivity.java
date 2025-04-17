@@ -11,7 +11,7 @@ import com.example.aichat.R;
 import com.example.aichat.controller.VerifyEmailController;
 import com.example.aichat.databinding.ActivityVerifyEmailBinding;
 
-public class VerifyEmailActivity extends AppCompatActivity {
+public class VerifyEmailActivity extends BaseActivity {
 
     private EditText[] codeFields;
 

@@ -20,7 +20,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import android.widget.EditText;
 import android.widget.Button;
 
-public class RegistrationActivity extends AppCompatActivity {
+public class RegistrationActivity extends BaseActivity {
 
     private TextInputLayout emailInputLayout;
     private TextInputLayout passwordInputLayout;
