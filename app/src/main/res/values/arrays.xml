@@ -1,0 +1,15 @@
+<resources>
+    <string-array name="languages">
+        <item>English</item>
+        <item>Русский</item>
+        <item>Español</item>
+        <item>Беларуская</item>
+    </string-array>
+
+    <string-array name="language_codes">
+        <item>en</item>
+        <item>ru</item>
+        <item>es</item>
+        <item>be</item>
+    </string-array>
+</resources>
