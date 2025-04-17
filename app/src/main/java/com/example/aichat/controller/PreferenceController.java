@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import com.example.aichat.R;
 import com.example.aichat.view.main.MainActivity;
 import com.example.aichat.view.PreferenceActivity;
 import com.example.aichat.model.entities.Command;
@@ -27,20 +28,20 @@ public class PreferenceController {
     private TextInputLayout maxAgeInputLayout;
     private RadioGroup genderGroup;
     private Button submitButton;
-    private Button skippButton;
+    private Button skipButton;
 
     public PreferenceController(PreferenceActivity activity,
                                 TextInputLayout minAgeInputLayout,
                                 TextInputLayout maxAgeInputLayout,
                                 RadioGroup genderGroup,
                                 Button submitButton,
-                                Button skippButton) {
+                                Button skipButton) {
         this.activity = activity;
         this.minAgeInputLayout = minAgeInputLayout;
         this.maxAgeInputLayout = maxAgeInputLayout;
         this.genderGroup = genderGroup;
         this.submitButton = submitButton;
-        this.skippButton = skippButton;
+        this.skipButton = skipButton;
         connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         if (connectionManager == null) {
             ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(""));
@@ -95,7 +96,7 @@ public class PreferenceController {
             command.addData("preference", preference);
             connectionManager.SendCommand(command);
         });
-        skippButton.setOnClickListener(v ->
+        skipButton.setOnClickListener(v ->
                 connectionManager.SendCommand(new Command("AddPreference"))
         );
     }
@@ -141,15 +142,15 @@ public class PreferenceController {
             if (otherAge > 0) {
                 otherLayout.setError(null);
                 if (thisLayout == maxAgeInputLayout) {
-                    thisLayout.setError(thisAge > otherAge ? null : "Максимальный возраст должен быть больше минимального");
+                    thisLayout.setError(thisAge > otherAge ? null : activity.getString(R.string.max_age_error));
                 } else {
-                    thisLayout.setError(thisAge < otherAge ? null : "Минимальный возраст должен быть меньше максимального");
+                    thisLayout.setError(thisAge < otherAge ? null : activity.getString(R.string.min_age_error));
                 }
             } else {
                 thisLayout.setError(null);
             }
         } else {
-            thisLayout.setError("Возраст должен быть от 1 до 120 лет");
+            thisLayout.setError(activity.getString(R.string.age_range_error));
         }
         updateSubmitButtonState();
     }

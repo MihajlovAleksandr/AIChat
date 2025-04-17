@@ -37,14 +37,19 @@ public class UserDataActivity extends BaseActivity {
         nameInfoIcon = findViewById(R.id.nameInfoIcon);
         ageInfoIcon = findViewById(R.id.ageInfoIcon);
 
-        controller = new com.example.aichat.controller.UserDataController(this, nameInputLayout, ageInputLayout, genderGroup, submitButton);
+        controller = new com.example.aichat.controller.UserDataController(
+                this,
+                nameInputLayout,
+                ageInputLayout,
+                genderGroup,
+                submitButton
+        );
 
-        nameInfoIcon.setOnClickListener(v -> showPopup(v,
-                "Как бы вы хотели, чтобы вас называли? Напишите своё имя, ник или что угодно, что вам нравится.\nГлавное, чтобы оно было удобно и вы чувствовали себя комфортно."));
-
-        ageInfoIcon.setOnClickListener(v -> showPopup(v,
-                "Сколько вам лет? Просто укажите цифру, например, 19.\nСовсем не обязательно указывать правду, нам всем всегда 18)\nНо помните, это поможет нам подобрать людей, которые будут вам интересны."));
+        // Используем строковые ресурсы на английском языке для всплывающих подсказок
+        nameInfoIcon.setOnClickListener(v -> showPopup(v, getString(R.string.name_popup_info)));
+        ageInfoIcon.setOnClickListener(v -> showPopup(v, getString(R.string.age_popup_info)));
     }
+
     public void showPopup(View anchorView, String message) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.popup_info, null);

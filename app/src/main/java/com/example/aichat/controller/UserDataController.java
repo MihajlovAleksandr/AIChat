@@ -8,6 +8,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Button;
 
+import com.example.aichat.R;
 import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
@@ -157,7 +158,7 @@ public class UserDataController {
         if (isValid) {
             nameInputLayout.setError(null);
         } else {
-            nameInputLayout.setError("Имя должно содержать от 1 до 50 символов");
+            nameInputLayout.setError(activity.getString(R.string.name_validation_error));
         }
     }
 
@@ -165,7 +166,7 @@ public class UserDataController {
         if (isValid) {
             ageInputLayout.setError(null);
         } else {
-            ageInputLayout.setError("Возраст должен быть от 18 до 120 лет");
+            ageInputLayout.setError(activity.getString(R.string.age_range_error));
         }
     }
 

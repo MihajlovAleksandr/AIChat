@@ -52,6 +52,11 @@ public class ChatFragmentController {
                     }
                     fragment.loadUsers(users);
                     break;
+                case "UserOnlineChanges":
+                    int userId = command.getData("userId", int.class);
+                    boolean isOnline = command.getData("isOnline", boolean.class);
+                    fragment.updateOnlineState(userId, isOnline);
+                    break;
 
             }
         }

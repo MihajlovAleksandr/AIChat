@@ -25,7 +25,7 @@
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="СКАнируй меня"
+                android:text="@string/scan_me"
                 android:textAlignment="center"
                 android:textSize="24sp" />
 
@@ -47,7 +47,7 @@
                 android:id="@+id/emailInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Введите email"
+                android:hint="@string/email_hint"
                 app:errorEnabled="true"
                 app:endIconMode="clear_text">
 
@@ -67,7 +67,7 @@
                 android:id="@+id/passwordInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Введите пароль"
+                android:hint="@string/password_hint"
                 app:errorEnabled="true"
                 app:endIconMode="password_toggle"
                 app:errorIconDrawable="@null">
@@ -85,7 +85,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Войти" />
+                android:text="@string/login_button" />
 
             <!-- Текст с возможностью перехода на регистрацию -->
             <TextView
@@ -94,10 +94,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:gravity="center"
-                android:text="Еще нет аккаунта? Зарегистрироваться"
+                android:text="@string/register_prompt"
                 android:textColorLink="@color/link_color"
-            android:clickable="true"
-            android:focusable="true" />
+                android:clickable="true"
+                android:focusable="true" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

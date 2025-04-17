@@ -95,7 +95,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         }
 
         public void bind(Chat chat) {
-            tvLastMessage.setText("Последнее сообщение");
+            tvLastMessage.setText("Последнее сообщение");//change me
             tvTime.setText(chatController.getFormattedTime(chat));
             updateChatStatus(chat);
         }

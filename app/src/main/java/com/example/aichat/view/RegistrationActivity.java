@@ -6,6 +6,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.PopupWindow;
@@ -39,9 +40,13 @@ public class RegistrationActivity extends BaseActivity {
         setContentView(R.layout.activity_registration);
 
         loginTextView = findViewById(R.id.loginTextView);
-        String text = "Уже есть аккаунт? Войти";
-        SpannableString spannableString = new SpannableString(text);
-        android.text.style.ClickableSpan clickableSpan = new android.text.style.ClickableSpan() {
+
+        // Получаем текст полностью без префикса
+        String fullText = getString(R.string.login_prompt);
+        String linkText = getString(R.string.login_link_text);
+        SpannableString spannableString = new SpannableString(fullText);
+
+        ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
                 Intent intent = new Intent(RegistrationActivity.this, LoginActivity.class);
@@ -57,9 +62,11 @@ public class RegistrationActivity extends BaseActivity {
             }
         };
 
-        int startIndex = text.indexOf("Войти");
-        int endIndex = startIndex + "Войти".length();
+        // Устанавливаем span только на кликабельную часть текста
+        int startIndex = fullText.indexOf(linkText);
+        int endIndex = startIndex + linkText.length();
         spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
         loginTextView.setText(spannableString);
         loginTextView.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -69,7 +76,7 @@ public class RegistrationActivity extends BaseActivity {
         emailEditText = findViewById(R.id.email);
         passwordEditText = findViewById(R.id.password);
         confirmPasswordEditText = findViewById(R.id.confirmPassword);
-        registrationButton = findViewById(R.id.Registration);
+        registrationButton = findViewById(R.id.registration);
 
         controller = new RegistrationController(this,
                 emailInputLayout,

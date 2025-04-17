@@ -32,7 +32,7 @@
                     android:id="@+id/emailInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Введите email"
+                    android:hint="@string/email_hint"
                     app:errorEnabled="true"
                     app:endIconMode="clear_text">
 
@@ -52,7 +52,7 @@
                     android:id="@+id/passwordInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Введите пароль"
+                    android:hint="@string/password_hint"
                     app:errorEnabled="true"
                     app:endIconMode="password_toggle"
                     app:errorIconDrawable="@null">
@@ -73,7 +73,7 @@
                     android:id="@+id/confirmPasswordInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Подтвердите пароль"
+                    android:hint="@string/confirm_password_hint"
                     app:errorEnabled="true"
                     app:endIconMode="password_toggle"
                     app:errorIconDrawable="@null">
@@ -87,18 +87,18 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
-                    android:id="@+id/Registration"
+                    android:id="@+id/registration"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="Зарегистрироваться" />
+                    android:text="@string/register_button" />
                 <TextView
                     android:id="@+id/loginTextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:gravity="center"
-                    android:text="Уже есть аккаунт? Войти"
+                    android:text="@string/login_prompt"
                     android:textColorLink="@color/link_color"
                     android:autoLink="web"
                     android:clickable="true"

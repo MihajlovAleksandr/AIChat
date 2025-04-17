@@ -180,7 +180,7 @@ public class LoginController {
     private void validateEmail() {
         String email = emailEditText.getText().toString().trim();
         if (!isEmailValid(email)) {
-            emailInputLayout.setError("Пожалуйста, введите корректный email адрес");
+            emailInputLayout.setError(activity.getString(R.string.invalid_email_error));
             isEmailValidFlag = false;
         } else {
             emailInputLayout.setError(null);
@@ -192,7 +192,7 @@ public class LoginController {
     private void validatePassword() {
         String password = passwordEditText.getText().toString().trim();
         if (!isPasswordValid(password)) {
-            passwordInputLayout.setError("Пароль должен содержать не менее 8 символов, включая заглавные и строчные буквы, цифры и специальные символы");
+            passwordInputLayout.setError(activity.getString(R.string.invalid_password_error));
             isPasswordValidFlag = false;
         } else {
             passwordInputLayout.setError(null);

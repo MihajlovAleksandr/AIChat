@@ -1,5 +1,6 @@
 package com.example.aichat.view.main.chat;
 
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -114,7 +115,11 @@ public class ChatFragment extends Fragment {
 
         return rootView;
     }
-
+    public void updateOnlineState(int id, boolean isOnline){
+        activity.runOnUiThread(()-> {
+            membersAdapter.updateOnlineState(id, isOnline);
+        });
+    }
     private void toggleMembersPanel() {
         if (membersPanel == null || invisibleClickArea == null) return;
 
@@ -144,7 +149,7 @@ public class ChatFragment extends Fragment {
             activity.runOnUiThread(() -> {
                 if (bSendMessage != null) bSendMessage.setEnabled(false);
                 if (tiMessage != null) {
-                    tiMessage.setText("Chat was ended");
+                    tiMessage.setText(getText(R.string.chat_ended));
                     tiMessage.setEnabled(false);
                 }
                 if (btnOptions != null) btnOptions.setEnabled(false);
@@ -157,6 +162,7 @@ public class ChatFragment extends Fragment {
             membersAdapter.updateMembers(users);
         }
     }
+
 
     private class LoadChatAndMessagesTask extends AsyncTask<Integer, Void, ChatAndMessages> {
         @Override
@@ -216,6 +222,15 @@ public class ChatFragment extends Fragment {
             this.members = newMembers != null ? newMembers : new ArrayList<>();
             notifyDataSetChanged();
         }
+        public void updateOnlineState(int id, boolean isOnline){
+            for (User user : members) {
+                if (user.getId() == id) {
+                    user.setOnline(isOnline);
+                    notifyDataSetChanged();
+                    break;
+                }
+            }
+        }
 
         @NonNull
         @Override
@@ -248,22 +263,26 @@ public class ChatFragment extends Fragment {
             private final TextView memberName;
             private final TextView memberDetails;
             private final View onlineStatus;
+            private final Resources resources;
 
             ChatMemberViewHolder(@NonNull View itemView) {
                 super(itemView);
                 memberName = itemView.findViewById(R.id.memberName);
                 onlineStatus = itemView.findViewById(R.id.onlineStatus);
                 memberDetails = itemView.findViewById(R.id.memberDetails);
+                resources = itemView.getContext().getResources();
             }
 
             void bind(User member, int currentUserId) {
-                if (member == null || member.getUserData() == null) return;
-
-                if (member.getId() != currentUserId) {
-                    memberName.setText(member.getUserData().getName());
-                } else {
-                    memberName.setText(member.getUserData().getName() + " (you)");
+                if (member == null || member.getUserData() == null) {
+                    return;
                 }
+
+                String name = member.getUserData().getName();
+                if (member.getId() == currentUserId) {
+                    name += " (" + resources.getString(R.string.you) + ")";
+                }
+                memberName.setText(name);
 
                 String details = String.format("%s %s",
                         member.getUserData().getGender(),

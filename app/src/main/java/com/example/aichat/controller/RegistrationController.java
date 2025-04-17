@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.aichat.R;
 import com.example.aichat.view.RegistrationActivity;
 import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.connection.ConnectionManager;
@@ -65,7 +66,7 @@ public class RegistrationController {
             public void OnCommandGot(Command command) {
                 switch (command.getOperation()) {
                     case "EmailIsBusy":
-                        activity.runOnUiThread(() -> emailInputLayout.setError("email уже используется..."));
+                        activity.runOnUiThread(() -> emailInputLayout.setError(activity.getString(R.string.email_in_use_error)));
                         break;
                     case "VerificationCodeSend":
                         ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
@@ -173,7 +174,7 @@ public class RegistrationController {
     private void validateEmail() {
         String email = emailEditText.getText().toString().trim();
         if (!isEmailValid(email)) {
-            emailInputLayout.setError("Пожалуйста, введите корректный email адрес");
+            emailInputLayout.setError(activity.getString(R.string.invalid_email_error));
             isEmailValidFlag = false;
         } else {
             emailInputLayout.setError(null);
@@ -184,7 +185,7 @@ public class RegistrationController {
     private void validatePassword() {
         String password = passwordEditText.getText().toString().trim();
         if (!isPasswordValid(password)) {
-            passwordInputLayout.setError("Пароль должен содержать не менее 8 символов, включая заглавные и строчные буквы, цифры и специальные символы");
+            passwordInputLayout.setError(activity.getString(R.string.invalid_password_error));
             isPasswordValidFlag = false;
         } else {
             passwordInputLayout.setError(null);
@@ -197,7 +198,7 @@ public class RegistrationController {
             String password = passwordEditText.getText().toString().trim();
             String confirmPassword = confirmPasswordEditText.getText().toString().trim();
             if (!confirmPassword.equals(password)) {
-                confirmPasswordInputLayout.setError("Пароли не совпадают");
+                confirmPasswordInputLayout.setError(activity.getString(R.string.password_mismatch_error));
                 isConfirmPasswordValidFlag = false;
             } else {
                 confirmPasswordInputLayout.setError(null);

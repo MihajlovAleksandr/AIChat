@@ -23,7 +23,7 @@ public class PreferenceActivity extends BaseActivity {
     private TextInputLayout maxAgeInputLayout;
     private RadioGroup genderGroup;
     private Button submitButton;
-    private Button skippButton;
+    private Button skipButton;
     private ImageView minAgeInfoIcon;
     private ImageView maxAgeInfoIcon;
 
@@ -37,14 +37,14 @@ public class PreferenceActivity extends BaseActivity {
         maxAgeInputLayout = findViewById(R.id.maxAgeInputLayout);
         genderGroup = findViewById(R.id.genderGroup);
         submitButton = findViewById(R.id.submitButton);
-        skippButton = findViewById(R.id.skippButton);
+        skipButton = findViewById(R.id.skipButton);
         minAgeInfoIcon = findViewById(R.id.minAgeInfoIcon);
         maxAgeInfoIcon = findViewById(R.id.maxAgeInfoIcon);
 
         minAgeInfoIcon.setOnClickListener(v ->
-                showPopup(v, "Какой минимальный возраст собеседника вам подходит? Укажите просто цифру, например, 18.\nЭто поможет нам найти людей, с которыми вам будет комфортно общаться."));
+                showPopup(v, getString(R.string.min_age_info)));
         maxAgeInfoIcon.setOnClickListener(v ->
-                showPopup(v, "Какой максимальный возраст собеседника вам подходит? Укажите просто цифру, например, 23.\nЭто поможет нам найти людей, с которыми вам будет комфортно общаться."));
+                showPopup(v, getString(R.string.max_age_info)));
 
         controller = new PreferenceController(
                 this,
@@ -52,7 +52,7 @@ public class PreferenceActivity extends BaseActivity {
                 maxAgeInputLayout,
                 genderGroup,
                 submitButton,
-                skippButton
+                skipButton
         );
         controller.setupValidation();
     }

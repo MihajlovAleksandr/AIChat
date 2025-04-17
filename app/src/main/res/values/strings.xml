@@ -1,10 +1,74 @@
 <resources>
+    <!-- App Info -->
     <string name="app_name">AIChat</string>
-    <string name="language">Language</string>
+
+    <!-- Common UI -->
+    <string name="close_button_description">Close</string>
+    <string name="back_button_description">Back</string>
+    <string name="options_button_description">More options</string>
+    <string name="submit_button">Submit</string>
+    <string name="skip_button">Skip</string>
+    <string name="send_button">Send</string>
+
+    <!-- Fragments -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="english">english</string>
-    <string name="russian">russian</string>
-    <string name="spanish">spanish</string>
+
+    <!-- Language Selection -->
+    <string name="language">Language</string>
+    <string name="select_language">Select language</string>
+    <string name="english">English</string>
+    <string name="russian">Русский</string>
+    <string name="spanish">Español</string>
+
+
+
+    <!-- Authentication -->
+    <string name="email_hint">Enter email</string>
+    <string name="password_hint">Enter password</string>
+    <string name="confirm_password_hint">Confirm password</string>
+    <string name="login_button">Login</string>
+    <string name="register_button">Register</string>
+    <string name="register_prompt">Don\'t have an account? Registration</string>
+    <string name="login_prompt">Already have an account? Login in</string>
+    <string name="register_link_text">Registration</string>
+    <string name="login_link_text">Login in</string>
+    <string name="chat_ended">Chat was ended</string>
+    <string name="you">You</string>
+    <!-- Profile Settings -->
+    <string name="name_hint">Name</string>
+    <string name="age_hint">Age</string>
+    <string name="min_age_hint">Minimum age</string>
+    <string name="max_age_hint">Maximum age</string>
+    <string name="gender_label">Gender:</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="gender_any">Any</string>
+    <string name="scan_me">Scan me</string>
+
+    <!-- Chat -->
+    <string name="chat_members_title">Chat members</string>
+    <string name="message_hint">Type a message</string>
+    <string name="end_chat_menu">End chat</string>
+    <string name="view_members_menu">Members</string>
+    <string name="search_words_menu">Search words</string>
+
+    <!-- Field Information -->
+    <string name="age_info_description">Age field information</string>
+    <string name="name_info_description">Name field information</string>
+    <string name="min_age_info">What is the minimum age you prefer for a chat partner? Enter a number, e.g., 18. This will help us find people you can chat with comfortably.</string>
+    <string name="max_age_info">What is the maximum age you prefer for a chat partner? Enter a number, e.g., 23. This will help us find people you can chat with comfortably.</string>
+    <string name="name_popup_info">How would you like to be addressed? Enter your name, nickname, or any preferred label. Ensure it is comfortable and convenient for you.</string>
+    <string name="age_popup_info">How old are you? Simply enter a number, e.g., 19. It isn\'t necessary to be entirely truthful (we\'re all 18), but keep in mind that this helps us match you with interesting people.</string>
+
+    <!-- Validation Errors -->
+    <string name="invalid_email_error">Please enter a valid email address</string>
+    <string name="invalid_password_error">Password must contain at least 8 characters, including uppercase and lowercase letters, numbers and special characters</string>
+    <string name="age_range_error">Age must be between 18 and 120 years</string>
+    <string name="max_age_error">Maximum age must be greater than minimum age</string>
+    <string name="min_age_error">Minimum age must be less than maximum age</string>
+    <string name="password_mismatch_error">Passwords don\'t match</string>
+    <string name="email_in_use_error">Email is already in use</string>
+    <string name="name_validation_error">Name must contain between 1 and 50 characters</string>
 </resources>

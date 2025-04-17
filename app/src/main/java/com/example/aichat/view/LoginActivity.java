@@ -37,8 +37,11 @@ public class LoginActivity extends BaseActivity {
         setContentView(R.layout.activity_login);
         registerTextView = findViewById(R.id.registerTextView);
         DatabaseManager.init(this);
-        String text = "Еще нет аккаунта? Зарегистрироваться";
-        SpannableString spannableString = new SpannableString(text);
+
+        String fullText = getString(R.string.register_prompt);
+        String linkText = getString(R.string.register_link_text);
+
+        SpannableString spannableString = new SpannableString(fullText);
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
@@ -54,17 +57,21 @@ public class LoginActivity extends BaseActivity {
                 ds.setUnderlineText(true);
             }
         };
-        int startIndex = text.indexOf("Зарегистрироваться");
-        int endIndex = startIndex + "Зарегистрироваться".length();
+
+        int startIndex = fullText.indexOf(linkText);
+        int endIndex = startIndex + linkText.length();
         spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
         registerTextView.setText(spannableString);
         registerTextView.setMovementMethod(LinkMovementMethod.getInstance());
+
         emailInputLayout = findViewById(R.id.emailInputLayout);
         passwordInputLayout = findViewById(R.id.passwordInputLayout);
         emailEditText = findViewById(R.id.email);
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.login);
         imageView = findViewById(R.id.imageView);
+
         controller = new LoginController(this,
                 emailInputLayout,
                 passwordInputLayout,

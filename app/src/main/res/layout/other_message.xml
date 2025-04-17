@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_other_message"
         android:padding="8dp"
-        android:text="Как дела?"
         android:textColor="@android:color/black"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

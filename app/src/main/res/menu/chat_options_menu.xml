@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_end_chat"
-        android:title="Завершить чат" />
+        android:title="@string/end_chat_menu" />
     <item
         android:id="@+id/menu_view_members"
-        android:title="Участники" />
+        android:title="@string/view_members_menu" />
     <item
         android:id="@+id/menu_search_words"
-        android:title="Поиск по словам" />
+        android:title="@string/search_words_menu" />
 </menu>

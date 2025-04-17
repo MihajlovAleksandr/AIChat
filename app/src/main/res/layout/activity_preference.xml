@@ -26,7 +26,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="Возраст">
+                android:hint="@string/min_age_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/minAgeInput"
@@ -41,7 +41,7 @@
                 android:layout_height="24dp"
                 android:layout_marginStart="8dp"
                 android:src="@drawable/ic_info_outline"
-                android:contentDescription="Информация о поле возраста"
+                android:contentDescription="@string/age_info_description"
                 android:clickable="true"
                 android:focusable="true"/>
         </LinearLayout>
@@ -58,7 +58,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="Возраст">
+                android:hint="@string/max_age_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/maxAgeInput"
@@ -73,7 +73,7 @@
                 android:layout_height="24dp"
                 android:layout_marginStart="8dp"
                 android:src="@drawable/ic_info_outline"
-                android:contentDescription="Информация о поле возраста"
+                android:contentDescription="@string/age_info_description"
                 android:clickable="true"
                 android:focusable="true"/>
         </LinearLayout>
@@ -81,7 +81,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Пол:"
+            android:text="@string/gender_label"
             android:textSize="16sp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"/>
@@ -97,20 +97,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:tag="M"
-                android:text="Мужской"/>
+                android:text="@string/gender_male"/>
 
             <RadioButton
                 android:id="@+id/femaleRadio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:tag="F"
-                android:text="Женский"/>
+                android:text="@string/gender_female"/>
             <RadioButton
                 android:id="@+id/anyRadio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:tag="Any"
-                android:text="Любой"/>
+                android:text="@string/gender_any"/>
         </RadioGroup>
 
         <LinearLayout
@@ -124,16 +124,16 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Отправить"
+                android:text="@string/submit_button"
                 android:enabled="false"
                 android:layout_marginEnd="8dp"/>
 
             <Button
-                android:id="@+id/skippButton"
+                android:id="@+id/skipButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Пропустить"
+                android:text="@string/skip_button"
                 android:layout_marginStart="8dp"/>
         </LinearLayout>
     </LinearLayout>

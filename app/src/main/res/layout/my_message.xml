@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_my_message"
         android:padding="8dp"
-        android:text="Привет!"
         android:textColor="@android:color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
