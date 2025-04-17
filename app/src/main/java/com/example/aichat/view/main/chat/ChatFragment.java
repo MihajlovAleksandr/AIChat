@@ -68,7 +68,7 @@ public class ChatFragment extends Fragment {
         bSendMessage = rootView.findViewById(R.id.b_send_message);
 
         controller = new ChatFragmentController(this, connectionManager, chatId, currentUserId);
-        controller.loadUsers();
+
         new LoadChatAndMessagesTask().execute(chatId);
 
         bSendMessage.setOnClickListener(v -> {
@@ -134,7 +134,7 @@ public class ChatFragment extends Fragment {
 
     public void sendMessage(Message message) {
         if (activity != null && messageAdapter != null) {
-            activity.runOnUiThread(() -> messageAdapter.addMessage(message));
+            activity.runOnUiThread(() -> {messageAdapter.addMessage(message); });
         }
     }
 
@@ -149,7 +149,7 @@ public class ChatFragment extends Fragment {
             activity.runOnUiThread(() -> {
                 if (bSendMessage != null) bSendMessage.setEnabled(false);
                 if (tiMessage != null) {
-                    tiMessage.setText(getText(R.string.chat_ended));
+                    tiMessage.setText(activity.getText(R.string.chat_ended));
                     tiMessage.setEnabled(false);
                 }
                 if (btnOptions != null) btnOptions.setEnabled(false);
@@ -177,8 +177,13 @@ public class ChatFragment extends Fragment {
         protected void onPostExecute(ChatAndMessages result) {
             if (result == null) return;
 
-            if (result.chat != null && result.chat.getEndTime() != null) {
-                endChat();
+            if (result.chat != null){
+                if(result.chat.getEndTime() != null){
+                    endChat();
+                }
+                else {
+                    controller.loadUsers();
+                }
             }
 
             if (result.messages != null) {

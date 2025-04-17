@@ -13,7 +13,7 @@ public class MessageController {
         this.currentUserId = currentUserId;
     }
 
-    public String getFormattedMessageTime(Message message) {
+    public static String getFormattedMessageTime(Message message) {
         return message.getLastUpdateFormat().format(DateTimeFormatter.ofPattern("HH:mm"));
     }
 

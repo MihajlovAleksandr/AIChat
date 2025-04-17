@@ -17,6 +17,7 @@ import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.entities.Chat;
+import com.example.aichat.model.entities.Message;
 import com.example.aichat.view.main.MainActivity;
 import com.example.aichat.LanguageFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -73,16 +74,20 @@ public class ChatsListFragment extends Fragment {
     private void loadChatsFromDatabase() {
         databaseExecutor.execute(() -> {
             List<Chat> chats = DatabaseManager.getDatabase().chatDao().getAllChats();
-            requireActivity().runOnUiThread(() -> {
-                for (Chat chat : chats) {
-                    chatAdapter.addChat(chat);
-                }
-            });
+            for (Chat chat : chats) {
+                Message message = DatabaseManager.getDatabase().messageDao().getLastMessageInChat(chat.getId());
+                requireActivity().runOnUiThread(() -> {
+                    chatAdapter.addChat(chat, message);
+                });
+            }
         });
     }
-
+    public void updateLastMessage(Message message){
+        requireActivity().runOnUiThread(() -> {
+            chatAdapter.updateLastMessage(message);
+        });
+    }
     private void openLanguageSettings() {
-        // Простая замена фрагмента в контейнере активности
         requireActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.main_container, new LanguageFragment())
                 .addToBackStack(null)
@@ -92,7 +97,7 @@ public class ChatsListFragment extends Fragment {
 
     public void createChat(Chat chat) {
         requireActivity().runOnUiThread(() -> {
-            chatAdapter.addChat(chat);
+            chatAdapter.addChat(chat, null);
             recyclerView.scrollToPosition(0);
         });
     }

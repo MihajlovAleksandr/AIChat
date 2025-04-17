@@ -48,6 +48,7 @@
     <string name="register_link_text">Regístrate</string>
     <string name="login_link_text">Inicia sesión</string>
     <string name= "chat_ended">El chat finalizó</string>
+    <string name= "chat_created" >el Chat fue creado</string>
     <string name="you">Vosotros</string>
     <string name="min_age_info">¿Cuál es la edad mínima que prefieres para un compañero de chat? Introduce un número, por ejemplo, 18. Esto nos ayudará a encontrar personas con las que puedas conversar cómodamente.</string>
     <string name="max_age_info">¿Cuál es la edad máxima que prefieres para un compañero de chat? Introduce un número, por ejemplo, 23. Esto nos ayudará a encontrar personas con las que puedas conversar cómodamente.</string>

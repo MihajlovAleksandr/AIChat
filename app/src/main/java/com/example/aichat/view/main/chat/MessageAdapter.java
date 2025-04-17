@@ -18,14 +18,30 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     private List<Message> messages;
     public MessageController messageController;
+    private RecyclerView recyclerView; // Будет установлен в onAttachedToRecyclerView
 
     public MessageAdapter(int currentUserId, List<Message> messages) {
         this.messageController = new MessageController(currentUserId);
         this.messages = messages;
     }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        this.recyclerView = recyclerView; // Сохраняем ссылку на RecyclerView
+    }
+
     public void addMessage(Message newMessage) {
-        messages.add(newMessage); // Просто add() без индекса добавит элемент в конец
-        notifyItemInserted(messages.size() - 1); // Уведомляем о вставке по последнему индексу
+        messages.add(newMessage);
+        notifyItemInserted(messages.size() - 1);
+
+        if (messageController.isMyMessage(newMessage)) {
+            if (recyclerView != null) {
+                recyclerView.post(() -> {
+                    recyclerView.smoothScrollToPosition(messages.size() - 1);
+                });
+            }
+        }
     }
 
     @NonNull

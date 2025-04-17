@@ -1,5 +1,6 @@
 package com.example.aichat.view.main.chatlist;
 
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,53 +10,60 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.aichat.R;
+import com.example.aichat.controller.main.chat.MessageController;
 import com.example.aichat.controller.main.chatlist.ChatController;
 import com.example.aichat.model.entities.Chat;
+import com.example.aichat.model.entities.Message;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
 
-    private List<Chat> chatList;
-    private OnChatClickListener listener;
-    private ChatController chatController;
-    private RecyclerView recyclerView;
+    private final List<Chat> chatList;
+    private final List<Message> lastMessages;
+    private final OnChatClickListener listener;
 
     public ChatAdapter(List<Chat> chatList, OnChatClickListener listener) {
-        this.chatList = chatList;
+        this.chatList = new ArrayList<>(chatList);
+        this.lastMessages = new ArrayList<>();
+        for (int i = 0; i < chatList.size(); i++) {
+            lastMessages.add(null);
+        }
         this.listener = listener;
-        this.chatController = new ChatController();
-    }
-    public void setRecyclerView(RecyclerView recyclerView) {
-        this.recyclerView = recyclerView;
     }
 
-    public void addChat(Chat newChat) {
+    public void addChat(Chat newChat, Message lastMessage) {
         chatList.add(0, newChat);
+        lastMessages.add(0, lastMessage);
         notifyItemInserted(0);
     }
-    public void endChat(Chat chat){
-        for (Chat item: chatList) {
-            if(item.equals(chat)) {
-                item.end();
+
+    public void updateLastMessage(Message message) {
+        for (int i = 0; i < chatList.size(); i++) {
+            if (message.getChat() == chatList.get(i).getId()) {
+                if (i < lastMessages.size()) {
+                    lastMessages.set(i, message);
+                } else {
+                    lastMessages.add(message);
+                }
+                notifyItemChanged(i);
                 break;
             }
         }
-        ChatViewHolder chatViewHolder = getChatViewHolderById(chat.getId());
-        if(chatViewHolder!=null)
-            chatViewHolder.updateChatStatus(chat);
     }
-    private ChatViewHolder getChatViewHolderById(int chatId) {
-        if (recyclerView == null) return null;
 
+    public void endChat(Chat chat) {
         for (int i = 0; i < chatList.size(); i++) {
-            if (chatId == chatList.get(i).getId()) {
-                RecyclerView.ViewHolder holder = recyclerView.findViewHolderForAdapterPosition(i);
-                if (holder instanceof ChatViewHolder) {
-                    return (ChatViewHolder) holder;
+            if (chat.equals(chatList.get(i))) {
+                chatList.get(i).end();
+                if (i < lastMessages.size()) {
+                    lastMessages.set(i, null);
                 }
+                notifyItemChanged(i);
+                break;
             }
         }
-        return null;
     }
 
     @NonNull
@@ -69,7 +77,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     @Override
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         Chat chat = chatList.get(position);
-        holder.bind(chat);
+        Message lastMessage = position < lastMessages.size() ? lastMessages.get(position) : null;
+        holder.bind(chat, lastMessage);
+
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onChatClick(chat);
@@ -82,27 +92,38 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         return chatList.size();
     }
 
-    class ChatViewHolder extends RecyclerView.ViewHolder {
-        private TextView tvLastMessage;
-        private TextView tvTime;
-        private ImageView ivChatStatus;
+    static class ChatViewHolder extends RecyclerView.ViewHolder {
+        private final TextView tvLastMessage;
+        private final TextView tvTime;
+        private final ImageView ivChatStatus;
+        private final Resources resources;
 
         public ChatViewHolder(@NonNull View itemView) {
             super(itemView);
             tvLastMessage = itemView.findViewById(R.id.tv_last_message);
             tvTime = itemView.findViewById(R.id.tv_time);
             ivChatStatus = itemView.findViewById(R.id.iv_chat_status);
+            resources = itemView.getContext().getResources();
         }
 
-        public void bind(Chat chat) {
-            tvLastMessage.setText("Последнее сообщение");//change me
-            tvTime.setText(chatController.getFormattedTime(chat));
+        public void bind(Chat chat, Message lastMessage) {
+            if (lastMessage != null) {
+                tvLastMessage.setText(lastMessage.getText());
+                tvTime.setText(MessageController.getFormattedMessageTime(lastMessage));
+            } else {
+                if (chat.isActive()) {
+                    tvLastMessage.setText(resources.getText(R.string.chat_created));
+                } else {
+                    tvLastMessage.setText(resources.getText(R.string.chat_ended));
+                }
+                tvTime.setText(ChatController.getFormattedTime(chat));
+            }
             updateChatStatus(chat);
         }
-        public void updateChatStatus(Chat chat){
-            ivChatStatus.setImageResource(chatController.getStatusIcon(chat));
-        }
 
+        private void updateChatStatus(Chat chat) {
+            ivChatStatus.setImageResource(ChatController.getStatusIcon(chat));
+        }
     }
 
     public interface OnChatClickListener {

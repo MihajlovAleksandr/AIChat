@@ -48,6 +48,7 @@
     <string name="register_link_text">Рэгістрацыя</string>
     <string name="login_link_text">Увайсці</string>
     <string name="chat_ended">Чат быў скончаны</string>
+    <string name="chat_created">Чат быў створаны</string>
     <string name="you">Вы</string>
     <string name="min_age_info">Які мінімальны ўзрост пажаданы для суразмоўцы? Увядзіце лік, напрыклад, 18. Гэта дапаможа знайсці вам адпаведных людзей для абмеркавання.</string>
     <string name="max_age_info">Які максімальны ўзрост пажаданы для суразмоўцы? Увядзіце лік, напрыклад, 23. Гэта дапаможа знайсці вам адпаведных людзей для абмеркавання.</string>

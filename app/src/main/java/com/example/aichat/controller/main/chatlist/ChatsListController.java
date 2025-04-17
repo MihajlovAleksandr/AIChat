@@ -24,6 +24,10 @@ public class ChatsListController {
         @Override
         public void OnCommandGot(Command command) {
             switch (command.getOperation()) {
+                case "SendMessage":
+                    Message message =  command.getData("message", Message.class);
+                    fragment.updateLastMessage(message);
+                    break;
                 case "CreateChat":
                     Chat createdChat = command.getData("chat", Chat.class);
                     fragment.createChat(createdChat);

@@ -34,6 +34,7 @@
     <string name="login_prompt">Already have an account? Login in</string>
     <string name="register_link_text">Registration</string>
     <string name="login_link_text">Login in</string>
+    <string name="chat_created">Chat was created</string>
     <string name="chat_ended">Chat was ended</string>
     <string name="you">You</string>
     <!-- Profile Settings -->

@@ -48,6 +48,7 @@
     <string name="register_link_text">Регистрация</string>
     <string name="login_link_text">Войти</string>
     <string name="chat_ended">Чат был окончен</string>
+    <string name="chat_created">Чат был создан</string>
     <string name="you">Вы</string>
     <string name="min_age_info">Какой минимальный возраст предпочтителен для собеседника? Введите число, например, 18. Это поможет найти вам подходящих людей для общения.</string>
     <string name="max_age_info">Какой максимальный возраст предпочтителен для собеседника? Введите число, например, 23. Это поможет найти вам подходящих людей для общения.</string>

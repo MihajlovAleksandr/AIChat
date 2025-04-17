@@ -19,6 +19,8 @@ public interface MessageDao {
 
     @Query("SELECT * FROM Messages WHERE Id = :messageId LIMIT 1")
     Message getMessageById(int messageId);
+    @Query("SELECT * FROM messages WHERE Chat = :chatId ORDER BY Time DESC LIMIT 1")
+    Message getLastMessageInChat(int chatId);
     @Update
     void updateMessage(Message message);
     @Query("DELETE FROM Messages")
