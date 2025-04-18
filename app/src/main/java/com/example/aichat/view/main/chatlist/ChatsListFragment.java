@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -31,7 +32,7 @@ public class ChatsListFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private FloatingActionButton fabAddChat;
-    private Button btnLanguage;
+    private ImageButton btnLanguage;
     private ChatAdapter chatAdapter;
     private ChatsListController controller;
     private final Executor databaseExecutor = Executors.newSingleThreadExecutor();
@@ -58,7 +59,7 @@ public class ChatsListFragment extends Fragment {
         recyclerView.setAdapter(chatAdapter);
 
         // Инициализация кнопок
-        btnLanguage = view.findViewById(R.id.btn_language);
+        btnLanguage = view.findViewById(R.id.btn_settings);
         fabAddChat = view.findViewById(R.id.fab_add_chat);
 
         // Установка обработчиков кликов

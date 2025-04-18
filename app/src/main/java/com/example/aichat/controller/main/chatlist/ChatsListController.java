@@ -49,6 +49,16 @@ public class ChatsListController {
                     for (Chat chat : oldChats) {
                         fragment.endChat(chat);
                     }
+                    Message[] messages =  command.getData("newMessages", Message[].class);
+                    if(messages.length>0) {
+                        fragment.updateLastMessage(messages[messages.length - 1]);
+                        for (int i = messages.length - 2; i >= 0; i--) {
+                            if(messages[i].getChat()!=messages[i+1].getChat())
+                            {
+                                fragment.updateLastMessage(messages[i]);
+                            }
+                        }
+                    }
                     break;
             }
         }
