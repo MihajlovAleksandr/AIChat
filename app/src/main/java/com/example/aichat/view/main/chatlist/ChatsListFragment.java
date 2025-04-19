@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
@@ -20,7 +19,7 @@ import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.entities.Chat;
 import com.example.aichat.model.entities.Message;
 import com.example.aichat.view.main.MainActivity;
-import com.example.aichat.LanguageFragment;
+import com.example.aichat.SettingsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -90,7 +89,7 @@ public class ChatsListFragment extends Fragment {
     }
     private void openLanguageSettings() {
         requireActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_container, new LanguageFragment())
+                .replace(R.id.main_container, new SettingsFragment())
                 .addToBackStack(null)
                 .commit();
     }

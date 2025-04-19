@@ -5,9 +5,6 @@
     <string name="second_fragment_label">Второй фрагмент</string>
     <string name="hello_blank_fragment">Привет, пустой фрагмент</string>
     <string name="select_language">Выберите язык</string>
-    <string name="english">English</string>
-    <string name="russian">Русский</string>
-    <string name="spanish">Español</string>
     <string name="scan_me">Сканируйте меня</string>
     <string name="email_hint">Введите email</string>
     <string name="password_hint">Введите пароль</string>
@@ -54,4 +51,19 @@
     <string name="max_age_info">Какой максимальный возраст предпочтителен для собеседника? Введите число, например, 23. Это поможет найти вам подходящих людей для общения.</string>
     <string name="name_popup_info">Как вас лучше называть? Введите свое имя, никнейм или предпочитаемый псевдоним. Главное, чтобы вам было комфортно.</string>
     <string name="age_popup_info">Сколько вам лет? Просто введите число, например, 19. Не обязательно быть абсолютно честным (мы все 18), но помните, что это поможет подобрать вам интересных собеседников.</string>
+    <string name="profile_section">Профиль</string>
+    <string name="change_password">Изменить пароль</string>
+    <string name="devices">Устройства</string>
+    <string name="settings">Настройки</string>
+    <string name="notifications_section">Уведомления</string>
+    <string name="send_email_notifications">Отправлять email-уведомления</string>
+    <string name="show_notifications">Показывать уведомления</string>
+    <string name="background_notifications">Показывать уведомления в фоне</string>
+    <string name="in_app_notifications">Показывать уведомления в приложении</string>
+    <string name="vibration">Вибрация</string>
+    <string name="language_section">Язык</string>
+    <string name="reference_section">Справка</string>
+    <string name="faq">Частые вопросы</string>
+    <string name="privacy_policy">Политика конфиденциальности</string>
+    <string name="support">Поддержка</string>
 </resources>

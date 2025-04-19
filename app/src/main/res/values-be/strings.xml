@@ -5,9 +5,6 @@
     <string name="second_fragment_label">Другі фрагмент</string>
     <string name="hello_blank_fragment">Прывітанне, пусты фрагмент</string>
     <string name="select_language">Выберыце мову</string>
-    <string name="english">English</string>
-    <string name="russian">Русский</string>
-    <string name="spanish">Español</string>
     <string name="scan_me">Скануй мяне</string>
     <string name="email_hint">Увядзіце email</string>
     <string name="password_hint">Увядзіце пароль</string>
@@ -54,4 +51,19 @@
     <string name="max_age_info">Які максімальны ўзрост пажаданы для суразмоўцы? Увядзіце лік, напрыклад, 23. Гэта дапаможа знайсці вам адпаведных людзей для абмеркавання.</string>
     <string name="name_popup_info">Як вам лепш называць? Увядзіце сваё імя, нікнэйм або пераважны псеўданім. Галоўнае, каб вам было камфортна.</string>
     <string name="age_popup_info">Колькі вам гадоў? Проста ўвядзіце лік, напрыклад, 19. Не абавязкова быць абсалютна сумленным (мы ўсе 18), але памятайце, што гэта дапаможа падабраць вам цікавых суразмоўцаў.</string>
+    <string name="profile_section">Профіль</string>
+    <string name="change_password">Змяніць пароль</string>
+    <string name="devices">Прылады</string>
+    <string name="settings">Налады</string>
+    <string name="notifications_section">Апавяшчэнні</string>
+    <string name="send_email_notifications">Дасылаць апавяшчэнні па email</string>
+    <string name="show_notifications">Паказваць апавяшчэнні</string>
+    <string name="background_notifications">Паказваць апавяшчэнні ў фоне</string>
+    <string name="in_app_notifications">Паказваць апавяшчэнні ў праграме</string>
+    <string name="vibration">Вібрацыя</string>
+    <string name="language_section">Мова</string>
+    <string name="reference_section">Даведка</string>
+    <string name="faq">Частыя пытанні</string>
+    <string name="privacy_policy">Палітыка прыватнасці</string>
+    <string name="support">Падтрымка</string>
 </resources>

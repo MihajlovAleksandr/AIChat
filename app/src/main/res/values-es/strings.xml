@@ -5,9 +5,6 @@
     <string name="second_fragment_label">Segundo Fragmento</string>
     <string name="hello_blank_fragment">Hola, fragmento en blanco</string>
     <string name="select_language">Seleccione un idioma</string>
-    <string name="english">English</string>
-    <string name="russian">Русский</string>
-    <string name="spanish">Español</string>
     <string name="scan_me">Escanéame</string>
     <string name="email_hint">Introduce tu correo electrónico</string>
     <string name="password_hint">Introduce tu contraseña</string>
@@ -54,4 +51,19 @@
     <string name="max_age_info">¿Cuál es la edad máxima que prefieres para un compañero de chat? Introduce un número, por ejemplo, 23. Esto nos ayudará a encontrar personas con las que puedas conversar cómodamente.</string>
     <string name="name_popup_info">¿Cómo te gustaría que te llamaran? Introduce tu nombre, apodo o cualquier etiqueta preferida. Asegúrate de que sea cómodo y conveniente para ti.</string>
     <string name="age_popup_info">¿Cuántos años tienes? Simplemente introduce un número, por ejemplo, 19. No es necesario ser completamente sincero (todos tenemos 18), pero ten en cuenta que esto nos ayuda a emparejarte con personas interesantes.</string>
+    <string name="profile_section">Perfil</string>
+    <string name="change_password">Cambiar contraseña</string>
+    <string name="devices">Dispositivos</string>
+    <string name="settings">Ajustes</string>
+    <string name="notifications_section">Notificaciones</string>
+    <string name="send_email_notifications">Enviar notificaciones por correo</string>
+    <string name="show_notifications">Mostrar notificaciones</string>
+    <string name="background_notifications">Mostrar notificaciones en segundo plano</string>
+    <string name="in_app_notifications">Mostrar notificaciones en la aplicación</string>
+    <string name="vibration">Vibración</string>
+    <string name="language_section">Idioma</string>
+    <string name="reference_section">Referencia</string>
+    <string name="faq">Preguntas frecuentes</string>
+    <string name="privacy_policy">Política de privacidad</string>
+    <string name="support">Soporte</string>
 </resources>
