@@ -14,41 +14,40 @@ import com.example.aichat.controller.main.chat.MessageController;
 import com.example.aichat.controller.main.chatlist.ChatController;
 import com.example.aichat.model.entities.Chat;
 import com.example.aichat.model.entities.Message;
+import com.example.aichat.model.entities.MessageChat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
 
-    private final List<Chat> chatList;
-    private final List<Message> lastMessages;
+    private final List<MessageChat> chatList;
     private final OnChatClickListener listener;
 
-    public ChatAdapter(List<Chat> chatList, OnChatClickListener listener) {
-        this.chatList = new ArrayList<>(chatList);
-        this.lastMessages = new ArrayList<>();
-        for (int i = 0; i < chatList.size(); i++) {
-            lastMessages.add(null);
-        }
+    public ChatAdapter(OnChatClickListener listener) {
+        this.chatList = new ArrayList<>();
         this.listener = listener;
     }
 
-    public void addChat(Chat newChat, Message lastMessage) {
-        chatList.add(0, newChat);
-        lastMessages.add(0, lastMessage);
+    public void addChat(MessageChat messageChat) {
+        chatList.add(0, messageChat);
         notifyItemInserted(0);
+    }
+    public void setChats(List<MessageChat> newChats) {
+        Collections.reverse(newChats);
+        chatList.clear();
+        chatList.addAll(newChats);
+        notifyDataSetChanged();
     }
 
     public void updateLastMessage(Message message) {
         for (int i = 0; i < chatList.size(); i++) {
-            if (message.getChat() == chatList.get(i).getId()) {
-                Chat chat = chatList.get(i);
+            if (message.getChat() == chatList.get(i).getChat().getId()) {
+                MessageChat messageChat = chatList.get(i);
+                messageChat.setMessage(message);
                 chatList.remove(i);
-                if (i < lastMessages.size()) {
-                    lastMessages.remove(i);
-                }
-                chatList.add(0, chat);
-                lastMessages.add(0, message);
+                chatList.add(0, messageChat);
                 notifyItemMoved(i, 0);
                 notifyItemChanged(0);
                 break;
@@ -58,10 +57,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     public void endChat(Chat chat) {
         for (int i = 0; i < chatList.size(); i++) {
             if (chat.equals(chatList.get(i))) {
-                chatList.get(i).end();
-                if (i < lastMessages.size()) {
-                    lastMessages.set(i, null);
-                }
+                MessageChat messageChat = chatList.get(i);
+                messageChat.getChat().end();
+                messageChat.setMessage(null);
                 notifyItemChanged(i);
                 break;
             }
@@ -78,13 +76,12 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
-        Chat chat = chatList.get(position);
-        Message lastMessage = position < lastMessages.size() ? lastMessages.get(position) : null;
-        holder.bind(chat, lastMessage);
+        MessageChat messageChat = chatList.get(position);
+        holder.bind(messageChat);
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onChatClick(chat);
+                listener.onChatClick(messageChat.getChat());
             }
         });
     }
@@ -108,19 +105,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
             resources = itemView.getContext().getResources();
         }
 
-        public void bind(Chat chat, Message lastMessage) {
-            if (lastMessage != null) {
-                tvLastMessage.setText(lastMessage.getText());
-                tvTime.setText(MessageController.getFormattedMessageTime(lastMessage));
-            } else {
-                if (chat.isActive()) {
-                    tvLastMessage.setText(resources.getText(R.string.chat_created));
-                } else {
-                    tvLastMessage.setText(resources.getText(R.string.chat_ended));
-                }
-                tvTime.setText(ChatController.getFormattedTime(chat));
-            }
-            updateChatStatus(chat);
+        public void bind(MessageChat messageChat) {
+            tvLastMessage.setText(messageChat.getText(resources));
+            tvTime.setText(ChatController.getFormattedTime(messageChat.getTime()));
+            updateChatStatus(messageChat.getChat());
         }
 
         private void updateChatStatus(Chat chat) {

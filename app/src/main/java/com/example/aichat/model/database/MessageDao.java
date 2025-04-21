@@ -21,6 +21,11 @@ public interface MessageDao {
     Message getMessageById(int messageId);
     @Query("SELECT * FROM messages WHERE Chat = :chatId ORDER BY Time DESC LIMIT 1")
     Message getLastMessageInChat(int chatId);
+
+    @Query("SELECT * FROM Messages WHERE Time IN (SELECT MAX(Time) FROM Messages WHERE chat IN (:chats) GROUP BY chat) ORDER BY chat")
+    List<Message> getLastMessages(List<Integer> chats);
+    @Query("SELECT * FROM Messages")
+    List<Message> getMessages();
     @Update
     void updateMessage(Message message);
     @Query("DELETE FROM Messages")

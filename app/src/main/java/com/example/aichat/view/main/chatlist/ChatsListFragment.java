@@ -1,5 +1,6 @@
 package com.example.aichat.view.main.chatlist;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,14 +20,17 @@ import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.entities.Chat;
 import com.example.aichat.model.entities.Message;
+import com.example.aichat.model.entities.MessageChat;
 import com.example.aichat.view.main.MainActivity;
 import com.example.aichat.SettingsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class ChatsListFragment extends Fragment {
 
@@ -52,7 +57,7 @@ public class ChatsListFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // Инициализация адаптера
-        chatAdapter = new ChatAdapter(new ArrayList<>(), chat -> {
+        chatAdapter = new ChatAdapter(chat -> {
             ((MainActivity) requireActivity()).openChat(chat.getId());
         });
         recyclerView.setAdapter(chatAdapter);
@@ -71,15 +76,35 @@ public class ChatsListFragment extends Fragment {
         return view;
     }
 
-    private void loadChatsFromDatabase() {
+    public void loadChatsFromDatabase() {
+
         databaseExecutor.execute(() -> {
             List<Chat> chats = DatabaseManager.getDatabase().chatDao().getAllChats();
-            for (Chat chat : chats) {
-                Message message = DatabaseManager.getDatabase().messageDao().getLastMessageInChat(chat.getId());
-                requireActivity().runOnUiThread(() -> {
-                    chatAdapter.addChat(chat, message);
-                });
-            }
+            List<Integer> chatIds = chats.stream()
+                    .map(Chat::getId)
+                    .collect(Collectors.toList());
+            List<Message> lastMessages = DatabaseManager.getDatabase().messageDao().getLastMessages(chatIds);
+            int currentMessage = 0;
+            List<MessageChat> messageChats = new ArrayList<>();
+            if(lastMessages.size()==0){
+                for (Chat chat:chats) {
+                    messageChats.add(new MessageChat(null, chat));
+                }
+            }else {
+            for (int i = 0; i < chats.size(); i++) {
+                int finalI = i;
+                if (chats.get(finalI).getId() == lastMessages.get(currentMessage).getChat()) {
+                    int finalCurrentMessage = currentMessage;
+                    currentMessage++;
+                    messageChats.add(new MessageChat(lastMessages.get(finalCurrentMessage), chats.get(finalI)));
+                } else {
+                    messageChats.add(new MessageChat(null, chats.get(finalI)));
+                }
+            }}
+            Collections.sort(messageChats);
+            requireActivity().runOnUiThread(() -> {
+                chatAdapter.setChats(messageChats);
+            });
         });
     }
     public void updateLastMessage(Message message){
@@ -87,17 +112,20 @@ public class ChatsListFragment extends Fragment {
             chatAdapter.updateLastMessage(message);
         });
     }
-    private void openLanguageSettings() {
-        requireActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_container, new SettingsFragment())
-                .addToBackStack(null)
-                .commit();
+    public void openLanguageSettings() {
+        controller.openLanguageSettings(requireActivity());
     }
 
 
     public void createChat(Chat chat) {
         requireActivity().runOnUiThread(() -> {
-            chatAdapter.addChat(chat, null);
+            chatAdapter.addChat(new MessageChat(null, chat));
+            recyclerView.scrollToPosition(0);
+        });
+    }
+    public void createChat(MessageChat chat) {
+        requireActivity().runOnUiThread(() -> {
+            chatAdapter.addChat(chat);
             recyclerView.scrollToPosition(0);
         });
     }

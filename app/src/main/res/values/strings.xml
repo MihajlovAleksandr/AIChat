@@ -9,6 +9,7 @@
     <string name="submit_button">Submit</string>
     <string name="skip_button">Skip</string>
     <string name="send_button">Send</string>
+    <string name="logout" translatable="false">Logout</string>
 
     <!-- Fragments -->
     <string name="first_fragment_label">First Fragment</string>

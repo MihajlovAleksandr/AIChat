@@ -1,5 +1,6 @@
 package com.example.aichat;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
@@ -7,7 +8,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -17,6 +17,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import com.example.aichat.model.LocaleManager;
+import com.example.aichat.model.connection.ConnectionManager;
+import com.example.aichat.model.connection.OnConnectionEvents;
+import com.example.aichat.model.database.DatabaseManager;
+import com.example.aichat.model.entities.Command;
+import com.example.aichat.view.LoginActivity;
 import com.example.aichat.view.main.MainActivity;
 
 public class SettingsFragment extends Fragment {
@@ -24,6 +29,30 @@ public class SettingsFragment extends Fragment {
     private boolean userInteracted = false;
     private static final String WEBSITE_URL = "https://mihajlovaleksandr.github.io/AIChatSite/";
     private static final String SUPPORT_EMAIL = "aichatcorp@gmail.com";
+    ConnectionManager connectionManager;
+     public SettingsFragment(ConnectionManager connectionManager){
+         this.connectionManager = connectionManager;
+         this.connectionManager.addConnectionEvent(new OnConnectionEvents() {
+             @Override
+             public void OnCommandGot(Command command) {
+                 switch (command.getOperation()) {
+                     case "Logout":
+                         logout();
+                         break;
+                 }
+             }
+
+             @Override
+             public void OnConnectionFailed() {
+
+             }
+
+             @Override
+             public void OnOpen() {
+
+             }
+         });
+     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -45,6 +74,7 @@ public class SettingsFragment extends Fragment {
         view.findViewById(R.id.devices_item).setOnClickListener(v -> {
             // Devices logic
         });
+        view.findViewById(R.id.logout_item).setOnClickListener(v -> connectionManager.SendCommand(new Command("Logout")));
 
         // Notifications section
         setupNotificationSwitches(view);
@@ -125,11 +155,11 @@ public class SettingsFragment extends Fragment {
 
     private void setupReferenceSection(View view) {
         view.findViewById(R.id.faq_item).setOnClickListener(v -> {
-            openWebPage(WEBSITE_URL + "/faq.html");
+            openWebPage(WEBSITE_URL + "faq.html");
         });
 
         view.findViewById(R.id.policy_item).setOnClickListener(v -> {
-            openWebPage(WEBSITE_URL + "/faq.html");
+            openWebPage(WEBSITE_URL + "privacy.html");
         });
 
         view.findViewById(R.id.support_item).setOnClickListener(v -> {
@@ -159,6 +189,16 @@ public class SettingsFragment extends Fragment {
         }
     }
 
+    private void logout(){
+        Activity activity  = getActivity();
+        Intent intent = new Intent(activity, LoginActivity.class);
+        new Thread(()-> {
+            DatabaseManager.getDatabase().chatDao().clearTable();
+            DatabaseManager.getDatabase().messageDao().clearTable();
+        }).start();
+        activity.startActivity(intent);
+        activity.finish();
+    }
 
     private String getCurrentLanguageName() {
         String currentLanguage = LocaleManager.getLocale(requireContext()).getLanguage();

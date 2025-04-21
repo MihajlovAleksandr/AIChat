@@ -13,21 +13,22 @@ import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.OnConnectionEvents;
 import com.example.aichat.model.entities.Message;
 import com.example.aichat.view.LoginActivity;
-import com.example.aichat.view.main.MainActivity;
+import com.example.aichat.view.main.MainActivityAdapter;
 
 public class MainActivityController {
     private int currentChatId = -1;
     private ConnectionManager connectionManager;
     private AppDatabase appDatabase;
+    MainActivityAdapter mainActivityAdapter;
 
-    public MainActivityController(ConnectionManager connectionManager, Activity activity) {
+    public MainActivityController(ConnectionManager connectionManager, Activity activity, MainActivityAdapter mainActivityAdapter) {
         Log.d("Loading", "MainActivityController");
+        this.mainActivityAdapter =  mainActivityAdapter;
         appDatabase = DatabaseManager.getDatabase();
         this.connectionManager = connectionManager;
         connectionManager.setConnectionEvent(new OnConnectionEvents() {
             @Override
             public void OnCommandGot(Command command) {
-                new Thread(()->{
                 switch (command.getOperation()) {
                     case "SendMessage":
                         Message message = command.getData("message", Message.class);
@@ -40,14 +41,6 @@ public class MainActivityController {
                     case "EndChat":
                         Chat endedChat = command.getData("chat", Chat.class);
                         appDatabase.chatDao().endChat(endedChat.getId(),  endedChat.getEndTime());
-                        break;
-                    case "LogOut":
-                        ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
-                        Intent intent = new Intent(activity, LoginActivity.class);
-                        appDatabase.chatDao().clearTable();
-                        appDatabase.messageDao().clearTable();
-                        activity.startActivity(intent);
-                        activity.finish();
                         break;
                     case "SyncDB":
                         Chat[] newChats = command.getData("newChats", Chat[].class);
@@ -66,8 +59,9 @@ public class MainActivityController {
                         for (Message oldMessage: oldMessages) {
                             appDatabase.messageDao().updateMessage(oldMessage);
                         }
+                        mainActivityAdapter.loadChatList();
                         break;
-                }}).start();
+                }
             }
 
             @Override

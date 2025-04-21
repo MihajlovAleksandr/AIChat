@@ -9,7 +9,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.aichat.controller.main.MainActivityController;
 import com.example.aichat.model.connection.ConnectionManager;
-import com.example.aichat.model.database.DatabaseClient;
 import com.example.aichat.view.main.chat.ChatFragment;
 import com.example.aichat.view.main.chatlist.ChatsListFragment;
 
@@ -18,6 +17,7 @@ public class MainActivityAdapter extends FragmentStateAdapter {
     private ConnectionManager connectionManager;
     private int currentUserId;
     private long lastChatFragmentId = System.currentTimeMillis();
+    private ChatsListFragment chatsListFragment;
     private FragmentActivity fragmentActivity;
 
     public MainActivityAdapter(@NonNull FragmentActivity fragmentActivity,
@@ -26,7 +26,7 @@ public class MainActivityAdapter extends FragmentStateAdapter {
         super(fragmentActivity);
         this.fragmentActivity = fragmentActivity;
         this.currentUserId = currentUserId;
-        this.chatPageController = new MainActivityController(connectionManager, fragmentActivity);
+        this.chatPageController = new MainActivityController(connectionManager, fragmentActivity,this);
         this.connectionManager = connectionManager;
     }
 
@@ -34,6 +34,10 @@ public class MainActivityAdapter extends FragmentStateAdapter {
         chatPageController.setCurrentChatId(chatId);
         lastChatFragmentId = System.currentTimeMillis();
         fragmentActivity.runOnUiThread(() -> notifyItemChanged(1));
+    }
+    public void loadChatList()
+    {
+        chatsListFragment.loadChatsFromDatabase();
     }
 
     @NonNull
@@ -49,7 +53,8 @@ public class MainActivityAdapter extends FragmentStateAdapter {
             fragment.setActivity(fragmentActivity);
             return fragment;
         }
-        return new ChatsListFragment(connectionManager);
+        chatsListFragment=new ChatsListFragment(connectionManager);
+        return chatsListFragment;
     }
 
     @Override

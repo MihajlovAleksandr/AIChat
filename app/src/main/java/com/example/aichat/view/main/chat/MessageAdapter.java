@@ -1,5 +1,6 @@
 package com.example.aichat.view.main.chat;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,12 +24,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public MessageAdapter(int currentUserId, List<Message> messages) {
         this.messageController = new MessageController(currentUserId);
         this.messages = messages;
+
     }
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-        this.recyclerView = recyclerView; // Сохраняем ссылку на RecyclerView
+        this.recyclerView = recyclerView;
     }
 
     public void addMessage(Message newMessage) {
@@ -74,7 +76,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
+
             messageText = itemView.findViewById(R.id.message_text);
+            messageText.setMaxWidth((int) (recyclerView.getWidth()*0.8));
             timeText = itemView.findViewById(R.id.time_text);
         }
 

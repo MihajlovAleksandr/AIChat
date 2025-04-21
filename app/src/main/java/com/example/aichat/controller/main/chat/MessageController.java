@@ -14,7 +14,7 @@ public class MessageController {
     }
 
     public static String getFormattedMessageTime(Message message) {
-        return message.getLastUpdateFormat().format(DateTimeFormatter.ofPattern("HH:mm"));
+        return message.getTimeFormat().format(DateTimeFormatter.ofPattern("HH:mm"));
     }
 
     public boolean isMyMessage(Message message) {
