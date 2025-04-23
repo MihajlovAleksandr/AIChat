@@ -16,43 +16,75 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+
 import com.example.aichat.model.LocaleManager;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.OnConnectionEvents;
-import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.entities.Command;
-import com.example.aichat.view.LoginActivity;
+import com.example.aichat.model.entities.Preference;
+import com.example.aichat.model.entities.UserData;
+import com.example.aichat.view.PreferenceActivity;
+import com.example.aichat.view.UserDataActivity;
 import com.example.aichat.view.main.MainActivity;
 
 public class SettingsFragment extends Fragment {
-
-    private boolean userInteracted = false;
     private static final String WEBSITE_URL = "https://mihajlovaleksandr.github.io/AIChatSite/";
     private static final String SUPPORT_EMAIL = "aichatcorp@gmail.com";
     ConnectionManager connectionManager;
-     public SettingsFragment(ConnectionManager connectionManager){
-         this.connectionManager = connectionManager;
-         this.connectionManager.addConnectionEvent(new OnConnectionEvents() {
-             @Override
-             public void OnCommandGot(Command command) {
-                 switch (command.getOperation()) {
-                     case "Logout":
-                         logout();
-                         break;
-                 }
-             }
+    TextView emailText;
+    TextView devicesText;
+    TextView userDataText;
+    TextView preferenceText;
+    OnConnectionEvents events;
+    FragmentActivity activity;
+    UserData userData;
+    Preference preference;
+    public SettingsFragment(ConnectionManager connectionManager, FragmentActivity activity){
+        this.connectionManager = connectionManager;
+        this.activity = activity;
+        events = new OnConnectionEvents() {
+            @Override
+            public void OnCommandGot(Command command) {
+                switch (command.getOperation()) {
+                    case "GetSettingsInfo":
+                        activity.runOnUiThread(()-> {
+                            emailText.setText(command.getData("email", String.class));
+                            preference = command.getData("preference", Preference.class);
+                            userData = command.getData("userData", UserData.class);
+                            preferenceText.setText(preference.toString());
+                            userDataText.setText(userData.toString());
+                            int[] devices = command.getData("devices", int[].class);
+                            devicesText.setText(getString(R.string.device_status, devices[0], devices[1]));
+                        });
+                        break;
+                    case "PreferenceUpdated":
+                        preference =  command.getData("preference", Preference.class);
+                        preferenceText.setText(preference.toString());
+                        break;
+                    case "UserDataUpdated":
+                        userData =  command.getData("userData", UserData.class);
+                        userDataText.setText(userData.toString());
+                        break;
+                    case "ConnectionsChange":
+                        int[] devices = command.getData("count",int[].class);
+                        devicesText.setText(getString(R.string.device_status, devices[0], devices[1]));
+                        break;
+                }
+            }
 
-             @Override
-             public void OnConnectionFailed() {
+            @Override
+            public void OnConnectionFailed() {
 
-             }
+            }
 
-             @Override
-             public void OnOpen() {
+            @Override
+            public void OnOpen() {
 
-             }
-         });
-     }
+            }
+        };
+        connectionManager.addConnectionEvent(events);
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -64,17 +96,36 @@ public class SettingsFragment extends Fragment {
         backButton.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
 
         // Profile section
-        TextView emailText = view.findViewById(R.id.email_text);
-        emailText.setText("user@example.com");
+        emailText = view.findViewById(R.id.email_text);
+        devicesText = view.findViewById(R.id.devices_text);
+        userDataText = view.findViewById(R.id.userData_text);
+        preferenceText = view.findViewById(R.id.preference_text);
 
+        connectionManager.SendCommand(new Command("GetSettingsInfo"));
         view.findViewById(R.id.change_password_item).setOnClickListener(v -> {
-            // Password change logic
+            Intent intent = new Intent(activity, ChangePasswordActivity.class);
+            intent.putExtra("userData", userData);
+            activity.startActivity(intent);
         });
 
         view.findViewById(R.id.devices_item).setOnClickListener(v -> {
             // Devices logic
         });
-        view.findViewById(R.id.logout_item).setOnClickListener(v -> connectionManager.SendCommand(new Command("Logout")));
+        view.findViewById(R.id.userData_item).setOnClickListener(v->{
+            if (userData != null) {
+                Intent intent = new Intent(activity, UserDataActivity.class);
+                intent.putExtra("userData", userData);
+                activity.startActivity(intent);
+            }
+        });
+        view.findViewById(R.id.preference_item).setOnClickListener(v->{
+            if (preference != null) {
+                Intent intent = new Intent(activity, PreferenceActivity.class);
+                intent.putExtra("preference",preference);
+                activity.startActivity(intent);
+            }
+        });
+        view.findViewById(R.id.logout_item).setOnClickListener(v -> connectionManager.SendCommand(new Command("DeleteConnection")));
 
         // Notifications section
         setupNotificationSwitches(view);
@@ -97,9 +148,7 @@ public class SettingsFragment extends Fragment {
         Switch showNotificationsSwitch = view.findViewById(R.id.show_notifications_switch);
         Switch backgroundNotificationsSwitch = view.findViewById(R.id.background_notifications_switch);
         Switch inAppNotificationsSwitch = view.findViewById(R.id.in_app_notifications_switch);
-        Switch vibrationSwitch = view.findViewById(R.id.vibration_switch);
-
-        // Set actual values from settings
+        Switch vibrationSwitch = view.findViewById(R.id.vibration_switch);// Set actual values from settings
         emailNotificationsSwitch.setChecked(true);
         showNotificationsSwitch.setChecked(true);
         backgroundNotificationsSwitch.setChecked(true);
@@ -189,17 +238,6 @@ public class SettingsFragment extends Fragment {
         }
     }
 
-    private void logout(){
-        Activity activity  = getActivity();
-        Intent intent = new Intent(activity, LoginActivity.class);
-        new Thread(()-> {
-            DatabaseManager.getDatabase().chatDao().clearTable();
-            DatabaseManager.getDatabase().messageDao().clearTable();
-        }).start();
-        activity.startActivity(intent);
-        activity.finish();
-    }
-
     private String getCurrentLanguageName() {
         String currentLanguage = LocaleManager.getLocale(requireContext()).getLanguage();
         String[] languageCodes = getResources().getStringArray(R.array.language_codes);
@@ -211,5 +249,10 @@ public class SettingsFragment extends Fragment {
             }
         }
         return languageNames[0];
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        connectionManager.removeConnectionEvent(events);
     }
 }

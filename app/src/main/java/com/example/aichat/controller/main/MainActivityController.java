@@ -61,6 +61,14 @@ public class MainActivityController {
                         }
                         mainActivityAdapter.loadChatList();
                         break;
+                    case "Logout":
+                        ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
+                        Intent intent = new Intent(activity, LoginActivity.class);
+                        appDatabase.chatDao().clearTable();
+                        appDatabase.messageDao().clearTable();
+                        activity.startActivity(intent);
+                        activity.finish();
+                        break;
                 }
             }
 
@@ -75,7 +83,6 @@ public class MainActivityController {
             }
         });
     }
-
     public int getCurrentChatId() {
         return currentChatId;
     }

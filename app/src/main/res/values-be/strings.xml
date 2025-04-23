@@ -6,8 +6,16 @@
     <string name="hello_blank_fragment">Прывітанне, пусты фрагмент</string>
     <string name="select_language">Выберыце мову</string>
     <string name="scan_me">Скануй мяне</string>
+    <string name="no_email">Тут будзе ваш email</string>
+    <string name="no_devices">Тут будуць вашы прылады</string>
+    <string name="device_status">Усяго %d, Онлайн %d</string>
+    <string name="about">Пра сябе</string>
+    <string name="preferences">Перавагі</string>
+    <string name="no_about">Тут будзе інфармацыя пра вас</string>
+    <string name="no_preference">Тут будуць вашы перавагі</string>
     <string name="email_hint">Увядзіце email</string>
     <string name="password_hint">Увядзіце пароль</string>
+    <string name="new_password_hint">Увядзіце новы пароль</string>
     <string name="confirm_password_hint">Пацвердзіце пароль</string>
     <string name="login_button">Увайсці</string>
     <string name="register_button">Зарэгістравацца</string>
@@ -24,6 +32,7 @@
     <string name="gender_female">Жаночы</string>
     <string name="gender_any">Любы</string>
     <string name="submit_button">Адправіць</string>
+    <string name="update_button">Абнавіць</string>
     <string name="skip_button">Прапусціць</string>
     <string name="chat_members_title">Удзельнікі чату</string>
     <string name="close_button_description">Закрыць</string>

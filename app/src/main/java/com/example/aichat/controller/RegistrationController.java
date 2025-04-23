@@ -16,20 +16,14 @@ import com.example.aichat.model.connection.OnConnectionEvents;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class RegistrationController {
-
     private RegistrationActivity activity;
     private ConnectionManager connectionManager;
+    private PasswordController passwordController;
 
     private TextInputLayout emailInputLayout;
-    private TextInputLayout passwordInputLayout;
-    private TextInputLayout confirmPasswordInputLayout;
     private EditText emailEditText;
-    private EditText passwordEditText;
-    private EditText confirmPasswordEditText;
     private Button registrationButton;
     private boolean isEmailValidFlag = false;
-    private boolean isPasswordValidFlag = false;
-    private boolean isConfirmPasswordValidFlag = false;
 
     public RegistrationController(RegistrationActivity activity,
                                   TextInputLayout emailInputLayout,
@@ -41,12 +35,16 @@ public class RegistrationController {
                                   Button registrationButton) {
         this.activity = activity;
         this.emailInputLayout = emailInputLayout;
-        this.passwordInputLayout = passwordInputLayout;
-        this.confirmPasswordInputLayout = confirmPasswordInputLayout;
         this.emailEditText = emailEditText;
-        this.passwordEditText = passwordEditText;
-        this.confirmPasswordEditText = confirmPasswordEditText;
         this.registrationButton = registrationButton;
+
+        this.passwordController = new PasswordController(
+                passwordInputLayout,
+                confirmPasswordInputLayout,
+                passwordEditText,
+                confirmPasswordEditText,
+                this::enableRegistrationButton
+        );
 
         connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         if (connectionManager == null) {
@@ -55,11 +53,12 @@ public class RegistrationController {
         }
 
         setupConnectionCallbacks();
-        setupFieldListeners();
+        setupEmailListener();
         setupRegistrationButton();
 
         registrationButton.setEnabled(false);
     }
+
     private void setupConnectionCallbacks() {
         connectionManager.setConnectionEvent(new OnConnectionEvents() {
             @Override
@@ -80,38 +79,24 @@ public class RegistrationController {
             }
 
             @Override
-            public void OnConnectionFailed() {
-            }
+            public void OnConnectionFailed() {}
 
             @Override
-            public void OnOpen() {
-            }
+            public void OnOpen() {}
         });
     }
-    private void setupFieldListeners() {
+
+    private void setupEmailListener() {
         emailEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 validateEmail();
                 enableRegistrationButton();
             }
         });
-        passwordEditText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) {
-                validatePassword();
-                enableRegistrationButton();
-            }
-        });
-        confirmPasswordEditText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) {
-                validateConfirmPassword();
-                enableRegistrationButton();
-            }
-        });
 
         emailEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -121,52 +106,16 @@ public class RegistrationController {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-        passwordEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                passwordInputLayout.setError(null);
-                isPasswordValidFlag = isPasswordValid(s.toString().trim());
-                validateConfirmPassword();
-                enableRegistrationButton();
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
-        confirmPasswordEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                confirmPasswordInputLayout.setError(null);
-                isConfirmPasswordValidFlag = s.toString().trim().equals(passwordEditText.getText().toString().trim());
-                enableRegistrationButton();
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
+            public void afterTextChanged(Editable s) {}
         });
     }
 
     private void setupRegistrationButton() {
         registrationButton.setOnClickListener(v -> {
             String email = emailEditText.getText().toString().trim();
-            String password = passwordEditText.getText().toString().trim();
             Command command = new Command("Registration");
             command.addData("email", email);
-            command.addData("password", password);
+            command.addData("password", passwordController.getPassword());
             connectionManager.SendCommand(command);
         });
     }
@@ -182,45 +131,14 @@ public class RegistrationController {
         }
     }
 
-    private void validatePassword() {
-        String password = passwordEditText.getText().toString().trim();
-        if (!isPasswordValid(password)) {
-            passwordInputLayout.setError(activity.getString(R.string.invalid_password_error));
-            isPasswordValidFlag = false;
-        } else {
-            passwordInputLayout.setError(null);
-            isPasswordValidFlag = true;
-        }
-    }
-
-    private void validateConfirmPassword() {
-        if (!confirmPasswordEditText.getText().toString().isEmpty()) {
-            String password = passwordEditText.getText().toString().trim();
-            String confirmPassword = confirmPasswordEditText.getText().toString().trim();
-            if (!confirmPassword.equals(password)) {
-                confirmPasswordInputLayout.setError(activity.getString(R.string.password_mismatch_error));
-                isConfirmPasswordValidFlag = false;
-            } else {
-                confirmPasswordInputLayout.setError(null);
-                isConfirmPasswordValidFlag = true;
-            }
-        }
-    }
-
     private void enableRegistrationButton() {
-        registrationButton.setEnabled(isEmailValidFlag && isPasswordValidFlag && isConfirmPasswordValidFlag);
+        registrationButton.setEnabled(isEmailValidFlag &&
+                passwordController.isPasswordValid() &&
+                passwordController.isConfirmPasswordValid());
     }
 
     private boolean isEmailValid(String email) {
         String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,6}$";
         return !TextUtils.isEmpty(email) && email.matches(emailPattern);
-    }
-
-    private boolean isPasswordValid(String password) {
-        if (password.length() < 8) {
-            return false;
-        }
-        String passwordPattern = "^(?=.*[0-9])(?=.*[a-zа-я])(?=.*[A-ZА-Я])(?=.*[@#$%^&+=!]).{8,}$";
-        return password.matches(passwordPattern);
     }
 }

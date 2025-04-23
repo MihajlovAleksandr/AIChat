@@ -3,7 +3,9 @@ package com.example.aichat.model.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Preference {
+import java.io.Serializable;
+
+public class Preference implements Serializable {
     @JsonProperty("id")
     private int id;
 
@@ -68,7 +70,7 @@ public class Preference {
 
     @Override
     public String toString() {
-        return String.format("Preference {%d}:\n%s%d-%d", id, gender, minAge, maxAge);
+        return String.format("%s %d-%d", gender, minAge, maxAge);
     }
 
 }

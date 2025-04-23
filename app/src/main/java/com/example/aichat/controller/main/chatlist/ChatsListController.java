@@ -114,7 +114,7 @@ public class ChatsListController {
     }
     public void openLanguageSettings(FragmentActivity activity) {
         activity.getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_container, new SettingsFragment(connectionManager))
+                .replace(R.id.main_container, new SettingsFragment(connectionManager, activity))
                 .addToBackStack(null)
                 .commit();
     }

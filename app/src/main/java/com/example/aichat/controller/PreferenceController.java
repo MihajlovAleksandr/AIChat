@@ -19,6 +19,8 @@ import com.example.aichat.model.entities.Preference;
 import com.example.aichat.model.SecurePreferencesManager;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.Objects;
+
 public class PreferenceController {
 
     private PreferenceActivity activity;
@@ -29,59 +31,128 @@ public class PreferenceController {
     private RadioGroup genderGroup;
     private Button submitButton;
     private Button skipButton;
+    private boolean isEditMode = false;
+    private Preference preferenceToEdit;
 
+    // Первый конструктор (оригинальный)
     public PreferenceController(PreferenceActivity activity,
                                 TextInputLayout minAgeInputLayout,
                                 TextInputLayout maxAgeInputLayout,
                                 RadioGroup genderGroup,
                                 Button submitButton,
                                 Button skipButton) {
+        this(activity, minAgeInputLayout, maxAgeInputLayout, genderGroup, submitButton, skipButton, null);
+    }
+
+    // Второй конструктор для редактирования данных
+    public PreferenceController(PreferenceActivity activity,
+                                TextInputLayout minAgeInputLayout,
+                                TextInputLayout maxAgeInputLayout,
+                                RadioGroup genderGroup,
+                                Button submitButton,
+                                Button skipButton,
+                                Preference preferenceToEdit) {
         this.activity = activity;
         this.minAgeInputLayout = minAgeInputLayout;
         this.maxAgeInputLayout = maxAgeInputLayout;
         this.genderGroup = genderGroup;
         this.submitButton = submitButton;
         this.skipButton = skipButton;
+        this.preferenceToEdit = preferenceToEdit;
+
+        if (preferenceToEdit != null) {
+            this.isEditMode = true;
+            populateFormWithPreference();
+            skipButton.setVisibility(Button.GONE);
+        }
+
         connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         if (connectionManager == null) {
             ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(""));
             connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         }
+
         setupConnectionCallbacks();
         setupButtons();
+        setupValidation();
+    }
+
+    private void populateFormWithPreference() {
+        if (preferenceToEdit != null) {
+            minAgeInputLayout.getEditText().setText(String.valueOf(preferenceToEdit.getMinAge()));
+            maxAgeInputLayout.getEditText().setText(String.valueOf(preferenceToEdit.getMaxAge()));
+
+            String gender = preferenceToEdit.getGender();
+            int radioButtonId = -1;
+            for (int i = 0; i < genderGroup.getChildCount(); i++) {
+                RadioButton radioButton = (RadioButton) genderGroup.getChildAt(i);
+                if (radioButton.getTag().toString().equals(gender)) {
+                    radioButtonId = radioButton.getId();
+                    break;
+                }
+            }
+            if (radioButtonId != -1) {
+                genderGroup.check(radioButtonId);
+            }
+
+            submitButton.setText(R.string.update_button);
+        }
     }
 
     private void setupConnectionCallbacks() {
-        connectionManager.setConnectionEvent(new OnConnectionEvents() {
-            @Override
-            public void OnCommandGot(Command command) {
-                switch (command.getOperation()) {
-                    case "CreateToken":
-                        String token = command.getData("token", String.class);
-                        SecurePreferencesManager.saveAuthToken(activity, token);
-                        break;
-                    case "LoginIn":
-                        ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
-                        Intent intent = new Intent(activity, MainActivity.class);
-                        int userId = command.getData("userId", int.class);
-                        SecurePreferencesManager.saveUserId(activity, userId);
-                        intent.putExtra("userId", userId);
-                        activity.startActivity(intent);
+        if (isEditMode) {
+            connectionManager.addConnectionEvent(new OnConnectionEvents() {
+                @Override
+                public void OnCommandGot(Command command) {
+                    if (Objects.equals(command.getOperation(), "PreferenceUpdated")) {
+                        connectionManager.removeConnectionEvent(this);
                         activity.finish();
-                        break;
+                    }
                 }
-            }
 
-            @Override
-            public void OnConnectionFailed() {
-                Log.e("PreferenceController", "Connection failed");
-            }
+                @Override
+                public void OnConnectionFailed() {
+                    Log.e("PreferenceController", "Connection failed");
+                }
 
-            @Override
-            public void OnOpen() {
-                Log.d("PreferenceController", "Connection opened");
-            }
-        });
+                @Override
+                public void OnOpen() {
+                    Log.d("PreferenceController", "Connection opened");
+                }
+            });
+        }
+        else {
+            connectionManager.setConnectionEvent(new OnConnectionEvents() {
+                @Override
+                public void OnCommandGot(Command command) {
+                    switch (command.getOperation()) {
+                        case "CreateToken":
+                            String token = command.getData("token", String.class);
+                            SecurePreferencesManager.saveAuthToken(activity, token);
+                            break;
+                        case "LoginIn":
+                            ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
+                            Intent intent = new Intent(activity, MainActivity.class);
+                            int userId = command.getData("userId", int.class);
+                            SecurePreferencesManager.saveUserId(activity, userId);
+                            intent.putExtra("userId", userId);
+                            activity.startActivity(intent);
+                            activity.finish();
+                            break;
+                    }
+                }
+
+                @Override
+                public void OnConnectionFailed() {
+                    Log.e("PreferenceController", "Connection failed");
+                }
+
+                @Override
+                public void OnOpen() {
+                    Log.d("PreferenceController", "Connection opened");
+                }
+            });
+        }
     }
 
     private void setupButtons() {
@@ -91,11 +162,13 @@ public class PreferenceController {
             int selectedGenderId = genderGroup.getCheckedRadioButtonId();
             RadioButton selectedGender = activity.findViewById(selectedGenderId);
             String gender = selectedGender.getTag().toString();
+
             Preference preference = new Preference(minAge, maxAge, gender);
-            Command command = new Command("AddPreference");
+            Command command = new Command(isEditMode ? "UpdatePreference" : "AddPreference");
             command.addData("preference", preference);
             connectionManager.SendCommand(command);
         });
+
         skipButton.setOnClickListener(v ->
                 connectionManager.SendCommand(new Command("AddPreference"))
         );
@@ -116,6 +189,7 @@ public class PreferenceController {
             public void afterTextChanged(Editable s) {
             }
         });
+
         minAgeInputLayout.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -130,6 +204,7 @@ public class PreferenceController {
             public void afterTextChanged(Editable s) {
             }
         });
+
         genderGroup.setOnCheckedChangeListener((group, checkedId) -> {
             validateAndUpdateGender();
         });

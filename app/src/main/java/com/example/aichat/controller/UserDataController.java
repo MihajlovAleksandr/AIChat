@@ -28,30 +28,54 @@ public class UserDataController {
     private RadioGroup genderGroup;
     private Button submitButton;
     private ConnectionManager connectionManager;
+    private boolean isEditMode = false;
+    private UserData userDataToEdit;
 
+    // Первый конструктор (оригинальный)
     public UserDataController(UserDataActivity activity,
                               TextInputLayout nameInputLayout,
                               TextInputLayout ageInputLayout,
                               RadioGroup genderGroup,
                               Button submitButton) {
+        this(activity, nameInputLayout, ageInputLayout, genderGroup, submitButton, null);
+    }
+
+    // Второй конструктор для редактирования данных
+    public UserDataController(UserDataActivity activity,
+                              TextInputLayout nameInputLayout,
+                              TextInputLayout ageInputLayout,
+                              RadioGroup genderGroup,
+                              Button submitButton,
+                              UserData userDataToEdit) {
         this.activity = activity;
         this.nameInputLayout = nameInputLayout;
         this.ageInputLayout = ageInputLayout;
         this.genderGroup = genderGroup;
         this.submitButton = submitButton;
+        this.userDataToEdit = userDataToEdit;
+
+        if (userDataToEdit != null) {
+            this.isEditMode = true;
+            populateFormWithUserData();
+        }
+
         connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         if (connectionManager == null) {
             ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(""));
             connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         }
 
-        connectionManager.setConnectionEvent(new OnConnectionEvents() {
+        connectionManager.addConnectionEvent(new OnConnectionEvents() {
             @Override
             public void OnCommandGot(Command command) {
                 if (Objects.equals(command.getOperation(), "UserDataAdded")) {
                     ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
                     Intent intent = new Intent(activity, PreferenceActivity.class);
                     activity.startActivity(intent);
+                    activity.finish();
+                }
+                else if(Objects.equals(command.getOperation(), "UserDataUpdated")){
+                    connectionManager.removeConnectionEvent(this);
                     activity.finish();
                 }
             }
@@ -66,9 +90,29 @@ public class UserDataController {
                 Log.d("UserDataController", "Connection opened");
             }
         });
-
+        submitButton.setEnabled(true);
         setupValidation();
         setupSubmitButton();
+    }
+
+    private void populateFormWithUserData() {
+        if (userDataToEdit != null) {
+            nameInputLayout.getEditText().setText(userDataToEdit.getName());
+            ageInputLayout.getEditText().setText(String.valueOf(userDataToEdit.getAge()));
+            char gender = userDataToEdit.getGender();
+            int radioButtonId = -1;
+            for (int i = 0; i < genderGroup.getChildCount(); i++) {
+                RadioButton radioButton = (RadioButton) genderGroup.getChildAt(i);
+                if (radioButton.getTag().toString().charAt(0) == gender) {
+                    radioButtonId = radioButton.getId();
+                    break;
+                }
+            }
+            if (radioButtonId != -1) {
+                genderGroup.check(radioButtonId);
+            }
+            submitButton.setText(R.string.update_button);
+        }
     }
 
     private void setupValidation() {
@@ -111,7 +155,7 @@ public class UserDataController {
         String gender = selectedGender.getTag().toString();
 
         UserData userData = new UserData(name, age, gender.charAt(0));
-        Command command = new Command("AddUserData");
+        Command command = new Command(isEditMode ? "UpdateUserData" : "AddUserData");
         command.addData("userData", userData);
         connectionManager.SendCommand(command);
     }

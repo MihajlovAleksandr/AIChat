@@ -3,7 +3,9 @@ package com.example.aichat.model.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class UserData {
+import java.io.Serializable;
+
+public class UserData implements Serializable {
     @JsonProperty
     private int id;
     @JsonProperty
@@ -59,7 +61,7 @@ public class UserData {
     @JsonIgnore
     @Override
     public String toString() {
-        return String.format("UserData {%d}\n%c%d\n%s", id, gender, age, name);
+        return String.format("%s (%c%d)", name, gender, age);
     }
 
 }

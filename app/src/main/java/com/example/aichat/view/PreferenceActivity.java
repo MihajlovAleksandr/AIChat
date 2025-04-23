@@ -1,5 +1,6 @@
 package com.example.aichat.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.aichat.R;
 import com.example.aichat.controller.PreferenceController;
+import com.example.aichat.model.entities.Preference;
 import com.google.android.material.textfield.TextInputLayout;
 import android.widget.RadioGroup;
 
@@ -45,15 +47,30 @@ public class PreferenceActivity extends BaseActivity {
                 showPopup(v, getString(R.string.min_age_info)));
         maxAgeInfoIcon.setOnClickListener(v ->
                 showPopup(v, getString(R.string.max_age_info)));
-
-        controller = new PreferenceController(
+        Intent intent = getIntent();
+        Preference preference = intent.getSerializableExtra("preference",Preference.class);
+        if(preference!=null){
+            controller = new PreferenceController(
+                    this,
+                    minAgeInputLayout,
+                    maxAgeInputLayout,
+                    genderGroup,
+                    submitButton,
+                    skipButton,
+                    preference
+            );
+            findViewById(R.id.progressDots).setVisibility(View.GONE);
+        }
+        else{
+            controller = new PreferenceController(
                 this,
                 minAgeInputLayout,
                 maxAgeInputLayout,
                 genderGroup,
                 submitButton,
                 skipButton
-        );
+            );
+        }
         controller.setupValidation();
     }
 

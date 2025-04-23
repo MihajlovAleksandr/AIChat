@@ -1,5 +1,7 @@
 package com.example.aichat.view;
 
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -13,7 +15,10 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.aichat.R;
+import com.example.aichat.model.entities.UserData;
 import com.google.android.material.textfield.TextInputLayout;
+
+import java.util.Objects;
 
 public class UserDataActivity extends BaseActivity {
     private TextInputLayout nameInputLayout;
@@ -27,6 +32,8 @@ public class UserDataActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Intent intent = getIntent();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_data);
 
@@ -36,15 +43,27 @@ public class UserDataActivity extends BaseActivity {
         submitButton = findViewById(R.id.submitButton);
         nameInfoIcon = findViewById(R.id.nameInfoIcon);
         ageInfoIcon = findViewById(R.id.ageInfoIcon);
-
-        controller = new com.example.aichat.controller.UserDataController(
-                this,
-                nameInputLayout,
-                ageInputLayout,
-                genderGroup,
-                submitButton
-        );
-
+        UserData userData = intent.getSerializableExtra("userData", UserData.class);
+        if(userData==null) {
+            controller = new com.example.aichat.controller.UserDataController(
+                    this,
+                    nameInputLayout,
+                    ageInputLayout,
+                    genderGroup,
+                    submitButton
+            );
+        }
+        else {
+            controller = new com.example.aichat.controller.UserDataController(
+                    this,
+                    nameInputLayout,
+                    ageInputLayout,
+                    genderGroup,
+                    submitButton,
+                    userData
+            );
+            findViewById(R.id.progressDots).setVisibility(View.GONE);
+        }
         // Используем строковые ресурсы на английском языке для всплывающих подсказок
         nameInfoIcon.setOnClickListener(v -> showPopup(v, getString(R.string.name_popup_info)));
         ageInfoIcon.setOnClickListener(v -> showPopup(v, getString(R.string.age_popup_info)));
