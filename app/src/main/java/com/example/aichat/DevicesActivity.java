@@ -19,7 +19,7 @@ import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.OnConnectionEvents;
 import com.example.aichat.model.entities.Command;
-import com.example.aichat.model.utils.ConnectionInfo;
+import com.example.aichat.model.entities.ConnectionInfo;
 import com.example.aichat.view.BaseActivity;
 import com.google.android.material.tabs.TabLayout;
 

@@ -1,7 +1,8 @@
-package com.example.aichat.model.utils;
+package com.example.aichat.model.entities;
 
 import androidx.annotation.Nullable;
 
+import com.example.aichat.model.utils.TimeConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

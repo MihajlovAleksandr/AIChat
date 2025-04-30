@@ -1,8 +1,10 @@
 package com.example.aichat.view.main;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +16,8 @@ import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.SecurePreferencesManager;
 import com.example.aichat.model.entities.Command;
+import com.example.aichat.model.notifications.NotificationHelper;
+import com.example.aichat.model.notifications.PermissionUtils;
 import com.example.aichat.view.BaseActivity;
 
 public class MainActivity extends BaseActivity {
@@ -56,8 +60,37 @@ public class MainActivity extends BaseActivity {
         };
 
         getOnBackPressedDispatcher().addCallback(this, callback);
+        if (PermissionUtils.requestNotificationPermission(this)) {
+            // Разрешение уже есть, можно показывать уведомление
+            showDemoNotification();
+        }
+        // Если разрешения нет, результат придет в onRequestPermissionsResult
     }
 
+    // Обработка результата запроса разрешения
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PermissionUtils.NOTIFICATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Разрешение получено, показываем уведомление
+                showDemoNotification();
+            } else {
+                // Пользователь отказал
+                Toast.makeText(this, "Разрешение отклонено. Уведомления не будут показаны.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    // Показать тестовое уведомление
+    private void showDemoNotification() {
+        NotificationHelper.showNotification(
+                this,
+                "Тестовое уведомление",
+                "Привет! Это проверка работы уведомлений."
+        );
+    }
 
 
     public void openChat(int chatId) {
