@@ -1,6 +1,5 @@
 package com.example.aichat.view.main.chatlist;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +8,6 @@ import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,7 +20,6 @@ import com.example.aichat.model.entities.Chat;
 import com.example.aichat.model.entities.Message;
 import com.example.aichat.model.entities.MessageChat;
 import com.example.aichat.view.main.MainActivity;
-import com.example.aichat.SettingsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -115,7 +112,7 @@ public class ChatsListFragment extends Fragment {
         });
     }
     public void openLanguageSettings() {
-        controller.openLanguageSettings(requireActivity());
+        controller.openSettings(requireActivity());
     }
 
 

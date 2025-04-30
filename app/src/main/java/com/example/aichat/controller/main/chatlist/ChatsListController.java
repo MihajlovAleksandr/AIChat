@@ -1,26 +1,21 @@
 package com.example.aichat.controller.main.chatlist;
 
+import android.content.Intent;
 import android.util.Log;
 
 import androidx.fragment.app.FragmentActivity;
 
-import com.example.aichat.R;
-import com.example.aichat.SettingsFragment;
+import com.example.aichat.SettingsActivity;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.OnConnectionEvents;
 import com.example.aichat.model.entities.Chat;
-import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.entities.Message;
 import com.example.aichat.model.entities.MessageChat;
 import com.example.aichat.view.main.chatlist.ChatsListFragment;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class ChatsListController {
     private boolean isChatSearching = false;
@@ -112,11 +107,9 @@ public class ChatsListController {
         isChatSearching = !isChatSearching;
         fragment.setFabAddChatState(isChatSearching);
     }
-    public void openLanguageSettings(FragmentActivity activity) {
-        activity.getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_container, new SettingsFragment(connectionManager, activity))
-                .addToBackStack(null)
-                .commit();
+    public void openSettings(FragmentActivity activity) {
+        Intent intent = new Intent(activity, SettingsActivity.class);
+        activity.startActivity(intent);
     }
     public void Destroy(){
         connectionManager.removeConnectionEvent(connectionEvents);

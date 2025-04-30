@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">AIChat</string>
     <string name="language">Язык</string>
+    <string name="logout">Выход</string>
     <string name="first_fragment_label">Первый фрагмент</string>
     <string name="second_fragment_label">Второй фрагмент</string>
     <string name="hello_blank_fragment">Привет, пустой фрагмент</string>
@@ -75,4 +76,15 @@
     <string name="faq">Частые вопросы</string>
     <string name="privacy_policy">Политика конфиденциальности</string>
     <string name="support">Поддержка</string>
+    <string name="no_permissions">Разрешения не предоставлены</string>
+    <string name="login_qr_failed">Ошибка при входе по QR-коду</string>
+    <string name="ok">ок</string>
+    <string name="online">онлайн</string>
+    <string name="qr_login_in_prompt">Войдите с помощью QR-кода</string>
+    <string name="scan_qr_prompt">Отсканируйте QR-код, чтобы подключить устройство</string>
+    <string name="scan">Скканировать</string>
+    <string name="all_devices">Все устройства</string>
+    <string name="offline">Офлайн</string>
+    <string name="Online">Онлайн</string>
+    <string name="terminate_button">Завершить все другие сеансы</string>
 </resources>

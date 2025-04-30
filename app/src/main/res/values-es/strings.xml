@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">AIChat</string>
     <string name="language">Idioma</string>
+    <string name="logout">Cerrar sesión</string>
     <string name="first_fragment_label">Primer Fragmento</string>
     <string name="second_fragment_label">Segundo Fragmento</string>
     <string name="hello_blank_fragment">Hola, fragmento en blanco</string>
@@ -75,4 +76,15 @@
     <string name="faq">Preguntas frecuentes</string>
     <string name="privacy_policy">Política de privacidad</string>
     <string name="support">Soporte</string>
+    <string name="no_permissions">No se conceden permisos</string>
+    <string name="login_qr_failed">Error de Inicio de sesión con código QR</string>
+    <string name="ok">ok</string>
+    <string name="online">en línea</string>
+    <string name="qr_login_in_prompt">Ingrese a través del código QR</string>
+    <string name="scan_qr_prompt">Escanee el código QR para conectar el dispositivo</string>
+    <string name="scan">Escanear</string>
+    <string name="all_devices">Todos los dispositivos</string>
+    <string name="offline">fuera de línea</string>
+    <string name="Online">En línea</string>
+    <string name="terminate_button">Cerrar todas las demás sesiones</string>
 </resources>

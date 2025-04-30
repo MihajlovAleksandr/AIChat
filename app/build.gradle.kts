@@ -13,7 +13,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "SERVER_URL", "\"wss://192.168.100.12:8888/\"")
+        buildConfigField("String", "SERVER_URL", "\"wss://192.168.100.14:8888/\"")
     }
 
     buildTypes {
@@ -36,7 +36,6 @@ android {
         buildConfig = true
     }
 }
-
 dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -47,6 +46,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.play.services.mlkit.barcode.scanning)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -60,5 +60,11 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0")
     implementation ("androidx.room:room-runtime:2.5.0")
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    implementation ("androidx.camera:camera-core:1.1.0")
+    implementation ("androidx.camera:camera-camera2:1.1.0")
+    implementation ("androidx.camera:camera-lifecycle:1.1.0")
+    implementation ("androidx.camera:camera-view:1.1.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
     annotationProcessor ("androidx.room:room-compiler:2.5.0")
 }
