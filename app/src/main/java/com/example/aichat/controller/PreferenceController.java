@@ -129,6 +129,7 @@ public class PreferenceController {
                         case "CreateToken":
                             String token = command.getData("token", String.class);
                             SecurePreferencesManager.saveAuthToken(activity, token);
+                            connectionManager.setToken(token);
                             break;
                         case "LoginIn":
                             ConnectionSingleton.getInstance().setConnectionManager(connectionManager);

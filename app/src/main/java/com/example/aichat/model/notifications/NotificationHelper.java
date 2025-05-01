@@ -1,42 +1,33 @@
 package com.example.aichat.model.notifications;
 
-import android.Manifest;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
-import android.content.pm.PackageManager;
+import android.content.Intent;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.core.content.ContextCompat;
+import com.example.aichat.R;
+import com.example.aichat.view.main.MainActivity;
+import java.util.Random;
 
 public class NotificationHelper {
+    private static final String CHANNEL_ID = "default_channel";
+    private static final String CHANNEL_NAME = "Основные уведомления";
 
-    private static final String CHANNEL_ID = "my_channel_id";
-    private static final String CHANNEL_NAME = "My Channel";
-    private static final String CHANNEL_DESCRIPTION = "My Notification Channel";
-
-    public static void showNotification(Context context, String title, String message) {
-        createNotificationChannel(context);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setAutoCancel(true);
-
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-
-        // Проверяем разрешение (для API 33+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                return; // Разрешения нет, уведомление не показываем
-            }
+    public static void sendNotification(Context context, String title, String message) {
+        if (!NotificationSettingsManager.enableToSendNotifications(context)) {
+            return;
         }
 
-        notificationManager.notify(1, builder.build());
+        createNotificationChannel(context);
+
+        NotificationManager manager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        Notification notification = buildNotification(context, title, message);
+        manager.notify(new Random().nextInt(), notification);
     }
 
     private static void createNotificationChannel(Context context) {
@@ -45,10 +36,24 @@ public class NotificationHelper {
                     CHANNEL_ID,
                     CHANNEL_NAME,
                     NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription(CHANNEL_DESCRIPTION);
 
-            NotificationManager manager = context.getSystemService(NotificationManager.class);
+            NotificationManager manager =
+                    context.getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
         }
+    }
+
+    private static Notification buildNotification(Context context, String title, String message) {
+        Intent intent = new Intent(context, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+
+        return new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_info_outline)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build();
     }
 }

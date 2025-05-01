@@ -87,4 +87,11 @@
     <string name="offline">Офлайн</string>
     <string name="Online">Онлайн</string>
     <string name="terminate_button">Завершить все другие сеансы</string>
+    <!-- Notification Strings -->
+    <string name="notifications_permission_denied_message">Уведомления останутся отключенными без разрешения</string>
+    <string name="browser_not_found">Браузер не найден</string>
+    <string name="email_app_not_found">Почтовое приложение не найдено</string>
+    <string name="notifications_permission_denied">Уведомления отключены. Вы можете включить их в настройках</string>
+    <string name="demo_notification_title">Тестовое уведомление</string>
+    <string name="demo_notification_message">Привет! Это проверка работы уведомлений</string>
 </resources>

@@ -87,4 +87,11 @@
     <string name="offline">fuera de línea</string>
     <string name="Online">En línea</string>
     <string name="terminate_button">Cerrar todas las demás sesiones</string>
+    <!-- Notification Strings -->
+    <string name="notifications_permission_denied_message">Las notificaciones permanecerán desactivadas sin permiso</string>
+    <string name="browser_not_found">Navegador no encontrado</string>
+    <string name="email_app_not_found">Aplicación de correo no encontrada</string>
+    <string name="notifications_permission_denied">Las notificaciones están desactivadas. Puede habilitarlas en la configuración</string>
+    <string name="demo_notification_title">Notificación de prueba</string>
+    <string name="demo_notification_message">¡Hola! Esta es una prueba de notificación</string>
 </resources>

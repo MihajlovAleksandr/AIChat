@@ -81,6 +81,7 @@ public class LoginController {
                     case "CreateToken":
                         String tokenCreated = command.getData("token", String.class);
                         SecurePreferencesManager.saveAuthToken(activity, tokenCreated);
+                        connectionManager.setToken(tokenCreated);
                         break;
                     case "LoginIn":
                         ConnectionSingleton.getInstance().setConnectionManager(connectionManager);

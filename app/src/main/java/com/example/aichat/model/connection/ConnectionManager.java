@@ -33,7 +33,7 @@ public class ConnectionManager {
     private WebSocket webSocket;
     private final OkHttpClient client;
     private boolean Connected = false;
-    private final Request request;
+    private Request request;
     private final WebSocketListener webSocketListener;
     private long lastInitializeTime = 0;
     private static final long RECONNECT_INTERVAL_MS = 1000;
@@ -88,7 +88,9 @@ public class ConnectionManager {
         Initialize();
     }
 
-
+    public void setToken(String token){
+        request = getRequest(token);
+    }
     private void Initialize() {
         Log.d("Connection", "Initializing ConnectionManager");
         webSocket = client.newWebSocket(request, webSocketListener);

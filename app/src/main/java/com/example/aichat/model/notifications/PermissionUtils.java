@@ -8,32 +8,23 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 public class PermissionUtils {
-
     public static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1001;
 
-    /**
-     * Проверяет и запрашивает разрешение на уведомления (для Android 13+)
-     * @param activity Активность, из которой идет запрос
-     * @return true - если разрешение уже есть, false - если запрошено
-     */
-    public static boolean requestNotificationPermission(Activity activity) {
-        // Для API < 33 разрешение не требуется
+    public static boolean hasNotificationPermission(Activity activity) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             return true;
         }
+        return ContextCompat.checkSelfPermission(activity,
+                Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
+    }
 
-        // Проверяем, есть ли уже разрешение
-        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.POST_NOTIFICATIONS)
-                == PackageManager.PERMISSION_GRANTED) {
-            return true;
+    public static void requestNotificationPermission(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(
+                    activity,
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    NOTIFICATION_PERMISSION_REQUEST_CODE
+            );
         }
-
-        // Если разрешения нет, запрашиваем его
-        ActivityCompat.requestPermissions(
-                activity,
-                new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                NOTIFICATION_PERMISSION_REQUEST_CODE
-        );
-        return false;
     }
 }

@@ -87,4 +87,11 @@
     <string name="offline">Офлайн</string>
     <string name="Online">Анлайн</string>
     <string name="terminate_button">Скончыць усе іншыя сеансы</string>
+    <!-- Notification Strings -->
+    <string name="notifications_permission_denied_message">Апавяшчэнні застануцца адключанымі без дазволу</string>
+    <string name="browser_not_found">Браўэр не знойдзены</string>
+    <string name="email_app_not_found">Почтавая праграма не знойдзена</string>
+    <string name="notifications_permission_denied">Апавяшчэнні адключаны. Вы можаце ўключыць іх у наладах</string>
+    <string name="demo_notification_title">Тэставае апавяшчэнне</string>
+    <string name="demo_notification_message">Прывітанне! Гэта праверка работы апавяшчэнняў</string>
 </resources>
