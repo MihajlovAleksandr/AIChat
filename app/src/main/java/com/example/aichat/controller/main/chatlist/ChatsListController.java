@@ -80,12 +80,12 @@ public class ChatsListController {
 
         @Override
         public void OnConnectionFailed() {
-
+            fragment.setConnectionSuccess(false);
         }
 
         @Override
         public void OnOpen() {
-
+            fragment.setConnectionSuccess(true);
         }
     };
 
@@ -104,8 +104,10 @@ public class ChatsListController {
         else {
             connectionManager.SendCommand(new Command("StopSearchingChat"));
         }
-        isChatSearching = !isChatSearching;
-        fragment.setFabAddChatState(isChatSearching);
+    }
+    public void setInChatSearching(boolean isChatSearching){
+        this.isChatSearching = isChatSearching;
+        fragment.setFabAddChatState(!isChatSearching);
     }
     public void openSettings(FragmentActivity activity) {
         Intent intent = new Intent(activity, SettingsActivity.class);

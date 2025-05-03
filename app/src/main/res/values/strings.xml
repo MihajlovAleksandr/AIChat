@@ -117,4 +117,5 @@
     <string name="notifications_permission_denied">Notifications are disabled. You can enable them in settings</string>
     <string name="demo_notification_title">Test notification</string>
     <string name="demo_notification_message">Hello! This is a notification test</string>
+    <string name="connecting">Connecting...</string>
 </resources>

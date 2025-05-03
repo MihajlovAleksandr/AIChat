@@ -94,4 +94,5 @@
     <string name="notifications_permission_denied">Апавяшчэнні адключаны. Вы можаце ўключыць іх у наладах</string>
     <string name="demo_notification_title">Тэставае апавяшчэнне</string>
     <string name="demo_notification_message">Прывітанне! Гэта праверка работы апавяшчэнняў</string>
+    <string name="connecting">Падлучэнне...</string>
 </resources>

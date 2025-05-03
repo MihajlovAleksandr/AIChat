@@ -94,4 +94,5 @@
     <string name="notifications_permission_denied">Уведомления отключены. Вы можете включить их в настройках</string>
     <string name="demo_notification_title">Тестовое уведомление</string>
     <string name="demo_notification_message">Привет! Это проверка работы уведомлений</string>
+    <string name="connecting">Подключение....</string>
 </resources>

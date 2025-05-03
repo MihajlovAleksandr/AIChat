@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -34,6 +35,7 @@ public class ChatsListFragment extends Fragment {
     private RecyclerView recyclerView;
     private FloatingActionButton fabAddChat;
     private ImageButton btnLanguage;
+    private TextView appNameView;
     private ChatAdapter chatAdapter;
     private ChatsListController controller;
     private final Executor databaseExecutor = Executors.newSingleThreadExecutor();
@@ -52,6 +54,7 @@ public class ChatsListFragment extends Fragment {
         // Инициализация RecyclerView
         recyclerView = view.findViewById(R.id.rv_chats);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        appNameView = view.findViewById(R.id.tv_app_name);
 
         // Инициализация адаптера
         chatAdapter = new ChatAdapter(chat -> {
@@ -137,6 +140,20 @@ public class ChatsListFragment extends Fragment {
 
     public void endChat(Chat chat) {
         requireActivity().runOnUiThread(() -> chatAdapter.endChat(chat));
+    }
+
+    public void setIsChatSearching(boolean isChatSearching){
+        controller.setInChatSearching(isChatSearching);
+    }
+
+    public void setConnectionSuccess(boolean isConnected){
+        getActivity().runOnUiThread(()-> {
+            if (isConnected) {
+                appNameView.setText(getString(R.string.app_name));
+            } else {
+                appNameView.setText(getString(R.string.connecting));
+            }
+        });
     }
 
     @Override

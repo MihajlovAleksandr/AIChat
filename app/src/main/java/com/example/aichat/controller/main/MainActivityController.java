@@ -43,6 +43,7 @@ public class MainActivityController {
                         appDatabase.chatDao().endChat(endedChat.getId(),  endedChat.getEndTime());
                         break;
                     case "SyncDB":
+                        mainActivityAdapter.setIsChatSearching(command.getData("isChatSearching", boolean.class));
                         Chat[] newChats = command.getData("newChats", Chat[].class);
                         for (Chat chat:newChats) {
                             appDatabase.chatDao().insertChat(chat);
@@ -68,6 +69,9 @@ public class MainActivityController {
                         appDatabase.messageDao().clearTable();
                         activity.startActivity(intent);
                         activity.finish();
+                        break;
+                    case "SearchChat":
+                        mainActivityAdapter.setIsChatSearching(command.getData("isChatSeaching", boolean.class));
                         break;
                 }
             }

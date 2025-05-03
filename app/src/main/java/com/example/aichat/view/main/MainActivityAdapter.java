@@ -53,8 +53,13 @@ public class MainActivityAdapter extends FragmentStateAdapter {
             fragment.setActivity(fragmentActivity);
             return fragment;
         }
-        chatsListFragment=new ChatsListFragment(connectionManager);
+        chatsListFragment = new ChatsListFragment(connectionManager);
         return chatsListFragment;
+    }
+
+    public void setIsChatSearching(boolean isChatSearching){
+        fragmentActivity.runOnUiThread(()->
+        chatsListFragment.setIsChatSearching(isChatSearching));
     }
 
     @Override

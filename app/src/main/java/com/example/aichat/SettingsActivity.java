@@ -26,7 +26,7 @@ import com.example.aichat.view.UserDataActivity;
 public class SettingsActivity extends BaseActivity {
     private static final String WEBSITE_URL = "https://mihajlovaleksandr.github.io/AIChatSite/";
     private static final String SUPPORT_EMAIL = "aichatcorp@gmail.com";
-
+    private Switch showEmailNotificationsSwitch;
     private ConnectionManager connectionManager;
     private TextView emailText, devicesText, userDataText, preferenceText;
     private OnConnectionEvents events;
@@ -75,6 +75,7 @@ public class SettingsActivity extends BaseActivity {
                             userDataText.setText(userData.toString());
                             int[] devicesCount = command.getData("devices", int[].class);
                             devicesText.setText(getString(R.string.device_status, devicesCount[0], devicesCount[1]));
+                            showEmailNotificationsSwitch.setChecked(command.getData("emailNotifications", boolean.class));
                             break;
                         case "PreferenceUpdated":
                             preference = command.getData("preference", Preference.class);
@@ -88,6 +89,9 @@ public class SettingsActivity extends BaseActivity {
                         case "ConnectionsChange":
                             int[] devices = command.getData("count", int[].class);
                             devicesText.setText(getString(R.string.device_status, devices[0], devices[1]));
+                            break;
+                        case "EmailNotifications":
+                            showEmailNotificationsSwitch.setChecked(command.getData("enabled", boolean.class));
                             break;
                     }
                 });
@@ -140,6 +144,12 @@ public class SettingsActivity extends BaseActivity {
 
     private void setupNotificationSection() {
         Switch showNotificationsSwitch = findViewById(R.id.show_notifications_switch);
+        showEmailNotificationsSwitch = findViewById(R.id.email_notifications_switch);
+        showEmailNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked)->{
+            Command command = new Command("EmailNotifications");
+            command.addData("enabled", isChecked);
+            connectionManager.SendCommand(command);
+        });
         showNotificationsSwitch.setChecked(NotificationSettingsManager.areNotificationsEnabled(this));
 
         showNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
