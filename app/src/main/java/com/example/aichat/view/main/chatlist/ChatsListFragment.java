@@ -1,6 +1,7 @@
 package com.example.aichat.view.main.chatlist;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,6 +111,7 @@ public class ChatsListFragment extends Fragment {
     });
     }
     public void updateLastMessage(Message message){
+        Log.d("ChatListFragment", "updateLastMessage");
         requireActivity().runOnUiThread(() -> {
             chatAdapter.updateLastMessage(message);
         });
@@ -142,12 +144,8 @@ public class ChatsListFragment extends Fragment {
         requireActivity().runOnUiThread(() -> chatAdapter.endChat(chat));
     }
 
-    public void setIsChatSearching(boolean isChatSearching){
-        controller.setInChatSearching(isChatSearching);
-    }
-
     public void setConnectionSuccess(boolean isConnected){
-        getActivity().runOnUiThread(()-> {
+        requireActivity().runOnUiThread(()-> {
             if (isConnected) {
                 appNameView.setText(getString(R.string.app_name));
             } else {

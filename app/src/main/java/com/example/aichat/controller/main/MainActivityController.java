@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
 
+import com.example.aichat.model.SecurePreferencesManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.database.AppDatabase;
 import com.example.aichat.model.database.DatabaseManager;
@@ -20,30 +21,18 @@ public class MainActivityController {
     private ConnectionManager connectionManager;
     private AppDatabase appDatabase;
     MainActivityAdapter mainActivityAdapter;
+    public OnConnectionEvents events;
 
-    public MainActivityController(ConnectionManager connectionManager, Activity activity, MainActivityAdapter mainActivityAdapter) {
+    public MainActivityController(ConnectionManager connectionManager, Activity activity, MainActivityAdapter mainActivityAdapter, boolean isNewActivity) {
         Log.d("Loading", "MainActivityController");
         this.mainActivityAdapter =  mainActivityAdapter;
         appDatabase = DatabaseManager.getDatabase();
         this.connectionManager = connectionManager;
-        connectionManager.setConnectionEvent(new OnConnectionEvents() {
+        events = new OnConnectionEvents() {
             @Override
             public void OnCommandGot(Command command) {
                 switch (command.getOperation()) {
-                    case "SendMessage":
-                        Message message = command.getData("message", Message.class);
-                        appDatabase.messageDao().insertMessage(message);
-                        break;
-                    case "CreateChat":
-                        Chat createdChat = command.getData("chat", Chat.class);
-                        appDatabase.chatDao().insertChat(createdChat);
-                        break;
-                    case "EndChat":
-                        Chat endedChat = command.getData("chat", Chat.class);
-                        appDatabase.chatDao().endChat(endedChat.getId(),  endedChat.getEndTime());
-                        break;
                     case "SyncDB":
-                        mainActivityAdapter.setIsChatSearching(command.getData("isChatSearching", boolean.class));
                         Chat[] newChats = command.getData("newChats", Chat[].class);
                         for (Chat chat:newChats) {
                             appDatabase.chatDao().insertChat(chat);
@@ -63,15 +52,7 @@ public class MainActivityController {
                         mainActivityAdapter.loadChatList();
                         break;
                     case "Logout":
-                        ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
-                        Intent intent = new Intent(activity, LoginActivity.class);
-                        appDatabase.chatDao().clearTable();
-                        appDatabase.messageDao().clearTable();
-                        activity.startActivity(intent);
-                        activity.finish();
-                        break;
-                    case "SearchChat":
-                        mainActivityAdapter.setIsChatSearching(command.getData("isChatSeaching", boolean.class));
+                        logout(activity);
                         break;
                 }
             }
@@ -85,7 +66,23 @@ public class MainActivityController {
             public void OnOpen() {
                 // Обработка открытия подключения
             }
-        });
+        };
+        if(isNewActivity)
+            connectionManager.setConnectionEvent(events);
+        else
+            connectionManager.addConnectionEvent(events);
+    }
+    public void logout(Activity activity){
+        SecurePreferencesManager.removeAuthToken(activity);
+        SecurePreferencesManager.removeUserId(activity);
+        ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
+        Intent intent = new Intent(activity, LoginActivity.class);
+        new Thread(()-> {
+            appDatabase.chatDao().clearTable();
+            appDatabase.messageDao().clearTable();
+        }).start();
+        activity.startActivity(intent);
+        activity.finish();
     }
     public int getCurrentChatId() {
         return currentChatId;
@@ -96,5 +93,8 @@ public class MainActivityController {
     }
     public ConnectionManager getConnectionManager(){
         return connectionManager;
+    }
+    public void destroy(){
+        connectionManager.removeConnectionEvent(events);
     }
 }

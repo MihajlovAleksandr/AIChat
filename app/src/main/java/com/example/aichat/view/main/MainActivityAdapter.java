@@ -1,14 +1,17 @@
 package com.example.aichat.view.main;
 
+import android.app.Activity;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.view.menu.ActionMenuItem;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.aichat.controller.main.MainActivityController;
 import com.example.aichat.model.connection.ConnectionManager;
+import com.example.aichat.model.entities.Command;
 import com.example.aichat.view.main.chat.ChatFragment;
 import com.example.aichat.view.main.chatlist.ChatsListFragment;
 
@@ -22,11 +25,11 @@ public class MainActivityAdapter extends FragmentStateAdapter {
 
     public MainActivityAdapter(@NonNull FragmentActivity fragmentActivity,
                                ConnectionManager connectionManager,
-                               int currentUserId) {
+                               int currentUserId,boolean isNewActivity) {
         super(fragmentActivity);
         this.fragmentActivity = fragmentActivity;
         this.currentUserId = currentUserId;
-        this.chatPageController = new MainActivityController(connectionManager, fragmentActivity,this);
+        this.chatPageController = new MainActivityController(connectionManager, fragmentActivity,this,  isNewActivity);
         this.connectionManager = connectionManager;
     }
 
@@ -57,9 +60,18 @@ public class MainActivityAdapter extends FragmentStateAdapter {
         return chatsListFragment;
     }
 
-    public void setIsChatSearching(boolean isChatSearching){
-        fragmentActivity.runOnUiThread(()->
-        chatsListFragment.setIsChatSearching(isChatSearching));
+    public void logout(Activity activity){
+        chatPageController.logout(activity);
+    }
+
+    public void mainActivityState(boolean isOnline){
+        Command command =  new Command("MainActivityState");
+        command.addData("isOnline",isOnline);
+        connectionManager.SendCommand(command);
+    }
+
+    public void destroy(){
+        chatPageController.destroy();
     }
 
     @Override

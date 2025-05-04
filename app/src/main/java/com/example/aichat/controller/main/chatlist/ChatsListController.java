@@ -40,6 +40,7 @@ public class ChatsListController {
                     fragment.endChat(endedChat);
                     break;
                 case "SyncDB":
+                    setIsChatSearching(command.getData("isChatSearching", boolean.class));
                     Chat[] newChats = command.getData("newChats", Chat[].class);
                     Message[] messages =  command.getData("newMessages", Message[].class);
                     List<Message> messageList = ChatController.getLastMessages(messages);
@@ -75,6 +76,9 @@ public class ChatsListController {
                         fragment.endChat(chat);
                     }
                     break;
+                case "SearchChat":
+                    setIsChatSearching(command.getData("isChatSearching", boolean.class));
+                    break;
             }
         }
 
@@ -105,9 +109,11 @@ public class ChatsListController {
             connectionManager.SendCommand(new Command("StopSearchingChat"));
         }
     }
-    public void setInChatSearching(boolean isChatSearching){
+    public void setIsChatSearching(boolean isChatSearching){
+        fragment.requireActivity().runOnUiThread(()->{
         this.isChatSearching = isChatSearching;
         fragment.setFabAddChatState(!isChatSearching);
+        });
     }
     public void openSettings(FragmentActivity activity) {
         Intent intent = new Intent(activity, SettingsActivity.class);

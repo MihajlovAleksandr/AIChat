@@ -163,6 +163,11 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        controller.destroy();
+        super.onDestroy();
+    }
 
     private class LoadChatAndMessagesTask extends AsyncTask<Integer, Void, ChatAndMessages> {
         @Override

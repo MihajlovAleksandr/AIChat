@@ -1,13 +1,18 @@
 package com.example.aichat.view.main;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.viewpager2.widget.ViewPager2;
 import com.example.aichat.R;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
+import com.example.aichat.model.connection.NetworkService;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.SecurePreferencesManager;
 import com.example.aichat.model.entities.Command;
@@ -24,30 +29,57 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         DatabaseManager.init(this);
         setupConnection();
+
+        Intent serviceIntent = new Intent(this, NetworkService.class);
+        if (isServiceRunning(NetworkService.class)) {
+            pagerAdapter.mainActivityState(true);
+        }
+        else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent);
+            } else {
+                startService(serviceIntent);
+            }
+        }
         setupViewPager();
         setupBackPressHandler();
         checkAndRequestNotificationPermission();
     }
 
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void setupConnection() {
+        boolean isNewActivity= false;
         ConnectionManager connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
+        String token = SecurePreferencesManager.getAuthToken(this);
         if (connectionManager == null) {
             ConnectionSingleton.getInstance().setConnectionManager(
-                    new ConnectionManager(SecurePreferencesManager.getAuthToken(this)));
+                    new ConnectionManager(token));
             connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
+            isNewActivity = true;
         }
 
         int userId = getIntent().getIntExtra("userId", -1);
         if (userId == -1) {
             userId = SecurePreferencesManager.getUserId(this);
         } else {
+            isNewActivity = true;
             connectionManager.SendCommand(new Command("SyncDB"));
         }
-
-        pagerAdapter = new MainActivityAdapter(this, connectionManager, userId);
+        pagerAdapter = new MainActivityAdapter(this, connectionManager, userId, isNewActivity);
+        if(token==null) {
+            pagerAdapter.logout(this);
+        }
     }
 
     private void setupViewPager() {
@@ -117,5 +149,12 @@ public class MainActivity extends BaseActivity {
 
     public void backToChats() {
         viewPager.setCurrentItem(0, true);
+    }
+
+    @Override
+    protected void onDestroy() {
+        pagerAdapter.destroy();
+        pagerAdapter.mainActivityState(false);
+        super.onDestroy();
     }
 }

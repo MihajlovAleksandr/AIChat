@@ -95,7 +95,7 @@ public class ChatFragmentController {
         command.addData("chatId", chatId);
         connectionManager.SendCommand(command);
     }
-    public void Destroy(){
+    public void destroy(){
         connectionManager.removeConnectionEvent(connectionEvents);
     }
 

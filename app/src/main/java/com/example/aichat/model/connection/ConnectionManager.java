@@ -32,7 +32,7 @@ import okhttp3.WebSocketListener;
 public class ConnectionManager {
     private WebSocket webSocket;
     private final OkHttpClient client;
-    private boolean Connected = false;
+    boolean Connected = false;
     private Request request;
     private final WebSocketListener webSocketListener;
     private long lastInitializeTime = 0;
