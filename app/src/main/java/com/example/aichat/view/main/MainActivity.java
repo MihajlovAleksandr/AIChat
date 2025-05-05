@@ -12,6 +12,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.aichat.R;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
+import com.example.aichat.model.connection.InAppConnection;
 import com.example.aichat.model.connection.NetworkService;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.SecurePreferencesManager;
@@ -24,28 +25,33 @@ import com.example.aichat.view.BaseActivity;
 public class MainActivity extends BaseActivity {
     private ViewPager2 viewPager;
     private MainActivityAdapter pagerAdapter;
+    InAppConnection inAppConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        DatabaseManager.init(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        DatabaseManager.init(this);
-        setupConnection();
-
-        Intent serviceIntent = new Intent(this, NetworkService.class);
-        if (isServiceRunning(NetworkService.class)) {
-            pagerAdapter.mainActivityState(true);
-        }
-        else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent);
-            } else {
-                startService(serviceIntent);
-            }
-        }
+        ConnectionManager connectionManager = setupConnection();
         setupViewPager();
         setupBackPressHandler();
         checkAndRequestNotificationPermission();
+        if(NotificationSettingsManager.isBackgroundUsageAllowed(this)) {
+            Intent serviceIntent = new Intent(this, NetworkService.class);
+            serviceIntent.putExtra("currentUserId", pagerAdapter.getCurrentUserId());
+            if (isServiceRunning(NetworkService.class)) {
+                pagerAdapter.mainActivityState(true);
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(serviceIntent);
+                } else {
+                    startService(serviceIntent);
+                }
+            }
+        }
+        else {
+            inAppConnection =  new InAppConnection(connectionManager, this,pagerAdapter.getCurrentUserId());
+        }
     }
 
     private boolean isServiceRunning(Class<?> serviceClass) {
@@ -58,7 +64,7 @@ public class MainActivity extends BaseActivity {
         return false;
     }
 
-    private void setupConnection() {
+    private ConnectionManager setupConnection() {
         boolean isNewActivity= false;
         ConnectionManager connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         String token = SecurePreferencesManager.getAuthToken(this);
@@ -80,6 +86,7 @@ public class MainActivity extends BaseActivity {
         if(token==null) {
             pagerAdapter.logout(this);
         }
+        return connectionManager;
     }
 
     private void setupViewPager() {
@@ -104,9 +111,6 @@ public class MainActivity extends BaseActivity {
 
     private void checkAndRequestNotificationPermission() {
         NotificationSettingsManager.requestNotificationPermissionIfNeeded(this);
-        if (NotificationSettingsManager.enableToSendNotifications(this)) {
-            showDemoNotification();
-        }
     }
 
     @Override
@@ -120,8 +124,8 @@ public class MainActivity extends BaseActivity {
                 new NotificationCallback() {
                     @Override
                     public void onPermissionResult(boolean granted) {
-                        if (granted && NotificationSettingsManager.enableToSendNotifications(MainActivity.this)) {
-                            showDemoNotification();
+                        if (granted && NotificationSettingsManager.canSendNotifications(MainActivity.this)) {
+
                         } else if (!granted) {
                             Toast.makeText(MainActivity.this,
                                     getString(R.string.notifications_permission_denied),
@@ -130,16 +134,6 @@ public class MainActivity extends BaseActivity {
                     }
                 }
         );
-    }
-
-    private void showDemoNotification() {
-        if (NotificationSettingsManager.enableToSendNotifications(this)) {
-            NotificationHelper.sendNotification(
-                    this,
-                    getString(R.string.demo_notification_title),
-                    getString(R.string.demo_notification_message)
-            );
-        }
     }
 
     public void openChat(int chatId) {
@@ -153,8 +147,14 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        if(inAppConnection!=null)
+        {
+            inAppConnection.destroy();
+        }
+        else {
+            pagerAdapter.mainActivityState(false);
+        }
         pagerAdapter.destroy();
-        pagerAdapter.mainActivityState(false);
         super.onDestroy();
     }
 }

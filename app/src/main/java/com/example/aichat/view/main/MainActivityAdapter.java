@@ -18,7 +18,7 @@ import com.example.aichat.view.main.chatlist.ChatsListFragment;
 public class MainActivityAdapter extends FragmentStateAdapter {
     private MainActivityController chatPageController;
     private ConnectionManager connectionManager;
-    private int currentUserId;
+    private final int currentUserId;
     private long lastChatFragmentId = System.currentTimeMillis();
     private ChatsListFragment chatsListFragment;
     private FragmentActivity fragmentActivity;
@@ -41,6 +41,10 @@ public class MainActivityAdapter extends FragmentStateAdapter {
     public void loadChatList()
     {
         chatsListFragment.loadChatsFromDatabase();
+    }
+
+    public int getCurrentUserId(){
+        return currentUserId;
     }
 
     @NonNull

@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
@@ -15,18 +16,18 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.example.aichat.R;
-import com.example.aichat.model.SecurePreferencesManager;
 import com.example.aichat.model.database.AppDatabase;
 import com.example.aichat.model.database.DatabaseManager;
-import com.example.aichat.model.entities.Chat;
+import com.example.aichat.model.database.DatabaseSaver;
 import com.example.aichat.model.entities.Command;
-import com.example.aichat.model.entities.Message;
+import com.example.aichat.model.notifications.NotificationHelper;
+import com.example.aichat.model.notifications.NotificationSettingsManager;
 
 public class NetworkService extends Service {
     private static final String TAG = "NetworkService";
     private static final String CHANNEL_ID = "NetworkServiceChannel";
     private static final int NOTIFICATION_ID = 1;
-
+    private static DatabaseSaver databaseSaver;
     private ConnectionManager connectionManager;
     private final OnConnectionEvents connectionEvents = new OnConnectionEvents() {
         @Override
@@ -37,21 +38,22 @@ public class NetworkService extends Service {
 
         @Override
         public void OnCommandGot(Command command) {
-            Log.d("NetworkService", "GotCommand");
-            AppDatabase appDatabase = DatabaseManager.getDatabase();
-            switch (command.getOperation()) {
-                case "SendMessage":
-                    Message message = command.getData("message", Message.class);
-                    appDatabase.messageDao().insertMessage(message);
-                    break;
-                case "CreateChat":
-                    Chat createdChat = command.getData("chat", Chat.class);
-                    appDatabase.chatDao().insertChat(createdChat);
-                    break;
-                case "EndChat":
-                    Chat endedChat = command.getData("chat", Chat.class);
-                    appDatabase.chatDao().endChat(endedChat.getId(),  endedChat.getEndTime());
-                    break;
+            Log.d("NetworkService", "GotCommand, IsAppActive "+ isAppActive());
+            com.example.aichat.model.entities.Notification value =  databaseSaver.commandGot(command,NetworkService.this);
+            if(value!=null) {
+                Context context = NetworkService.this;
+                if (NotificationSettingsManager.canSendNotifications(context)) {
+                    if (isAppActive()) {
+                        if (NotificationSettingsManager.areInAppNotificationsEnabled(context)) {
+                            NotificationHelper.sendNotification(context, value);
+                        }
+                    }
+                    else{
+                        if (NotificationSettingsManager.areBackgroundNotificationsEnabled(context)) {
+                            NotificationHelper.sendNotification(context, value);
+                        }
+                    }
+                }
             }
         }
 
@@ -67,12 +69,19 @@ public class NetworkService extends Service {
         super.onCreate();
         Log.d(TAG, "Service created");
         createNotificationChannel();
+        initializeDatabaseSaver();
         initializeConnection();
     }
 
     private void initializeConnection() {
         connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         connectionManager.addConnectionEvent(connectionEvents);
+    }
+
+
+    private void initializeDatabaseSaver() {
+        AppDatabase appDatabase = DatabaseManager.getDatabase();
+        databaseSaver = new DatabaseSaver(appDatabase);
     }
 
     private void updateNotification(String text) {
@@ -89,7 +98,7 @@ public class NetworkService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "Service started");
-
+        databaseSaver.setCurrentUserId(intent.getIntExtra("currentUserId", -1));
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Сетевое соединение")
                 .setContentText(connectionManager.Connected ? "Connected" : "Connecting...")
@@ -121,7 +130,7 @@ public class NetworkService extends Service {
         }
     }
 
-    private boolean isAppInForeground() {
+    private boolean isAppActive() {
         return ProcessLifecycleOwner.get().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
     }
 

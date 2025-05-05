@@ -175,7 +175,38 @@
                 android:textColor="#FF0000"
                 android:textStyle="bold"/>
         </LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/background_work_section"
+            android:textSize="18sp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"/>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:id="@+id/background_work_item"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/allow_background_work"
+                android:textColor="?android:attr/textColorPrimary"/>
+
+            <Switch
+                android:id="@+id/background_work_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
         <!-- Notifications Section -->
         <TextView
             android:layout_width="match_parent"
@@ -300,7 +331,7 @@
                 android:id="@+id/vibration_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
-        </LinearLayout>
+        </LinearLayout>        <!-- Background Work Section -->
 
         <!-- Language Section -->
         <TextView

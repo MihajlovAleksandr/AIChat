@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -26,7 +27,18 @@ import com.example.aichat.view.UserDataActivity;
 public class SettingsActivity extends BaseActivity {
     private static final String WEBSITE_URL = "https://mihajlovaleksandr.github.io/AIChatSite/";
     private static final String SUPPORT_EMAIL = "aichatcorp@gmail.com";
+
+    // UI элементы
     private Switch showEmailNotificationsSwitch;
+    private Switch showNotificationsSwitch;
+    private Switch backgroundWorkSwitch;
+    private Switch backgroundNotificationsSwitch;
+    private Switch inAppNotificationsSwitch;
+    private Switch vibrationSwitch;
+
+    // Флаг для определения программного изменения Switch
+    private boolean isProgrammaticChange = false;
+
     private ConnectionManager connectionManager;
     private TextView emailText, devicesText, userDataText, preferenceText;
     private OnConnectionEvents events;
@@ -43,22 +55,47 @@ public class SettingsActivity extends BaseActivity {
         initializeViews();
         setupConnectionEvents();
         setupClickListeners();
+        loadNotificationSettings();
 
         connectionManager.SendCommand(new Command("GetSettingsInfo"));
         NotificationSettingsManager.requestNotificationPermissionIfNeeded(this);
     }
 
     private void initializeViews() {
+        // Кнопка назад
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(v -> finish());
 
+        // Текстовые поля
         emailText = findViewById(R.id.email_text);
         devicesText = findViewById(R.id.devices_text);
         userDataText = findViewById(R.id.userData_text);
         preferenceText = findViewById(R.id.preference_text);
 
+        // Версия приложения
         TextView versionText = findViewById(R.id.version_text);
         versionText.setText(getString(R.string.version_format, "1.0.0"));
+
+        // Переключатели уведомлений
+        showNotificationsSwitch = findViewById(R.id.show_notifications_switch);
+        showEmailNotificationsSwitch = findViewById(R.id.email_notifications_switch);
+        backgroundWorkSwitch = findViewById(R.id.background_work_switch);
+        backgroundNotificationsSwitch = findViewById(R.id.background_notifications_switch);
+        inAppNotificationsSwitch = findViewById(R.id.in_app_notifications_switch);
+        vibrationSwitch = findViewById(R.id.vibration_switch);
+    }
+
+    private void loadNotificationSettings() {
+        isProgrammaticChange = true;
+
+        // Загружаем сохраненные настройки уведомлений
+        showNotificationsSwitch.setChecked(NotificationSettingsManager.areNotificationsEnabled(this));
+        backgroundWorkSwitch.setChecked(NotificationSettingsManager.isBackgroundWorkAllowed(this));
+        backgroundNotificationsSwitch.setChecked(NotificationSettingsManager.areBackgroundNotificationsEnabled(this));
+        inAppNotificationsSwitch.setChecked(NotificationSettingsManager.areInAppNotificationsEnabled(this));
+        vibrationSwitch.setChecked(NotificationSettingsManager.isVibrationEnabled(this));
+
+        isProgrammaticChange = false;
     }
 
     private void setupConnectionEvents() {
@@ -68,6 +105,9 @@ public class SettingsActivity extends BaseActivity {
                 runOnUiThread(() -> {
                     switch (command.getOperation()) {
                         case "GetSettingsInfo":
+                            isProgrammaticChange = true;
+
+                            // Получаем данные пользователя
                             emailText.setText(command.getData("email", String.class));
                             preference = command.getData("preference", Preference.class);
                             userData = command.getData("userData", UserData.class);
@@ -76,6 +116,8 @@ public class SettingsActivity extends BaseActivity {
                             int[] devicesCount = command.getData("devices", int[].class);
                             devicesText.setText(getString(R.string.device_status, devicesCount[0], devicesCount[1]));
                             showEmailNotificationsSwitch.setChecked(command.getData("emailNotifications", boolean.class));
+
+                            isProgrammaticChange = false;
                             break;
                         case "PreferenceUpdated":
                             preference = command.getData("preference", Preference.class);
@@ -91,7 +133,9 @@ public class SettingsActivity extends BaseActivity {
                             devicesText.setText(getString(R.string.device_status, devices[0], devices[1]));
                             break;
                         case "EmailNotifications":
+                            isProgrammaticChange = true;
                             showEmailNotificationsSwitch.setChecked(command.getData("enabled", boolean.class));
+                            isProgrammaticChange = false;
                             break;
                     }
                 });
@@ -114,6 +158,7 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private void setupProfileSection() {
+        // Изменение пароля
         findViewById(R.id.change_password_item).setOnClickListener(v -> {
             if (userData != null) {
                 startActivity(new Intent(this, ChangePasswordActivity.class)
@@ -121,9 +166,11 @@ public class SettingsActivity extends BaseActivity {
             }
         });
 
+        // Устройства
         findViewById(R.id.devices_item).setOnClickListener(v ->
                 startActivity(new Intent(this, DevicesActivity.class)));
 
+        // Данные пользователя
         findViewById(R.id.userData_item).setOnClickListener(v -> {
             if (userData != null) {
                 startActivity(new Intent(this, UserDataActivity.class)
@@ -131,6 +178,7 @@ public class SettingsActivity extends BaseActivity {
             }
         });
 
+        // Настройки
         findViewById(R.id.preference_item).setOnClickListener(v -> {
             if (preference != null) {
                 startActivity(new Intent(this, PreferenceActivity.class)
@@ -138,24 +186,106 @@ public class SettingsActivity extends BaseActivity {
             }
         });
 
+        // Выход
         findViewById(R.id.logout_item).setOnClickListener(v ->
                 connectionManager.SendCommand(new Command("DeleteConnection")));
     }
 
     private void setupNotificationSection() {
-        Switch showNotificationsSwitch = findViewById(R.id.show_notifications_switch);
-        showEmailNotificationsSwitch = findViewById(R.id.email_notifications_switch);
-        showEmailNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked)->{
+        // Email уведомления
+        showEmailNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isProgrammaticChange) return;
+
             Command command = new Command("EmailNotifications");
             command.addData("enabled", isChecked);
             connectionManager.SendCommand(command);
         });
-        showNotificationsSwitch.setChecked(NotificationSettingsManager.areNotificationsEnabled(this));
 
+        // Основные уведомления
         showNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isProgrammaticChange) return;
+
             NotificationSettingsManager.setNotificationsEnabled(this, isChecked);
-            if (isChecked) {
+
+            isProgrammaticChange = true;
+            if (!isChecked) {
+                // Отключаем все связанные уведомления
+                showEmailNotificationsSwitch.setChecked(false);
+                backgroundNotificationsSwitch.setChecked(false);
+                inAppNotificationsSwitch.setChecked(false);
+                vibrationSwitch.setChecked(false);
+
+                // Сохраняем изменения
+                NotificationSettingsManager.setBackgroundNotificationsEnabled(this, false);
+                NotificationSettingsManager.setInAppNotificationsEnabled(this, false);
+                NotificationSettingsManager.setVibrationEnabled(this, false);
+
+                // Отправляем команду для email уведомлений
+                Command command = new Command("EmailNotifications");
+                command.addData("enabled", false);
+                connectionManager.SendCommand(command);
+            } else {
                 NotificationSettingsManager.requestNotificationPermissionIfNeeded(this);
+            }
+            isProgrammaticChange = false;
+        });
+
+        // Фоновая работа
+        backgroundWorkSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isProgrammaticChange) return;
+
+            NotificationSettingsManager.setBackgroundWorkAllowed(this, isChecked);
+
+            isProgrammaticChange = true;
+            if (!isChecked) {
+                backgroundNotificationsSwitch.setChecked(false);
+                NotificationSettingsManager.setBackgroundNotificationsEnabled(this, false);
+            }
+            isProgrammaticChange = false;
+        });
+
+        // Фоновые уведомления
+        backgroundNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isProgrammaticChange) return;
+
+            // Проверяем, включены ли основные уведомления
+            if (isChecked && !showNotificationsSwitch.isChecked()) {
+                isProgrammaticChange = true;
+                backgroundNotificationsSwitch.setChecked(false);
+                isProgrammaticChange = false;
+                Toast.makeText(this, R.string.enable_notifications_first, Toast.LENGTH_SHORT).show();
+            } else {
+                NotificationSettingsManager.setBackgroundNotificationsEnabled(this, isChecked);
+            }
+        });
+
+        // Внутриприложенные уведомления
+        inAppNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isProgrammaticChange) return;
+
+            // Проверяем, включены ли основные уведомления
+            if (isChecked && !showNotificationsSwitch.isChecked()) {
+                isProgrammaticChange = true;
+                inAppNotificationsSwitch.setChecked(false);
+                isProgrammaticChange = false;
+                Toast.makeText(this, R.string.enable_notifications_first, Toast.LENGTH_SHORT).show();
+            } else {
+                NotificationSettingsManager.setInAppNotificationsEnabled(this, isChecked);
+            }
+        });
+
+        // Вибрация
+        vibrationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isProgrammaticChange) return;
+
+            // Проверяем, включены ли основные уведомления
+            if (isChecked && !showNotificationsSwitch.isChecked()) {
+                isProgrammaticChange = true;
+                vibrationSwitch.setChecked(false);
+                isProgrammaticChange = false;
+                Toast.makeText(this, R.string.enable_notifications_first, Toast.LENGTH_SHORT).show();
+            } else {
+                NotificationSettingsManager.setVibrationEnabled(this, isChecked);
             }
         });
     }
@@ -171,9 +301,10 @@ public class SettingsActivity extends BaseActivity {
                 new NotificationCallback() {
                     @Override
                     public void onPermissionResult(boolean granted) {
-                        Switch notificationsSwitch = findViewById(R.id.show_notifications_switch);
                         if (!granted) {
-                            notificationsSwitch.setChecked(false);
+                            isProgrammaticChange = true;
+                            showNotificationsSwitch.setChecked(false);
+                            isProgrammaticChange = false;
                             Toast.makeText(SettingsActivity.this,
                                     R.string.notifications_permission_denied,
                                     Toast.LENGTH_SHORT).show();
@@ -222,10 +353,15 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private void setupReferenceSection() {
+        // FAQ
         findViewById(R.id.faq_item).setOnClickListener(v ->
                 openWebPage(WEBSITE_URL + "faq.html"));
+
+        // Политика конфиденциальности
         findViewById(R.id.policy_item).setOnClickListener(v ->
                 openWebPage(WEBSITE_URL + "privacy.html"));
+
+        // Поддержка
         findViewById(R.id.support_item).setOnClickListener(v ->
                 sendEmail(SUPPORT_EMAIL, "Support request"));
     }

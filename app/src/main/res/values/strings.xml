@@ -118,4 +118,12 @@
     <string name="demo_notification_title">Test notification</string>
     <string name="demo_notification_message">Hello! This is a notification test</string>
     <string name="connecting">Connecting...</string>
+    <string name="new_message">New message</string>
+    <string name="new_chat">Chat was created</string>
+    <string name="end_chat">Chat was ended</string>
+    <string name="start_chatting">Start chatting</string>
+    <string name="start_new_chat">Start a new chat</string>
+    <string name="background_work_section">Background Work</string>
+    <string name="allow_background_work">Allow background work</string>
+    <string name="enable_notifications_first">First, enable basic notifications</string>
 </resources>
