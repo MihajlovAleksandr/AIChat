@@ -26,6 +26,10 @@ public interface MessageDao {
     List<Message> getLastMessages(List<Integer> chats);
     @Query("SELECT * FROM Messages")
     List<Message> getMessages();
+    @Query("SELECT m.* FROM messages m INNER JOIN (SELECT chat, MIN(id) as first_message_id FROM messages WHERE text LIKE :message GROUP BY chat) first_msgs ON m.id = first_msgs.first_message_id AND m.Chat = first_msgs.Chat;")
+    List<Message> getMessagesByText(String message);
+    @Query("SELECT * FROM messages WHERE Text LIKE :message AND Chat = :chatId")
+    List<Message> getMessagesByText(String message, int  chatId);
     @Update
     void updateMessage(Message message);
     @Query("DELETE FROM Messages")

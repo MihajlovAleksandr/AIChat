@@ -2,6 +2,7 @@ package com.example.aichat.controller.main.chat;
 
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.OnConnectionEvents;
+import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.entities.Chat;
 import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.entities.Message;
@@ -11,6 +12,7 @@ import com.example.aichat.view.main.chat.ChatFragment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ChatFragmentController {
     private int chatId;
@@ -71,6 +73,14 @@ public class ChatFragmentController {
 
         }
     };
+    public void findMessages(String text) {
+        if (!Objects.equals(text, "")) {
+            new Thread(() -> {
+                List<Message> messages = DatabaseManager.getDatabase().messageDao().getMessagesByText("%" + text + "%", chatId);
+                fragment.findMessages(messages, text);
+            }).start();
+        }
+    }
 
     public ChatFragmentController(ChatFragment fragment,ConnectionManager connectionManager, int chatId, int currentUserId) {
         this.fragment = fragment;

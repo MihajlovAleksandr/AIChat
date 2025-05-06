@@ -23,10 +23,12 @@ import java.util.List;
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
 
     private final List<MessageChat> chatList;
+    private List<MessageChat> visibleChats;
     private final OnChatClickListener listener;
 
     public ChatAdapter(OnChatClickListener listener) {
         this.chatList = new ArrayList<>();
+        visibleChats = chatList;
         this.listener = listener;
     }
 
@@ -40,7 +42,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         chatList.addAll(newChats);
         notifyDataSetChanged();
     }
-
+    public void setVisibleChats(List<MessageChat> chats){
+        visibleChats =  chats;
+        notifyDataSetChanged();
+    }
+    public void setAllChatsVisible(){
+        visibleChats = chatList;
+        notifyDataSetChanged();
+    }
     public void updateLastMessage(Message message) {
         for (int i = 0; i < chatList.size(); i++) {
             if (message.getChat() == chatList.get(i).getChat().getId()) {
@@ -76,7 +85,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
-        MessageChat messageChat = chatList.get(position);
+        MessageChat messageChat = visibleChats.get(position);
         holder.bind(messageChat);
 
         holder.itemView.setOnClickListener(v -> {
@@ -88,7 +97,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
     @Override
     public int getItemCount() {
-        return chatList.size();
+        return visibleChats.size();
     }
 
     static class ChatViewHolder extends RecyclerView.ViewHolder {

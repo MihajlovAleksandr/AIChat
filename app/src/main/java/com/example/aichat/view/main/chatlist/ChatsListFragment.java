@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -40,9 +41,18 @@ public class ChatsListFragment extends Fragment {
     private ChatAdapter chatAdapter;
     private ChatsListController controller;
     private final Executor databaseExecutor = Executors.newSingleThreadExecutor();
+
+    // Search elements
+    private ImageButton btnSearch;
+    private View searchLayout;
+    private ImageButton btnBack;
+    private EditText etSearch;
+    private ImageButton btnSearchAction;
+
     public ChatsListFragment() {
         this.controller = new ChatsListController(this, ConnectionSingleton.getInstance().getConnectionManager());
     }
+
     public ChatsListFragment(ConnectionManager connectionManager) {
         this.controller = new ChatsListController(this, connectionManager);
     }
@@ -66,60 +76,96 @@ public class ChatsListFragment extends Fragment {
         // Инициализация кнопок
         btnLanguage = view.findViewById(R.id.btn_settings);
         fabAddChat = view.findViewById(R.id.fab_add_chat);
+        btnSearch = view.findViewById(R.id.btn_search);
+        searchLayout = view.findViewById(R.id.search_layout);
+        btnBack = view.findViewById(R.id.btn_back);
+        etSearch = view.findViewById(R.id.et_search);
+        btnSearchAction = view.findViewById(R.id.btn_search_action);
 
-        // Установка обработчиков кликов
         btnLanguage.setOnClickListener(v -> openLanguageSettings());
         fabAddChat.setOnClickListener(v -> controller.addStopChat());
+
+        btnSearch.setOnClickListener(v -> {
+            searchLayout.setVisibility(View.VISIBLE);
+            btnSearch.setVisibility(View.GONE);
+            etSearch.requestFocus();
+        });
+
+        btnBack.setOnClickListener(v -> closeSearch());
+
+        btnSearchAction.setOnClickListener(v -> performSearch(etSearch.getText().toString()));
 
         loadChatsFromDatabase();
 
         return view;
     }
 
-    public void loadChatsFromDatabase() {databaseExecutor.execute(() -> {
-        List<Chat> chats = DatabaseManager.getDatabase().chatDao().getAllChats();
-        List<Integer> chatIds = chats.stream()
-                .map(Chat::getId)
-                .collect(Collectors.toList());
-        List<Message> lastMessages = DatabaseManager.getDatabase().messageDao().getLastMessages(chatIds);
-        int currentMessage = 0;
-        List<MessageChat> messageChats = new ArrayList<>();
-        if(lastMessages.size()==0){
-            for (Chat chat:chats) {
-                messageChats.add(new MessageChat(null, chat));
-            }
-        }else {
-            for (int i = 0; i < chats.size(); i++) {
-                int finalI = i;
-                if(currentMessage >= lastMessages.size()){
-                    messageChats.add(new MessageChat(null, chats.get(finalI)));
+    private void closeSearch() {
+        searchLayout.setVisibility(View.GONE);
+        btnSearch.setVisibility(View.VISIBLE);
+        controller.cancelSearch();
+    }
+
+    private void performSearch(String query) {
+        controller.searchChat(query);
+    }
+
+    public void loadChatsFromDatabase() {
+        databaseExecutor.execute(() -> {
+            List<Chat> chats = DatabaseManager.getDatabase().chatDao().getAllChats();
+            List<Integer> chatIds = chats.stream()
+                    .map(Chat::getId)
+                    .collect(Collectors.toList());
+            List<Message> lastMessages = DatabaseManager.getDatabase().messageDao().getLastMessages(chatIds);
+            int currentMessage = 0;
+            List<MessageChat> messageChats = new ArrayList<>();
+
+            if (lastMessages.size() == 0) {
+                for (Chat chat : chats) {
+                    messageChats.add(new MessageChat(null, chat));
                 }
-                else {
-                    if (chats.get(finalI).getId() == lastMessages.get(currentMessage).getChat()) {
-                        int finalCurrentMessage = currentMessage;
-                        currentMessage++;
-                        messageChats.add(new MessageChat(lastMessages.get(finalCurrentMessage), chats.get(finalI)));
-                    } else {
+            } else {
+                for (int i = 0; i < chats.size(); i++) {
+                    int finalI = i;
+                    if (currentMessage >= lastMessages.size()) {
                         messageChats.add(new MessageChat(null, chats.get(finalI)));
+                    } else {
+                        if (chats.get(finalI).getId() == lastMessages.get(currentMessage).getChat()) {
+                            int finalCurrentMessage = currentMessage;
+                            currentMessage++;
+                            messageChats.add(new MessageChat(lastMessages.get(finalCurrentMessage), chats.get(finalI)));
+                        } else {
+                            messageChats.add(new MessageChat(null, chats.get(finalI)));
+                        }
                     }
                 }
-            }}
-        Collections.sort(messageChats);
-        requireActivity().runOnUiThread(() -> {
-            chatAdapter.setChats(messageChats);
+            }
+
+            Collections.sort(messageChats);
+            requireActivity().runOnUiThread(() -> {
+                chatAdapter.setChats(messageChats);
+            });
         });
-    });
     }
-    public void updateLastMessage(Message message){
+    public void updateChatList(List<MessageChat> messageChats){
+        requireActivity().runOnUiThread(()->
+            chatAdapter.setVisibleChats(messageChats));
+    }
+    public void rollbackChats(){
+        requireActivity().runOnUiThread(()->
+                chatAdapter.setAllChatsVisible());
+    }
+
+    public void updateLastMessage(Message message) {
         Log.d("ChatListFragment", "updateLastMessage");
         requireActivity().runOnUiThread(() -> {
             chatAdapter.updateLastMessage(message);
         });
     }
+
     public void openLanguageSettings() {
         controller.openSettings(requireActivity());
     }
-
 
     public void createChat(Chat chat) {
         requireActivity().runOnUiThread(() -> {
@@ -127,6 +173,7 @@ public class ChatsListFragment extends Fragment {
             recyclerView.scrollToPosition(0);
         });
     }
+
     public void createChat(MessageChat chat) {
         requireActivity().runOnUiThread(() -> {
             chatAdapter.addChat(chat);
@@ -144,8 +191,8 @@ public class ChatsListFragment extends Fragment {
         requireActivity().runOnUiThread(() -> chatAdapter.endChat(chat));
     }
 
-    public void setConnectionSuccess(boolean isConnected){
-        requireActivity().runOnUiThread(()-> {
+    public void setConnectionSuccess(boolean isConnected) {
+        requireActivity().runOnUiThread(() -> {
             if (isConnected) {
                 appNameView.setText(getString(R.string.app_name));
             } else {

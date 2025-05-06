@@ -8,6 +8,8 @@ import androidx.fragment.app.FragmentActivity;
 import com.example.aichat.SettingsActivity;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.OnConnectionEvents;
+import com.example.aichat.model.database.AppDatabase;
+import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.entities.Chat;
 import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.entities.Message;
@@ -118,6 +120,21 @@ public class ChatsListController {
     public void openSettings(FragmentActivity activity) {
         Intent intent = new Intent(activity, SettingsActivity.class);
         activity.startActivity(intent);
+    }
+    public void searchChat(String query){
+        new Thread(() -> {
+            AppDatabase appDatabase = DatabaseManager.getDatabase();
+            List<Message> messages = appDatabase.messageDao().getMessagesByText("%" + query + "%");
+            List<MessageChat> messageChats = new ArrayList<MessageChat>();
+            for (int i = 0; i < messages.size(); i++) {
+                Message msg = messages.get(i);
+                messageChats.add(new MessageChat(msg, appDatabase.chatDao().getChatById(msg.getChat())));
+            }
+            fragment.updateChatList(messageChats);
+        }).start();
+    }
+    public void cancelSearch(){
+        fragment.rollbackChats();
     }
     public void Destroy(){
         connectionManager.removeConnectionEvent(connectionEvents);

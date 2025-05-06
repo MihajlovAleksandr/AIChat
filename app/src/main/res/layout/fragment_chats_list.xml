@@ -6,6 +6,57 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Добавляем новый ConstraintLayout для поиска (изначально скрыт) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/search_layout"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="5dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_cancel"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:tint="@android:color/white"
+            tools:ignore="ContentDescription" />
+
+        <EditText
+            android:id="@+id/et_search"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:hint="Search..."
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            app:layout_constraintStart_toEndOf="@id/btn_back"
+            app:layout_constraintEnd_toStartOf="@id/btn_search_action"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <ImageButton
+            android:id="@+id/btn_search_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_search"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:tint="@android:color/white"
+            tools:ignore="ContentDescription" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/topAppBar"
         android:layout_width="match_parent"

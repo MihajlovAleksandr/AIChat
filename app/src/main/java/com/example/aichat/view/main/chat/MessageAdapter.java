@@ -13,13 +13,16 @@ import com.example.aichat.R;
 import com.example.aichat.controller.main.chat.MessageController;
 import com.example.aichat.model.entities.Message;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
-    private List<Message> messages;
+    private final List<Message> messages;
     public MessageController messageController;
-    private RecyclerView recyclerView; // Будет установлен в onAttachedToRecyclerView
+    private RecyclerView recyclerView;
 
     public MessageAdapter(int currentUserId, List<Message> messages) {
         this.messageController = new MessageController(currentUserId);
@@ -42,6 +45,16 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 recyclerView.post(() -> {
                     recyclerView.smoothScrollToPosition(messages.size() - 1);
                 });
+            }
+        }
+    }
+    public void findMessages(Message messageToFind) {
+        for (int i = 0; i < messages.size(); i++) {
+            if (messages.get(i).getId() == messageToFind.getId()) {
+                if (recyclerView != null) {
+                    recyclerView.scrollToPosition(i);
+                }
+                break;
             }
         }
     }
@@ -71,20 +84,24 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     }
 
     class MessageViewHolder extends RecyclerView.ViewHolder {
+        Message message;
         TextView messageText;
         TextView timeText;
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
-
             messageText = itemView.findViewById(R.id.message_text);
             messageText.setMaxWidth((int) (recyclerView.getWidth()*0.8));
             timeText = itemView.findViewById(R.id.time_text);
         }
 
         public void bind(Message message) {
+            this.message = message;
             messageText.setText(message.getText());
             timeText.setText(messageController.getFormattedMessageTime(message));
+        }
+        public boolean isCurrentMessage(Message message){
+            return message.getId() == this.message.getId();
         }
     }
 }

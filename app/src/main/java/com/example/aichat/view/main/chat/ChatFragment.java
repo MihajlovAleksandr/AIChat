@@ -43,6 +43,12 @@ public class ChatFragment extends Fragment {
     private ChatMembersAdapter membersAdapter;
     private View membersPanel;
     private View invisibleClickArea;
+    ImageButton btnBack;
+    private View searchPanel;
+    private View resultSearchPanel;
+    private EditText searchET;
+    private List<Message> foundMessages;
+    private int foundMessageNumber;
 
     public void setActivity(FragmentActivity activity) {
         this.activity = activity;
@@ -61,7 +67,7 @@ public class ChatFragment extends Fragment {
         rvMessages = rootView.findViewById(R.id.rv_messages);
         rvMessages.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        ImageButton btnBack = rootView.findViewById(R.id.btn_back);
+        btnBack = rootView.findViewById(R.id.btn_back);
         btnBack.setOnClickListener(v -> navigateBack());
 
         tiMessage = rootView.findViewById(R.id.ti_message);
@@ -94,6 +100,7 @@ public class ChatFragment extends Fragment {
                     toggleMembersPanel();
                     return true;
                 } else if (id == R.id.menu_search_words) {
+                    toggleSearchPanel(true);
                     return true;
                 }
                 return false;
@@ -112,7 +119,19 @@ public class ChatFragment extends Fragment {
 
         ImageButton btnBackMembers = rootView.findViewById(R.id.btn_back_members);
         btnBackMembers.setOnClickListener(v -> toggleMembersPanel());
-
+        searchPanel = rootView.findViewById(R.id.search_layout);
+        resultSearchPanel = rootView.findViewById(R.id.searchResult_layout);
+        ImageButton backSearchBtn = rootView.findViewById(R.id.search_btn_back);
+        backSearchBtn.setOnClickListener(v->toggleSearchPanel(false));
+        ImageButton backSearchResultBtn = rootView.findViewById(R.id.searchResult_btn_back);
+        backSearchResultBtn.setOnClickListener(v->hideResultSearchPanel());
+        ImageButton searchActionBtn = rootView.findViewById(R.id.btn_search_action);
+        searchET = rootView.findViewById(R.id.et_search) ;
+        searchActionBtn.setOnClickListener(v->showSearchResult());
+        ImageButton upButton =rootView.findViewById(R.id.btn_top);
+        upButton.setOnClickListener(v->changeFoundMessageNumber(foundMessageNumber-1));
+        ImageButton downButton =rootView.findViewById(R.id.btn_bottom);
+        downButton.setOnClickListener(v->changeFoundMessageNumber(foundMessageNumber+1));
         return rootView;
     }
     public void updateOnlineState(int id, boolean isOnline){
@@ -131,10 +150,29 @@ public class ChatFragment extends Fragment {
             invisibleClickArea.setVisibility(View.VISIBLE);
         }
     }
-
+    private void showSearchResult(){
+        controller.findMessages(searchET.getText().toString());
+    }
+    private void hideResultSearchPanel(){
+        searchPanel.setVisibility(View.VISIBLE);
+        resultSearchPanel.setVisibility(View.GONE);
+    }
     public void sendMessage(Message message) {
         if (activity != null && messageAdapter != null) {
             activity.runOnUiThread(() -> {messageAdapter.addMessage(message); });
+        }
+    }
+    public void toggleSearchPanel(boolean needToShow){
+        if(needToShow){
+            searchPanel.setVisibility(View.VISIBLE);
+            btnOptions.setEnabled(false);
+            btnBack.setEnabled(false);
+
+        }
+        else{
+            searchPanel.setVisibility(View.GONE);
+            btnOptions.setEnabled(true);
+            btnBack.setEnabled(true);
         }
     }
 
@@ -201,6 +239,29 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    public void findMessages(List<Message> messages,String text) {
+        activity.runOnUiThread(() ->
+        {
+            foundMessageNumber=0;
+            TextView textView = resultSearchPanel.findViewById(R.id.tv_title);
+            textView.setText(text);
+            foundMessages = messages;
+            changeFoundMessageNumber(0);
+            resultSearchPanel.setVisibility(View.VISIBLE);
+            searchPanel.setVisibility(View.GONE);
+        });
+    }
+    private void changeFoundMessageNumber(int position){
+        if(position>=0 && position<foundMessages.size()){
+            foundMessageNumber=position;
+            if(!foundMessages.isEmpty()){
+                messageAdapter.findMessages(foundMessages.get(foundMessageNumber));
+            }
+        }
+        TextView countView =resultSearchPanel.findViewById(R.id.tv_searchResultCount);
+        countView.setText((foundMessageNumber+1)+"/"+foundMessages.size());
+
+    }
     private static class ChatAndMessages {
         Chat chat;
         List<Message> messages;

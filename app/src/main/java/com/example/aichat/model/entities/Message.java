@@ -1,5 +1,6 @@
 package com.example.aichat.model.entities;
 
+import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.Index;
@@ -115,5 +116,13 @@ public class Message {
     @JsonIgnore
     public boolean isMyMessage(int userId) {
         return userId == sender;
+    }
+    @JsonIgnore
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if(obj==null) return false;
+        if(obj.getClass()!=Message.class)return false;
+        Message other = (Message)obj;
+        return other.chat==chat;
     }
 }
