@@ -127,4 +127,7 @@
     <string name="allow_background_work">Allow background work</string>
     <string name="enable_notifications_first">First, enable basic notifications</string>
     <string name="search">Search...</string>
+    <string name="search_human_prompt">Human</string>
+    <string name="search_ai_prompt">AI</string>
+    <string name="search_random_prompt">Random</string>
 </resources>

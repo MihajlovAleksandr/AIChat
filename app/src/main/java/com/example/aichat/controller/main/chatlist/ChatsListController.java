@@ -19,6 +19,8 @@ import com.example.aichat.view.main.chatlist.ChatsListFragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
 public class ChatsListController {
     private boolean isChatSearching = false;
     private ChatsListFragment fragment;
@@ -102,14 +104,17 @@ public class ChatsListController {
         this.connectionManager = connectionManager;
     }
 
+    public void addChat(String param){
+        Command addChat = new Command("SearchChat");
+        addChat.addData("param", param);
+        connectionManager.SendCommand(addChat);
+    }
+    public void stopSearchingChat(){
+        connectionManager.SendCommand(new Command("StopSearchingChat"));
+    }
 
-    public void addStopChat() {
-        if (!isChatSearching) {
-            connectionManager.SendCommand(new Command("SearchChat"));
-        }
-        else {
-            connectionManager.SendCommand(new Command("StopSearchingChat"));
-        }
+    public boolean getIsChatSearching(){
+        return isChatSearching;
     }
     public void setIsChatSearching(boolean isChatSearching){
         fragment.requireActivity().runOnUiThread(()->{

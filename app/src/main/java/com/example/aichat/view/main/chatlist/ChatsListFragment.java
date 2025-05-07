@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -83,7 +84,32 @@ public class ChatsListFragment extends Fragment {
         btnSearchAction = view.findViewById(R.id.btn_search_action);
 
         btnLanguage.setOnClickListener(v -> openLanguageSettings());
-        fabAddChat.setOnClickListener(v -> controller.addStopChat());
+
+        fabAddChat.setOnClickListener(v -> {
+            if (!controller.getIsChatSearching()) {
+                PopupMenu popupMenu = new PopupMenu(requireActivity(), v);
+                popupMenu.inflate(R.menu.fab_menu);
+                popupMenu.setOnMenuItemClickListener(item -> {
+
+                    int id = item.getItemId();
+                    if (id == R.id.menu_human) {
+                        controller.addChat("human");
+                        return true;
+                    } else if (id == R.id.menu_ai) {
+                        controller.addChat("ai");
+                        return true;
+                    } else if (id == R.id.menu_random) {
+                        controller.addChat("random");
+                        return true;
+                    }
+                    return false;
+                });
+                popupMenu.show();
+            }
+            else {
+                controller.stopSearchingChat();
+            }
+        });
 
         btnSearch.setOnClickListener(v -> {
             searchLayout.setVisibility(View.VISIBLE);
