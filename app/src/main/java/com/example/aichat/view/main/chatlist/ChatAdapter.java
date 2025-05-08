@@ -65,7 +65,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     }
     public void endChat(Chat chat) {
         for (int i = 0; i < chatList.size(); i++) {
-            if (chat.equals(chatList.get(i))) {
+            if (chat.equals(chatList.get(i).getChat())) {
                 MessageChat messageChat = chatList.get(i);
                 messageChat.getChat().end();
                 messageChat.setMessage(null);

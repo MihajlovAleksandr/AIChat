@@ -108,9 +108,11 @@ public class ChatsListController {
         Command addChat = new Command("SearchChat");
         addChat.addData("param", param);
         connectionManager.SendCommand(addChat);
+        setIsChatSearching(true);
     }
     public void stopSearchingChat(){
         connectionManager.SendCommand(new Command("StopSearchingChat"));
+        setIsChatSearching(false);
     }
 
     public boolean getIsChatSearching(){

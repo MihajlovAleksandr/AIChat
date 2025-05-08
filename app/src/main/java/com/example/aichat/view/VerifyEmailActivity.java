@@ -14,6 +14,7 @@ import com.example.aichat.databinding.ActivityVerifyEmailBinding;
 public class VerifyEmailActivity extends BaseActivity {
 
     private EditText[] codeFields;
+    private boolean wasLastActionInput = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +46,26 @@ public class VerifyEmailActivity extends BaseActivity {
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    controller.handleTextChanged(s, currentIndex);
+                    wasLastActionInput = count > before;
                 }
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    controller.handleAfterTextChanged(s, currentIndex);
+                    boolean allFieldsFilled = true;
+                    for (EditText field : codeFields) {
+                        if (field.getText().length() == 0) {
+                            allFieldsFilled = false;
+                            break;
+                        }
+                    }
+
+                    if (allFieldsFilled && wasLastActionInput) {
+                        controller.handleAfterTextChanged(s, currentIndex);
+                    }
+
+                    if (s.length() == 1 && currentIndex < codeFields.length - 1) {
+                        codeFields[currentIndex + 1].requestFocus();
+                    }
                 }
             });
 
