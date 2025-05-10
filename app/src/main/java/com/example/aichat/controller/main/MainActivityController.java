@@ -49,6 +49,7 @@ public class MainActivityController {
                         for (Message oldMessage: oldMessages) {
                             appDatabase.messageDao().updateMessage(oldMessage);
                         }
+
                         mainActivityAdapter.loadChatList();
                         break;
                     case "Logout":

@@ -98,14 +98,16 @@ public class NetworkService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "Service started");
-        databaseSaver.setCurrentUserId(intent.getIntExtra("currentUserId", -1));
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Сетевое соединение")
-                .setContentText(connectionManager.Connected ? "Connected" : "Connecting...")
-                .setSmallIcon(R.drawable.ic_info_outline)
-                .build();
+        if (intent != null) {
+            databaseSaver.setCurrentUserId(intent.getIntExtra("currentUserId", -1));
+            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setContentTitle("Сетевое соединение")
+                    .setContentText(connectionManager.Connected ? "Connected" : "Connecting...")
+                    .setSmallIcon(R.drawable.ic_info_outline)
+                    .build();
 
-        startForeground(NOTIFICATION_ID, notification);
+            startForeground(NOTIFICATION_ID, notification);
+        }
         return START_STICKY;
     }
 

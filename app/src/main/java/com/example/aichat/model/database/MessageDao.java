@@ -2,6 +2,7 @@ package com.example.aichat.model.database;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -11,9 +12,8 @@ import java.util.List;
 
 @Dao
 public interface MessageDao {
-    @Insert
+    @Insert (onConflict = OnConflictStrategy.IGNORE)
     void insertMessage(Message message);
-
     @Query("SELECT * FROM Messages WHERE chat = :chatId")
     List<Message> getMessagesByChatId(int chatId);
 

@@ -4,6 +4,7 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
+import androidx.room.OnConflictStrategy;
 
 import com.example.aichat.model.entities.Chat;
 
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Dao
 public interface ChatDao {
-    @Insert
+    @Insert (onConflict = OnConflictStrategy.IGNORE)
     void insertChat(Chat chat);
 
     @Query("SELECT * FROM Chats")

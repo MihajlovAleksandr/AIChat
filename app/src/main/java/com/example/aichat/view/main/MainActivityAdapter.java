@@ -40,7 +40,8 @@ public class MainActivityAdapter extends FragmentStateAdapter {
     }
     public void loadChatList()
     {
-        chatsListFragment.loadChatsFromDatabase();
+        if (chatsListFragment != null)
+            chatsListFragment.loadChatsFromDatabase();
     }
 
     public int getCurrentUserId(){

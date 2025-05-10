@@ -37,11 +37,11 @@ public class MainActivity extends BaseActivity {
         setupBackPressHandler();
         checkAndRequestNotificationPermission();
         if(NotificationSettingsManager.isBackgroundUsageAllowed(this)) {
-            Intent serviceIntent = new Intent(this, NetworkService.class);
-            serviceIntent.putExtra("currentUserId", pagerAdapter.getCurrentUserId());
             if (isServiceRunning(NetworkService.class)) {
                 pagerAdapter.mainActivityState(true);
             } else {
+                Intent serviceIntent = new Intent(this, NetworkService.class);
+                serviceIntent.putExtra("currentUserId", pagerAdapter.getCurrentUserId());
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startForegroundService(serviceIntent);
                 } else {
@@ -78,11 +78,13 @@ public class MainActivity extends BaseActivity {
         int userId = getIntent().getIntExtra("userId", -1);
         if (userId == -1) {
             userId = SecurePreferencesManager.getUserId(this);
+            pagerAdapter = new MainActivityAdapter(this, connectionManager, userId, isNewActivity);
         } else {
             isNewActivity = true;
+            pagerAdapter = new MainActivityAdapter(this, connectionManager, userId, isNewActivity);
             connectionManager.SendCommand(new Command("SyncDB"));
         }
-        pagerAdapter = new MainActivityAdapter(this, connectionManager, userId, isNewActivity);
+
         if(token==null) {
             pagerAdapter.logout(this);
         }
