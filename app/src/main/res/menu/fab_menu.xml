@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_human"
+        android:title="@string/search_human_prompt"/>
+    <item
+        android:id="@+id/menu_ai"
+        android:title="@string/search_ai_prompt"/>
+    <item
+        android:id="@+id/menu_random"
+        android:title="@string/search_random_prompt"/>
+</menu>

@@ -1,54 +1,133 @@
 <resources>
+    <!-- App Info -->
     <string name="app_name">AIChat</string>
-    <string name="title_activity_login">LoginActivity</string>
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="welcome">"Welcome !"</string>
-    <string name="invalid_username">Not a valid username</string>
-    <string name="invalid_password">Password must be >5 characters</string>
-    <string name="login_failed">"Login failed"</string>
-    <!-- Strings used for fragments for navigation -->
+
+    <!-- Common UI -->
+    <string name="close_button_description">Close</string>
+    <string name="back_button_description">Back</string>
+    <string name="options_button_description">More options</string>
+    <string name="submit_button">Submit</string>
+    <string name="skip_button">Skip</string>
+    <string name="send_button">Send</string>
+    <string name="update_button">Update</string>
+    <string name="logout">Logout</string>
+
+    <!-- Fragments -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
-    <string name="lorem_ipsum">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
-        volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
-        dui nec risus. Maecenas non sodales nisi, vel dictum dolor. Class aptent taciti sociosqu ad
-        litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse blandit eleifend
-        diam, vel rutrum tellus vulputate quis. Aliquam eget libero aliquet, imperdiet nisl a,
-        ornare ex. Sed rhoncus est ut libero porta lobortis. Fusce in dictum tellus.\n\n
-        Suspendisse interdum ornare ante. Aliquam nec cursus lorem. Morbi id magna felis. Vivamus
-        egestas, est a condimentum egestas, turpis nisl iaculis ipsum, in dictum tellus dolor sed
-        neque. Morbi tellus erat, dapibus ut sem a, iaculis tincidunt dui. Interdum et malesuada
-        fames ac ante ipsum primis in faucibus. Curabitur et eros porttitor, ultricies urna vitae,
-        molestie nibh. Phasellus at commodo eros, non aliquet metus. Sed maximus nisl nec dolor
-        bibendum, vel congue leo egestas.\n\n
-        Sed interdum tortor nibh, in sagittis risus mollis quis. Curabitur mi odio, condimentum sit
-        amet auctor at, mollis non turpis. Nullam pretium libero vestibulum, finibus orci vel,
-        molestie quam. Fusce blandit tincidunt nulla, quis sollicitudin libero facilisis et. Integer
-        interdum nunc ligula, et fermentum metus hendrerit id. Vestibulum lectus felis, dictum at
-        lacinia sit amet, tristique id quam. Cras eu consequat dui. Suspendisse sodales nunc ligula,
-        in lobortis sem porta sed. Integer id ultrices magna, in luctus elit. Sed a pellentesque
-        est.\n\n
-        Aenean nunc velit, lacinia sed dolor sed, ultrices viverra nulla. Etiam a venenatis nibh.
-        Morbi laoreet, tortor sed facilisis varius, nibh orci rhoncus nulla, id elementum leo dui
-        non lorem. Nam mollis ipsum quis auctor varius. Quisque elementum eu libero sed commodo. In
-        eros nisl, imperdiet vel imperdiet et, scelerisque a mauris. Pellentesque varius ex nunc,
-        quis imperdiet eros placerat ac. Duis finibus orci et est auctor tincidunt. Sed non viverra
-        ipsum. Nunc quis augue egestas, cursus lorem at, molestie sem. Morbi a consectetur ipsum, a
-        placerat diam. Etiam vulputate dignissim convallis. Integer faucibus mauris sit amet finibus
-        convallis.\n\n
-        Phasellus in aliquet mi. Pellentesque habitant morbi tristique senectus et netus et
-        malesuada fames ac turpis egestas. In volutpat arcu ut felis sagittis, in finibus massa
-        gravida. Pellentesque id tellus orci. Integer dictum, lorem sed efficitur ullamcorper,
-        libero justo consectetur ipsum, in mollis nisl ex sed nisl. Donec maximus ullamcorper
-        sodales. Praesent bibendum rhoncus tellus nec feugiat. In a ornare nulla. Donec rhoncus
-        libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
-        vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
-    </string>
+    <!-- Language Selection -->
+    <string name="language">Language</string>
+    <string name="select_language">Select language</string>
+    <string name="no_devices">Your devices will be here</string>
+    <string name="device_status">Total %d, Online %d</string>
+    <string name="about">About</string>
+    <string name="preferences">Preferences</string>
+    <string name="no_about">Here will be information about you</string>
+    <string name="no_preference">Here will be your preferences</string>
+    <string name="no_email">Your email address will be here.</string>
+    <!-- Authentication -->
+    <string name="email_hint">Enter email</string>
+    <string name="new_password_hint">Enter new password</string>
+    <string name="password_hint">Enter password</string>
+    <string name="confirm_password_hint">Confirm password</string>
+    <string name="login_button">Login</string>
+    <string name="register_button">Register</string>
+    <string name="register_prompt">Don\'t have an account? Registration</string>
+    <string name="login_prompt">Already have an account? Login in</string>
+    <string name="register_link_text">Registration</string>
+    <string name="login_link_text">Login in</string>
+    <string name="chat_created">Chat was created</string>
+    <string name="chat_ended">Chat was ended</string>
+    <string name="you">You</string>
+
+    <!-- Profile Settings -->
+    <string name="name_hint">Name</string>
+    <string name="age_hint">Age</string>
+    <string name="min_age_hint">Minimum age</string>
+    <string name="max_age_hint">Maximum age</string>
+    <string name="gender_label">Gender:</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="gender_any">Any</string>
+    <string name="scan_me">Scan me</string>
+
+    <string name="email" translatable="false">Email</string>
+
+
+    <!-- Chat -->
+    <string name="chat_members_title">Chat members</string>
+    <string name="message_hint">Type a message</string>
+    <string name="end_chat_menu">End chat</string>
+    <string name="view_members_menu">Members</string>
+    <string name="search_words_menu">Search words</string>
+
+    <!-- Field Information -->
+    <string name="age_info_description">Age field information</string>
+    <string name="name_info_description">Name field information</string>
+    <string name="min_age_info">What is the minimum age you prefer for a chat partner? Enter a number, e.g., 18. This will help us find people you can chat with comfortably.</string>
+    <string name="max_age_info">What is the maximum age you prefer for a chat partner? Enter a number, e.g., 23. This will help us find people you can chat with comfortably.</string>
+    <string name="name_popup_info">How would you like to be addressed? Enter your name, nickname, or any preferred label. Ensure it is comfortable and convenient for you.</string>
+    <string name="age_popup_info">How old are you? Simply enter a number, e.g., 19. It isn\'t necessary to be entirely truthful (we\'re all 18), but keep in mind that this helps us match you with interesting people.</string>
+
+    <!-- Validation Errors -->
+    <string name="invalid_email_error">Please enter a valid email address</string>
+    <string name="invalid_password_error">Password must contain at least 8 characters, including uppercase and lowercase letters, numbers and special characters</string>
+    <string name="age_range_error">Age must be between 18 and 120 years</string>
+    <string name="max_age_error">Maximum age must be greater than minimum age</string>
+    <string name="min_age_error">Minimum age must be less than maximum age</string>
+    <string name="password_mismatch_error">Passwords don\'t match</string>
+    <string name="email_in_use_error">Email is already in use</string>
+    <string name="name_validation_error">Name must contain between 1 and 50 characters</string>
+
+    <!-- Settings -->
+    <string name="profile_section">Profile</string>
+    <string name="change_password">Change password</string>
+    <string name="devices">Devices</string>
+    <string name="settings">Settings</string>
+    <string name="version_format" translatable="false">Version %s</string>
+    <string name="notifications_section">Notifications</string>
+    <string name="send_email_notifications">Send email notifications</string>
+    <string name="show_notifications">Show notifications</string>
+    <string name="background_notifications">Show notifications in background</string>
+    <string name="in_app_notifications">Show notifications while in app</string>
+    <string name="vibration">Vibration</string>
+    <string name="language_section">Language</string>
+    <string name="reference_section">Reference</string>
+    <string name="faq">FAQ</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="support">Support</string>
+    <string name="version" translatable="false">Version</string>
+    <string name="no_permissions">Permissions have not been granted</string>
+    <string name="login_qr_failed">Error logging in with a QR code</string>
+    <string name="ok">OK</string>
+    <string name="online">online</string>
+    <string name="qr_login_in_prompt">Enter  via QR-code</string>
+    <string name="scan_qr_prompt">Scan the QR code to connect the device</string>
+    <string name="scan">Scan</string>
+    <string name="all_devices">All devices</string>
+    <string name="offline">Offline</string>
+    <string name="Online">Online</string>
+    <string name="terminate_button">Terminate all other sessions</string>
+    <!-- Notification Strings -->
+    <string name="notifications_permission_denied_message">Notifications will remain disabled without permission</string>
+    <string name="browser_not_found">Browser not found</string>
+    <string name="email_app_not_found">Email app not found</string>
+    <string name="notifications_permission_denied">Notifications are disabled. You can enable them in settings</string>
+    <string name="demo_notification_title">Test notification</string>
+    <string name="demo_notification_message">Hello! This is a notification test</string>
+    <string name="connecting">Connecting...</string>
+    <string name="new_message">New message</string>
+    <string name="new_chat">Chat was created</string>
+    <string name="end_chat">Chat was ended</string>
+    <string name="start_chatting">Start chatting</string>
+    <string name="start_new_chat">Start a new chat</string>
+    <string name="background_work_section">Background Work</string>
+    <string name="allow_background_work">Allow background work</string>
+    <string name="enable_notifications_first">First, enable basic notifications</string>
+    <string name="search">Search...</string>
+    <string name="search_human_prompt">Human</string>
+    <string name="search_ai_prompt">AI</string>
+    <string name="search_random_prompt">Random</string>
 </resources>

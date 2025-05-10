@@ -3,6 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
         android:allowBackup="true"
@@ -14,36 +22,52 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AIChat"
         tools:targetApi="31">
-        <activity
-            android:name=".PreferenceActivity"
-            android:exported="true" >
 
-        </activity>
+        <!-- Activities -->
         <activity
-            android:name=".UserDataActivity"
-            android:exported="true">
-        </activity>
-        <activity
-            android:name=".VerifyEmailActivity"
+            android:name=".SettingsActivity"
             android:exported="false"
             android:theme="@style/Theme.AIChat" />
         <activity
-            android:name=".RegistrationFirstActivity"
-            android:exported="true">
-        </activity>
+            android:name=".QRCodeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".DevicesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat" />
+        <activity
+            android:name=".ChangePasswordActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat" />
+        <activity
+            android:name=".view.PreferenceActivity"
+            android:exported="true" />
+        <activity
+            android:name=".view.UserDataActivity"
+            android:exported="true" />
+        <activity
+            android:name=".view.VerifyEmailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat" />
+        <activity
+            android:name=".view.RegistrationActivity"
+            android:exported="true" />
+        <activity
+            android:name=".view.LoginActivity"
+            android:exported="true" />
+        <activity
+            android:name=".view.main.MainActivity"
             android:exported="true"
-            android:label="@string/title_activity_login">
-        </activity>
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
+        <service
+            android:name=".model.connection.NetworkService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync"/>    </application>
 
 </manifest>
