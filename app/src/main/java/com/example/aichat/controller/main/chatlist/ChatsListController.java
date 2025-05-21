@@ -35,8 +35,10 @@ public class ChatsListController {
                     break;
                 case "CreateChat":
                     Chat createdChat = command.getData("chat", Chat.class);
-                    fragment.createChat(createdChat);
-                    fragment.setFabAddChatState(true);
+                    fragment.requireActivity().runOnUiThread(()-> {
+                                fragment.createChat(createdChat);
+                                fragment.setFabAddChatState(true);
+                            });
                     isChatSearching = false;
                     break;
                 case "EndChat":

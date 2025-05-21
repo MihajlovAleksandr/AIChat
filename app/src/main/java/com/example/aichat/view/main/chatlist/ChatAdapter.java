@@ -101,6 +101,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     }
 
     static class ChatViewHolder extends RecyclerView.ViewHolder {
+        private final TextView tvChatName;
         private final TextView tvLastMessage;
         private final TextView tvTime;
         private final ImageView ivChatStatus;
@@ -108,6 +109,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
         public ChatViewHolder(@NonNull View itemView) {
             super(itemView);
+            tvChatName = itemView.findViewById(R.id.tv_chat_name);
             tvLastMessage = itemView.findViewById(R.id.tv_last_message);
             tvTime = itemView.findViewById(R.id.tv_time);
             ivChatStatus = itemView.findViewById(R.id.iv_chat_status);
@@ -115,6 +117,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         }
 
         public void bind(MessageChat messageChat) {
+            tvChatName.setText(messageChat.getChat().getName());
             tvLastMessage.setText(messageChat.getText(resources));
             tvTime.setText(ChatController.getFormattedTime(messageChat.getTime()));
             updateChatStatus(messageChat.getChat());

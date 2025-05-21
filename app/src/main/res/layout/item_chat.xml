@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
+    android:layout_height="90dp"
     android:padding="8dp"
     android:background="?attr/selectableItemBackground"
     android:clickable="true"
@@ -14,9 +14,21 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_last_message"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_chat_name"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/tv_last_message"/>
+        app:layout_constraintTop_toTopOf="@+id/tv_chat_name"/>
+
+    <TextView
+        android:id="@+id/tv_chat_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textSize="18sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/iv_chat_status"
+        app:layout_constraintEnd_toStartOf="@+id/tv_time"/>
 
     <TextView
         android:id="@+id/tv_last_message"
@@ -24,15 +36,18 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="1"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/iv_chat_status"
-        app:layout_constraintEnd_toStartOf="@+id/tv_time"/>
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@+id/tv_chat_name"
+        app:layout_constraintStart_toStartOf="@+id/tv_chat_name"
+        app:layout_constraintEnd_toStartOf="@+id/tv_time"
+        android:layout_marginTop="4dp"/>
 
     <TextView
         android:id="@+id/tv_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:textSize="14sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 

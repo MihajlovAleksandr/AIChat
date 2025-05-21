@@ -43,12 +43,13 @@ public class ChatFragment extends Fragment {
     private ChatMembersAdapter membersAdapter;
     private View membersPanel;
     private View invisibleClickArea;
-    ImageButton btnBack;
+    private ImageButton btnBack;
     private View searchPanel;
     private View resultSearchPanel;
     private EditText searchET;
     private List<Message> foundMessages;
     private int foundMessageNumber;
+    private TextView tvChatTitle;
 
     public void setActivity(FragmentActivity activity) {
         this.activity = activity;
@@ -63,6 +64,8 @@ public class ChatFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_chat, container, false);
+
+        tvChatTitle = rootView.findViewById(R.id.tv_chat_title);
 
         rvMessages = rootView.findViewById(R.id.rv_messages);
         rvMessages.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -126,7 +129,7 @@ public class ChatFragment extends Fragment {
         ImageButton backSearchResultBtn = rootView.findViewById(R.id.searchResult_btn_back);
         backSearchResultBtn.setOnClickListener(v->hideResultSearchPanel());
         ImageButton searchActionBtn = rootView.findViewById(R.id.btn_search_action);
-        searchET = rootView.findViewById(R.id.et_search) ;
+        searchET = rootView.findViewById(R.id.et_search);
         searchActionBtn.setOnClickListener(v->showSearchResult());
         ImageButton upButton =rootView.findViewById(R.id.btn_top);
         upButton.setOnClickListener(v->changeFoundMessageNumber(foundMessageNumber-1));
@@ -134,11 +137,13 @@ public class ChatFragment extends Fragment {
         downButton.setOnClickListener(v->changeFoundMessageNumber(foundMessageNumber+1));
         return rootView;
     }
+
     public void updateOnlineState(int id, boolean isOnline){
         activity.runOnUiThread(()-> {
             membersAdapter.updateOnlineState(id, isOnline);
         });
     }
+
     private void toggleMembersPanel() {
         if (membersPanel == null || invisibleClickArea == null) return;
 
@@ -150,24 +155,27 @@ public class ChatFragment extends Fragment {
             invisibleClickArea.setVisibility(View.VISIBLE);
         }
     }
+
     private void showSearchResult(){
         controller.findMessages(searchET.getText().toString());
     }
+
     private void hideResultSearchPanel(){
         searchPanel.setVisibility(View.VISIBLE);
         resultSearchPanel.setVisibility(View.GONE);
     }
+
     public void sendMessage(Message message) {
         if (activity != null && messageAdapter != null) {
             activity.runOnUiThread(() -> {messageAdapter.addMessage(message); });
         }
     }
+
     public void toggleSearchPanel(boolean needToShow){
         if(needToShow){
             searchPanel.setVisibility(View.VISIBLE);
             btnOptions.setEnabled(false);
             btnBack.setEnabled(false);
-
         }
         else{
             searchPanel.setVisibility(View.GONE);
@@ -221,6 +229,10 @@ public class ChatFragment extends Fragment {
             if (result == null) return;
 
             if (result.chat != null){
+                if (tvChatTitle != null) {
+                    tvChatTitle.setText(result.chat.getName());
+                }
+
                 if(result.chat.getEndTime() != null){
                     endChat();
                 }
@@ -251,6 +263,7 @@ public class ChatFragment extends Fragment {
             searchPanel.setVisibility(View.GONE);
         });
     }
+
     private void changeFoundMessageNumber(int position){
         if(position>=0 && position<foundMessages.size()){
             foundMessageNumber=position;
@@ -260,8 +273,8 @@ public class ChatFragment extends Fragment {
         }
         TextView countView =resultSearchPanel.findViewById(R.id.tv_searchResultCount);
         countView.setText((foundMessageNumber+1)+"/"+foundMessages.size());
-
     }
+
     private static class ChatAndMessages {
         Chat chat;
         List<Message> messages;
@@ -293,6 +306,7 @@ public class ChatFragment extends Fragment {
             this.members = newMembers != null ? newMembers : new ArrayList<>();
             notifyDataSetChanged();
         }
+
         public void updateOnlineState(int id, boolean isOnline){
             for (User user : members) {
                 if (user.getId() == id) {

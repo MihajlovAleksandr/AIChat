@@ -12,7 +12,7 @@ import java.util.List;
 
 @Dao
 public interface MessageDao {
-    @Insert (onConflict = OnConflictStrategy.IGNORE)
+    @Insert (onConflict = OnConflictStrategy.REPLACE)
     void insertMessage(Message message);
     @Query("SELECT * FROM Messages WHERE chat = :chatId")
     List<Message> getMessagesByChatId(int chatId);

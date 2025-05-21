@@ -13,7 +13,7 @@ import java.util.List;
 
 @Dao
 public interface ChatDao {
-    @Insert (onConflict = OnConflictStrategy.IGNORE)
+    @Insert (onConflict = OnConflictStrategy.REPLACE)
     void insertChat(Chat chat);
 
     @Query("SELECT * FROM Chats")

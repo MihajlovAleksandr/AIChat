@@ -53,11 +53,9 @@ public class MainActivityAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         Log.d("Fragment", "Create Fragment");
         if (position == 1) {
-            // Создаем фрагмент с привязкой к текущей Activity
             ChatFragment fragment = new ChatFragment(connectionManager,
                     chatPageController.getCurrentChatId(),
                     currentUserId);
-            // Убедимся, что фрагмент прикреплен к Activity
             fragment.setActivity(fragmentActivity);
             return fragment;
         }
