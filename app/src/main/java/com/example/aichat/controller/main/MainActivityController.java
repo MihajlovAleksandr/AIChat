@@ -22,6 +22,7 @@ public class MainActivityController {
     private AppDatabase appDatabase;
     MainActivityAdapter mainActivityAdapter;
     public OnConnectionEvents events;
+    private boolean isLogout = false;
 
     public MainActivityController(ConnectionManager connectionManager, Activity activity, MainActivityAdapter mainActivityAdapter, boolean isNewActivity) {
         Log.d("Loading", "MainActivityController");
@@ -49,7 +50,6 @@ public class MainActivityController {
                         for (Message oldMessage: oldMessages) {
                             appDatabase.messageDao().updateMessage(oldMessage);
                         }
-
                         mainActivityAdapter.loadChatList();
                         break;
                     case "Logout":
@@ -73,17 +73,14 @@ public class MainActivityController {
         else
             connectionManager.addConnectionEvent(events);
     }
-    public void logout(Activity activity){
-        SecurePreferencesManager.removeAuthToken(activity);
-        SecurePreferencesManager.removeUserId(activity);
-        ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
-        Intent intent = new Intent(activity, LoginActivity.class);
-        new Thread(()-> {
-            appDatabase.chatDao().clearTable();
-            appDatabase.messageDao().clearTable();
-        }).start();
-        activity.startActivity(intent);
-        activity.finish();
+    public void logout(Activity activity) {
+        if (!isLogout) {
+            isLogout = true;
+            ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
+            Intent intent = new Intent(activity, LoginActivity.class);
+            activity.startActivity(intent);
+            activity.finish();
+        }
     }
     public int getCurrentChatId() {
         return currentChatId;
@@ -95,7 +92,8 @@ public class MainActivityController {
     public ConnectionManager getConnectionManager(){
         return connectionManager;
     }
-    public void destroy(){
+    public boolean destroy(){
         connectionManager.removeConnectionEvent(events);
+        return isLogout;
     }
 }

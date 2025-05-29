@@ -62,19 +62,16 @@ public class MainActivityAdapter extends FragmentStateAdapter {
         chatsListFragment = new ChatsListFragment(connectionManager);
         return chatsListFragment;
     }
+    public int getCurrentChatId(){
+        return chatPageController.getCurrentChatId();
+    }
 
     public void logout(Activity activity){
         chatPageController.logout(activity);
     }
 
-    public void mainActivityState(boolean isOnline){
-        Command command =  new Command("MainActivityState");
-        command.addData("isOnline",isOnline);
-        connectionManager.SendCommand(command);
-    }
-
-    public void destroy(){
-        chatPageController.destroy();
+    public boolean destroy(){
+        return chatPageController.destroy();
     }
 
     @Override

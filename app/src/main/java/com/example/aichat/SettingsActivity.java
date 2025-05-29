@@ -27,18 +27,12 @@ import com.example.aichat.view.UserDataActivity;
 public class SettingsActivity extends BaseActivity {
     private static final String WEBSITE_URL = "https://mihajlovaleksandr.github.io/AIChatSite/";
     private static final String SUPPORT_EMAIL = "aichatcorp@gmail.com";
-
-    // UI элементы
     private Switch showEmailNotificationsSwitch;
     private Switch showNotificationsSwitch;
-    private Switch backgroundWorkSwitch;
     private Switch backgroundNotificationsSwitch;
     private Switch inAppNotificationsSwitch;
     private Switch vibrationSwitch;
-
-    // Флаг для определения программного изменения Switch
     private boolean isProgrammaticChange = false;
-
     private ConnectionManager connectionManager;
     private TextView emailText, devicesText, userDataText, preferenceText;
     private OnConnectionEvents events;
@@ -62,24 +56,19 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private void initializeViews() {
-        // Кнопка назад
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(v -> finish());
 
-        // Текстовые поля
         emailText = findViewById(R.id.email_text);
         devicesText = findViewById(R.id.devices_text);
         userDataText = findViewById(R.id.userData_text);
         preferenceText = findViewById(R.id.preference_text);
 
-        // Версия приложения
         TextView versionText = findViewById(R.id.version_text);
         versionText.setText(getString(R.string.version_format, "1.0.0"));
 
-        // Переключатели уведомлений
         showNotificationsSwitch = findViewById(R.id.show_notifications_switch);
         showEmailNotificationsSwitch = findViewById(R.id.email_notifications_switch);
-        backgroundWorkSwitch = findViewById(R.id.background_work_switch);
         backgroundNotificationsSwitch = findViewById(R.id.background_notifications_switch);
         inAppNotificationsSwitch = findViewById(R.id.in_app_notifications_switch);
         vibrationSwitch = findViewById(R.id.vibration_switch);
@@ -88,9 +77,7 @@ public class SettingsActivity extends BaseActivity {
     private void loadNotificationSettings() {
         isProgrammaticChange = true;
 
-        // Загружаем сохраненные настройки уведомлений
         showNotificationsSwitch.setChecked(NotificationSettingsManager.areNotificationsEnabled(this));
-        backgroundWorkSwitch.setChecked(NotificationSettingsManager.isBackgroundWorkAllowed(this));
         backgroundNotificationsSwitch.setChecked(NotificationSettingsManager.areBackgroundNotificationsEnabled(this));
         inAppNotificationsSwitch.setChecked(NotificationSettingsManager.areInAppNotificationsEnabled(this));
         vibrationSwitch.setChecked(NotificationSettingsManager.isVibrationEnabled(this));
@@ -230,25 +217,10 @@ public class SettingsActivity extends BaseActivity {
             isProgrammaticChange = false;
         });
 
-        // Фоновая работа
-        backgroundWorkSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isProgrammaticChange) return;
 
-            NotificationSettingsManager.setBackgroundWorkAllowed(this, isChecked);
-
-            isProgrammaticChange = true;
-            if (!isChecked) {
-                backgroundNotificationsSwitch.setChecked(false);
-                NotificationSettingsManager.setBackgroundNotificationsEnabled(this, false);
-            }
-            isProgrammaticChange = false;
-        });
-
-        // Фоновые уведомления
         backgroundNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isProgrammaticChange) return;
 
-            // Проверяем, включены ли основные уведомления
             if (isChecked && !showNotificationsSwitch.isChecked()) {
                 isProgrammaticChange = true;
                 backgroundNotificationsSwitch.setChecked(false);
@@ -259,11 +231,9 @@ public class SettingsActivity extends BaseActivity {
             }
         });
 
-        // Внутриприложенные уведомления
         inAppNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isProgrammaticChange) return;
 
-            // Проверяем, включены ли основные уведомления
             if (isChecked && !showNotificationsSwitch.isChecked()) {
                 isProgrammaticChange = true;
                 inAppNotificationsSwitch.setChecked(false);
@@ -274,11 +244,8 @@ public class SettingsActivity extends BaseActivity {
             }
         });
 
-        // Вибрация
         vibrationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isProgrammaticChange) return;
-
-            // Проверяем, включены ли основные уведомления
             if (isChecked && !showNotificationsSwitch.isChecked()) {
                 isProgrammaticChange = true;
                 vibrationSwitch.setChecked(false);

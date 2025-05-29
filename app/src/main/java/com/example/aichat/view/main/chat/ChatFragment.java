@@ -204,9 +204,11 @@ public class ChatFragment extends Fragment {
     }
 
     public void loadUsers(List<User> users) {
-        if (membersAdapter != null) {
-            membersAdapter.updateMembers(users);
-        }
+        activity.runOnUiThread(()-> {
+            if (membersAdapter != null) {
+                membersAdapter.updateMembers(users);
+            }
+        });
     }
 
     @Override

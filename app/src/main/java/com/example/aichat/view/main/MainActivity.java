@@ -1,9 +1,6 @@
 package com.example.aichat.view.main;
 
-import android.app.ActivityManager;
-import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -13,55 +10,35 @@ import com.example.aichat.R;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.InAppConnection;
-import com.example.aichat.model.connection.NetworkService;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.SecurePreferencesManager;
 import com.example.aichat.model.entities.Command;
+import com.example.aichat.model.notifications.MyFirebaseMessagingService;
 import com.example.aichat.model.notifications.NotificationHelper;
 import com.example.aichat.model.notifications.NotificationSettingsManager;
 import com.example.aichat.model.notifications.NotificationSettingsManager.NotificationCallback;
+import com.example.aichat.model.notifications.NotificationSingleton;
 import com.example.aichat.view.BaseActivity;
+
+import java.time.LocalDateTime;
 
 public class MainActivity extends BaseActivity {
     private ViewPager2 viewPager;
     private MainActivityAdapter pagerAdapter;
     InAppConnection inAppConnection;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         DatabaseManager.init(this);
         super.onCreate(savedInstanceState);
+        NotificationSingleton.init();
         setContentView(R.layout.activity_main);
         ConnectionManager connectionManager = setupConnection();
         setupViewPager();
         setupBackPressHandler();
         checkAndRequestNotificationPermission();
-        if(NotificationSettingsManager.isBackgroundUsageAllowed(this)) {
-            if (isServiceRunning(NetworkService.class)) {
-                pagerAdapter.mainActivityState(true);
-            } else {
-                Intent serviceIntent = new Intent(this, NetworkService.class);
-                serviceIntent.putExtra("currentUserId", pagerAdapter.getCurrentUserId());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(serviceIntent);
-                } else {
-                    startService(serviceIntent);
-                }
-            }
-        }
-        else {
-            inAppConnection =  new InAppConnection(connectionManager, this,pagerAdapter.getCurrentUserId());
-        }
-    }
-
-    private boolean isServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
+        inAppConnection =  new InAppConnection(connectionManager, this,pagerAdapter.getCurrentUserId());
+        Intent intent = getIntent();
+        openChat(intent.getIntExtra("chatId", -1));
     }
 
     private ConnectionManager setupConnection() {
@@ -87,6 +64,9 @@ public class MainActivity extends BaseActivity {
 
         if(token==null) {
             pagerAdapter.logout(this);
+        }
+        else{
+            MyFirebaseMessagingService.sendRegistrationTokenToServer(SecurePreferencesManager.getNotificationToken(this));
         }
         return connectionManager;
     }
@@ -137,26 +117,32 @@ public class MainActivity extends BaseActivity {
                 }
         );
     }
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        openChat(intent.getIntExtra("chatId", -1));
+    }
 
     public void openChat(int chatId) {
-        pagerAdapter.setChatId(chatId);
-        viewPager.setCurrentItem(1, true);
+        if(chatId != -1) {
+            NotificationSingleton.getInstance().getNotificationHelper().setCurrentChatId(chatId);
+            pagerAdapter.setChatId(chatId);
+            viewPager.setCurrentItem(1, true);
+        }
     }
 
     public void backToChats() {
+        NotificationSingleton.getInstance().getNotificationHelper().setCurrentChatId(0);
         viewPager.setCurrentItem(0, true);
     }
 
     @Override
     protected void onDestroy() {
-        if(inAppConnection!=null)
-        {
+        boolean isLogout = pagerAdapter.destroy();
+        if (!isLogout && ConnectionSingleton.getInstance().isAvailableToClose())
             inAppConnection.destroy();
-        }
-        else {
-            pagerAdapter.mainActivityState(false);
-        }
-        pagerAdapter.destroy();
+        ConnectionSingleton.getInstance().setAvailableToClose(true);
         super.onDestroy();
     }
 }

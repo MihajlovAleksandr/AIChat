@@ -1,12 +1,10 @@
 package com.example.aichat.model.notifications;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.PowerManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -16,7 +14,6 @@ public class NotificationSettingsManager {
     private static final String KEY_VIBRATION_ENABLED = "vibration_enabled";
     private static final String KEY_BACKGROUND_NOTIFICATIONS_ENABLED = "background_notifications_enabled";
     private static final String KEY_IN_APP_NOTIFICATIONS_ENABLED = "in_app_notifications_enabled";
-    private static final String KEY_BACKGROUND_WORK_ENABLED = "background_work_enabled";
     private static final int PERMISSION_REQUEST_CODE = 1001;
 
     public static boolean canSendNotifications(Context context) {
@@ -32,21 +29,9 @@ public class NotificationSettingsManager {
         }
     }
 
-    public static boolean isBackgroundWorkAllowed(Context context) {
-        return isBackgroundUsageAllowed(context);
-    }
-
-    public static void setBackgroundWorkAllowed(Context context, boolean allowed) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean(KEY_BACKGROUND_WORK_ENABLED, allowed)
-                .apply();
-    }
-
     public static boolean areBackgroundNotificationsEnabled(Context context) {
-        return isBackgroundUsageAllowed(context) &&
-                context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                        .getBoolean(KEY_BACKGROUND_NOTIFICATIONS_ENABLED, true);
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(KEY_BACKGROUND_NOTIFICATIONS_ENABLED, true);
     }
 
     public static void setBackgroundNotificationsEnabled(Context context, boolean enabled) {
@@ -107,19 +92,6 @@ public class NotificationSettingsManager {
                     grantResults[0] == PackageManager.PERMISSION_GRANTED;
             callback.onPermissionResult(granted);
         }
-    }
-    public static boolean isBackgroundUsageAllowed(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        if (!prefs.getBoolean(KEY_BACKGROUND_WORK_ENABLED, true)) {
-            return false;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-            if (activityManager != null && activityManager.isBackgroundRestricted()) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public interface NotificationCallback {

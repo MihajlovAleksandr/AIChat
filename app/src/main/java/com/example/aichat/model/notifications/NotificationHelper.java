@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Vibrator;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import com.example.aichat.R;
@@ -16,27 +17,35 @@ import java.util.Random;
 
 public class NotificationHelper {
     private static final String CHANNEL_ID = "default_channel";
-    private static final String CHANNEL_NAME = "Основные уведомления";
+    private static final String CHANNEL_NAME = "Default notifications";
     private static final long[] DEFAULT_VIBRATION_PATTERN = {0, 500, 500, 500};
+    private int currentChatId;
 
-    public static void vibrate(Context context){
+    public NotificationHelper(){
+        currentChatId = 0;
+    }
+
+    public void vibrate(Context context) {
+        if (!NotificationSettingsManager.isVibrationEnabled(context)) {
+            return;
+        }
         Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator != null && vibrator.hasVibrator()) {
             vibrator.vibrate(DEFAULT_VIBRATION_PATTERN, -1);
         }
     }
 
-    public static void sendNotification(Context context, String title, String message) {
+    public void sendNotification(Context context, String title, String message, int chatId) {
         if (!NotificationSettingsManager.canSendNotifications(context)) {
             return;
         }
-
+        if(chatId==currentChatId) return;
         createNotificationChannel(context);
 
         NotificationManager manager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Notification notification = buildNotification(context, title, message);
+        Notification notification = buildNotification(context, title, message, chatId);
         manager.notify(new Random().nextInt(), notification);
 
         if(NotificationSettingsManager.isVibrationEnabled(context)){
@@ -44,42 +53,59 @@ public class NotificationHelper {
         }
     }
 
-    public static void sendNotification(Context context, com.example.aichat.model.entities.Notification notification){
-        sendNotification(context,  notification.getTitle(), notification.getMessage());
-    }
-
-    private static void createNotificationChannel(Context context) {
+    private void createNotificationChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
                     CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_HIGH); // Изменено на IMPORTANCE_HIGH
-            channel.enableVibration(true);
-            channel.setVibrationPattern(DEFAULT_VIBRATION_PATTERN);
+                    NotificationManager.IMPORTANCE_HIGH);
 
-            NotificationManager manager =
-                    context.getSystemService(NotificationManager.class);
+            if (NotificationSettingsManager.isVibrationEnabled(context)) {
+                channel.enableVibration(true);
+                channel.setVibrationPattern(DEFAULT_VIBRATION_PATTERN);
+            } else {
+                channel.enableVibration(false);
+            }
+
+            channel.setShowBadge(true);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+
+            NotificationManager manager = context.getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
         }
     }
 
-    private static Notification buildNotification(Context context, String title, String message) {
+    private Notification buildNotification(Context context, String title, String message, int chatId) {
         Intent intent = new Intent(context, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                context, 0, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        intent.putExtra("chatId", chatId);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        return new NotificationCompat.Builder(context, CHANNEL_ID)
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.dot_done)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setDefaults(NotificationCompat.DEFAULT_ALL)
-                .setVibrate(DEFAULT_VIBRATION_PATTERN)
-                .setFullScreenIntent(pendingIntent, true)
-                .setCategory(NotificationCompat.CATEGORY_CALL)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .build();
+                .setPriority(NotificationCompat.PRIORITY_HIGH);
+
+        // Вибрация (если включена)
+        if (NotificationSettingsManager.isVibrationEnabled(context)) {
+            builder.setVibrate(DEFAULT_VIBRATION_PATTERN);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder.setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        }
+
+        return builder.build();
+    }
+    public void setCurrentChatId(int currentChatId){
+        this.currentChatId = currentChatId;
     }
 }

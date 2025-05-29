@@ -2,7 +2,6 @@ package com.example.aichat.model;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
@@ -14,15 +13,23 @@ public class SecurePreferencesManager {
 
     private static final String SHARED_PREFS_FILE = "secure_app_prefs";
     private static final String AUTH_TOKEN_KEY = "auth_token";
+    private static final String NOTIFICATION_TOKEN_KEY = "notification_token";
     private static final String USER_ID_KEY = "user_id";
 
-    // Методы для работы с токеном авторизации
     public static void saveAuthToken(Context context, String token) {
         saveString(context, AUTH_TOKEN_KEY, token);
     }
 
     public static String getAuthToken(Context context) {
         return getString(context, AUTH_TOKEN_KEY);
+    }
+
+    public static void saveNotificationToken(Context context, String token) {
+        saveString(context, NOTIFICATION_TOKEN_KEY, token);
+    }
+
+    public static String getNotificationToken(Context context) {
+        return getString(context, NOTIFICATION_TOKEN_KEY);
     }
 
     public static void removeAuthToken(Context context) {
@@ -41,7 +48,6 @@ public class SecurePreferencesManager {
         remove(context, USER_ID_KEY);
     }
 
-    // Базовые методы для работы с SharedPreferences
     private static void saveString(Context context, String key, String value) {
         try {
             SharedPreferences.Editor editor = getEncryptedEditor(context);
