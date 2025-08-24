@@ -13,31 +13,49 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.aichat.R;
 import com.example.aichat.controller.LoginController;
 import com.example.aichat.model.database.DatabaseManager;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class LoginActivity extends BaseActivity {
-    TextInputLayout emailInputLayout;
-    TextInputLayout passwordInputLayout;
-    EditText emailEditText;
-    EditText passwordEditText;
-    Button loginButton;
-    ImageView imageView;
-    TextView registerTextView;
     private LoginController controller;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        registerTextView = findViewById(R.id.registerTextView);
-        DatabaseManager.init(this);
 
+        DatabaseManager.init(this);
+        setupRegisterLink();
+
+        TextInputLayout emailInputLayout = findViewById(R.id.emailInputLayout);
+        TextInputLayout passwordInputLayout = findViewById(R.id.passwordInputLayout);
+        EditText emailEditText = findViewById(R.id.email);
+        EditText passwordEditText = findViewById(R.id.password);
+        Button loginButton = findViewById(R.id.login);
+        ImageView imageView = findViewById(R.id.imageView);
+        SignInButton googleSignInButton = findViewById(R.id.sign_in_button);
+
+        controller = new LoginController(
+                this,
+                emailInputLayout,
+                passwordInputLayout,
+                emailEditText,
+                passwordEditText,
+                loginButton,
+                imageView,
+                googleSignInButton
+        );
+    }
+
+    private void setupRegisterLink() {
+        TextView registerTextView = findViewById(R.id.registerTextView);
         String fullText = getString(R.string.register_prompt);
         String linkText = getString(R.string.register_link_text);
 
@@ -45,8 +63,7 @@ public class LoginActivity extends BaseActivity {
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                Intent intent = new Intent(LoginActivity.this, RegistrationActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(LoginActivity.this, RegistrationActivity.class));
                 finish();
             }
 
@@ -59,25 +76,16 @@ public class LoginActivity extends BaseActivity {
         };
 
         int startIndex = fullText.indexOf(linkText);
-        int endIndex = startIndex + linkText.length();
-        spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannableString.setSpan(clickableSpan, startIndex, startIndex + linkText.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         registerTextView.setText(spannableString);
         registerTextView.setMovementMethod(LinkMovementMethod.getInstance());
+    }
 
-        emailInputLayout = findViewById(R.id.emailInputLayout);
-        passwordInputLayout = findViewById(R.id.passwordInputLayout);
-        emailEditText = findViewById(R.id.email);
-        passwordEditText = findViewById(R.id.password);
-        loginButton = findViewById(R.id.login);
-        imageView = findViewById(R.id.imageView);
-
-        controller = new LoginController(this,
-                emailInputLayout,
-                passwordInputLayout,
-                emailEditText,
-                passwordEditText,
-                loginButton,
-                imageView);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        controller.handleGoogleSignInResult(requestCode, data);
     }
 }

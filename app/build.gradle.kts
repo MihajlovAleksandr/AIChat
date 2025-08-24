@@ -14,7 +14,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "SERVER_URL", "\"wss://192.168.100.6:8888/\"")
+        buildConfigField("String", "SERVER_URL", "\"wss://192.168.1.117:8888/\"")
     }
 
     buildTypes {
@@ -68,6 +68,8 @@ dependencies {
     implementation ("androidx.camera:camera-camera2:1.1.0")
     implementation ("androidx.camera:camera-lifecycle:1.1.0")
     implementation ("androidx.camera:camera-view:1.1.0")
+    implementation ("com.google.android.gms:play-services-auth:20.7.0")
+    implementation ("com.google.firebase:firebase-auth:22.3.0")
     implementation(platform("com.google.firebase:firebase-bom:33.14.0"))
     implementation("com.google.firebase:firebase-analytics")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")

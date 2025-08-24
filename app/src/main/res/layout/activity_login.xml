@@ -87,6 +87,13 @@
                 android:layout_marginTop="24dp"
                 android:text="@string/login_button" />
 
+            <!-- Кнопка входа через Google -->
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/sign_in_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" />
+
             <!-- Текст с возможностью перехода на регистрацию -->
             <TextView
                 android:id="@+id/registerTextView"

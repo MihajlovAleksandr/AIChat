@@ -6,9 +6,16 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import androidx.annotation.Nullable;
 
 import com.example.aichat.model.SecurePreferencesManager;
 import com.example.aichat.view.LoginActivity;
+import com.example.aichat.view.UserDataActivity;
 import com.example.aichat.view.main.MainActivity;
 import com.example.aichat.R;
 import com.example.aichat.model.entities.Command;
@@ -16,23 +23,34 @@ import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.OnConnectionEvents;
 import com.example.aichat.model.QRCodeGenerator;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Objects;
 
 public class LoginController {
+    private static final int RC_SIGN_IN = 1001;
 
-    private LoginActivity activity;
-    private ConnectionManager connectionManager;
-
-    private TextInputLayout emailInputLayout;
-    private TextInputLayout passwordInputLayout;
-    private EditText emailEditText;
-    private EditText passwordEditText;
-    private Button loginButton;
-    private ImageView imageView;
+    private final LoginActivity activity;
+    private final ConnectionManager connectionManager;
+    private GoogleSignInClient googleSignInClient;
+    private final TextInputLayout emailInputLayout;
+    private final TextInputLayout passwordInputLayout;
+    private final EditText emailEditText;
+    private final EditText passwordEditText;
+    private final Button loginButton;
+    private final ImageView imageView;
 
     private boolean isEmailValidFlag = false;
     private boolean isPasswordValidFlag = false;
@@ -43,7 +61,9 @@ public class LoginController {
                            EditText emailEditText,
                            EditText passwordEditText,
                            Button loginButton,
-                           ImageView imageView) {
+                           ImageView imageView,
+                           SignInButton googleSignInButton) {
+        ConnectionManager manager;
         this.activity = activity;
         this.emailInputLayout = emailInputLayout;
         this.passwordInputLayout = passwordInputLayout;
@@ -52,19 +72,86 @@ public class LoginController {
         this.loginButton = loginButton;
         this.imageView = imageView;
 
-        connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
-        if (connectionManager == null) {
+        manager = ConnectionSingleton.getInstance().getConnectionManager();
+        if (manager == null) {
             ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(""));
-            connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
+            manager = ConnectionSingleton.getInstance().getConnectionManager();
 
         } else {
-            connectionManager.SendCommand(new Command("GetEntryToken"));
+            manager.SendCommand(new Command("GetEntryToken"));
         }
 
+        connectionManager = manager;
         setupConnectionCallbacks();
         setupFieldListeners();
         setupLoginButton();
+        setupGoogleSignIn(googleSignInButton);
         loginButton.setEnabled(false);
+    }
+
+    private void setupGoogleSignIn(SignInButton googleSignInButton) {
+        String clientId = loadWebClientId();
+        if (clientId == null) {
+            Toast.makeText(activity, "Error configuring Google Sign-In", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(clientId)
+                .requestEmail()
+                .build();
+
+        googleSignInClient = GoogleSignIn.getClient(activity, gso);
+        googleSignInButton.setSize(SignInButton.SIZE_WIDE);
+        googleSignInButton.setOnClickListener(v -> startGoogleSignIn());
+    }
+
+    private void startGoogleSignIn() {
+        Intent signInIntent = googleSignInClient.getSignInIntent();
+        activity.startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    public void handleGoogleSignInResult(int requestCode, @Nullable Intent data) {
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                String idToken = account.getIdToken();
+                if (idToken != null) {
+                    sendGoogleTokenToServer(idToken);
+                } else {
+                    Toast.makeText(activity, "Google Sign-In failed: no token", Toast.LENGTH_SHORT).show();
+                }
+            } catch (ApiException e) {
+                Log.e("LoginController", "Google Sign-In failed", e);
+                Toast.makeText(activity, "Google Sign-In failed: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void sendGoogleTokenToServer(String idToken) {
+        Command command = new Command("SendGoogleTokenCommand");
+        command.addData("token", idToken);
+        connectionManager.SendCommand(command);
+        Log.d("LoginController", "Google token sent to server");
+    }
+
+    private String loadWebClientId() {
+        try (InputStream is = activity.getAssets().open("google-secret.json");
+             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+
+            StringBuilder builder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                builder.append(line);
+            }
+
+            JSONObject root = new JSONObject(builder.toString());
+            return root.getJSONObject("web").getString("client_id");
+        } catch (Exception e) {
+            Log.e("LoginController", "Error loading client ID", e);
+            return null;
+        }
     }
 
     private void setupConnectionCallbacks() {
@@ -73,31 +160,38 @@ public class LoginController {
             public void OnCommandGot(Command command) {
                 switch (command.getOperation()) {
                     case "EntryToken":
-                        String token = command.getData("token", String.class);
-                        Log.d("Token", token);
-                        Bitmap bitmap = QRCodeGenerator.generateQRCodeImage(token, 400, 400);
-                        activity.runOnUiThread(() -> imageView.setImageBitmap(bitmap));
+                        handleEntryToken(command);
                         break;
                     case "CreateToken":
-                        String tokenCreated = command.getData("token", String.class);
-                        SecurePreferencesManager.saveAuthToken(activity, tokenCreated);
-                        connectionManager.setToken(tokenCreated);
+                        handleCreateToken(command);
                         break;
                     case "LoginIn":
-                        ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
-                        int userId = command.getData("userId", int.class);
-                        SecurePreferencesManager.saveUserId(activity, userId);
-                        Intent intent = new Intent(activity, MainActivity.class);
-                        intent.putExtra("userId", userId);
-                        activity.startActivity(intent);
-                        activity.finish();
+                        handleLoginSuccess(command);
+                        break;
+                    case "GoogleRegistrationSuccess":
+                        GoogleRegistrationSuccess();
+                        break;
+                    case "UseOtherLoginInService":
+                        String service = command.getData("service", String.class);
+                        if(Objects.equals(service, "Password")){
+                            activity.runOnUiThread(()-> {
+                                validatePassword();
+                            });
+                        }
+                        else if(Objects.equals(service, "Google")) {
+                            activity.runOnUiThread(() -> {
+                                    passwordInputLayout.setError("Use Google auth");
+                                }
+                            );
+                        }
                         break;
                 }
             }
 
             @Override
             public void OnConnectionFailed() {
-                activity.runOnUiThread(() -> imageView.setImageResource(R.drawable.loading));
+                activity.runOnUiThread(() ->
+                        imageView.setImageResource(R.drawable.loading));
             }
 
             @Override
@@ -105,6 +199,37 @@ public class LoginController {
                 connectionManager.SendCommand(new Command("GetEntryToken"));
             }
         });
+    }
+
+    private void handleEntryToken(Command command) {
+        String token = command.getData("token", String.class);
+        Log.d("LoginController", "Entry token received: " + token);
+        Bitmap bitmap = QRCodeGenerator.generateQRCodeImage(token, 400, 400);
+        activity.runOnUiThread(() -> imageView.setImageBitmap(bitmap));
+    }
+
+    private void handleCreateToken(Command command) {
+        String tokenCreated = command.getData("token", String.class);
+        SecurePreferencesManager.saveAuthToken(activity, tokenCreated);
+        connectionManager.setToken(tokenCreated);
+    }
+
+    private void handleLoginSuccess(Command command) {
+        int userId = command.getData("userId", int.class);
+        SecurePreferencesManager.saveUserId(activity, userId);
+
+        activity.runOnUiThread(() -> {
+            Intent intent = new Intent(activity, MainActivity.class);
+            intent.putExtra("userId", userId);
+            activity.startActivity(intent);
+            activity.finish();
+        });
+    }
+
+    private void GoogleRegistrationSuccess() {
+        Intent intent = new Intent(activity, UserDataActivity.class);
+        activity.startActivity(intent);
+        activity.finish();
     }
 
     private void setupFieldListeners() {
@@ -122,14 +247,10 @@ public class LoginController {
 
         emailEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -146,14 +267,10 @@ public class LoginController {
 
         passwordEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
