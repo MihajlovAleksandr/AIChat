@@ -52,7 +52,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     }
     public void updateLastMessage(Message message) {
         for (int i = 0; i < chatList.size(); i++) {
-            if (message.getChat() == chatList.get(i).getChat().getId()) {
+            if (message.getChat().equals(chatList.get(i).getChat().getId())) {
                 MessageChat messageChat = chatList.get(i);
                 messageChat.setMessage(message);
                 chatList.remove(i);

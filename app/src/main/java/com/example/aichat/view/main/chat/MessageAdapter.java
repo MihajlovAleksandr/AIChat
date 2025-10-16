@@ -17,6 +17,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
@@ -24,7 +25,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public MessageController messageController;
     private RecyclerView recyclerView;
 
-    public MessageAdapter(int currentUserId, List<Message> messages) {
+    public MessageAdapter(UUID currentUserId, List<Message> messages) {
         this.messageController = new MessageController(currentUserId);
         this.messages = messages;
 
@@ -50,7 +51,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     }
     public void findMessages(Message messageToFind) {
         for (int i = 0; i < messages.size(); i++) {
-            if (messages.get(i).getId() == messageToFind.getId()) {
+            if (messages.get(i).getId().equals(messageToFind.getId())) {
                 if (recyclerView != null) {
                     recyclerView.scrollToPosition(i);
                 }
@@ -101,7 +102,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             timeText.setText(messageController.getFormattedMessageTime(message));
         }
         public boolean isCurrentMessage(Message message){
-            return message.getId() == this.message.getId();
+            return message.getId().equals(this.message.getId());
         }
     }
 }

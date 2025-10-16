@@ -13,7 +13,7 @@ public class InAppConnection {
     private final ConnectionManager connectionManager;
     private final DatabaseSaver databaseSaver;
     private final OnConnectionEvents events;
-    public InAppConnection(ConnectionManager connectionManager,  Context context, int currentUserId){
+    public InAppConnection(ConnectionManager connectionManager,  Context context){
         this.connectionManager = connectionManager;
         databaseSaver = new DatabaseSaver(DatabaseManager.getDatabase());
         events = new OnConnectionEvents() {

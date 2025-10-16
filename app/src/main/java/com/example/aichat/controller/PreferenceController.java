@@ -9,6 +9,11 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.example.aichat.R;
+import com.example.aichat.dto.request.PreferenceRequest;
+import com.example.aichat.dto.response.LoginInResponse;
+import com.example.aichat.dto.response.TokenResponse;
+import com.example.aichat.model.entities.Gender;
+import com.example.aichat.model.entities.PreferenceGender;
 import com.example.aichat.view.main.MainActivity;
 import com.example.aichat.view.PreferenceActivity;
 import com.example.aichat.model.entities.Command;
@@ -20,6 +25,7 @@ import com.example.aichat.model.SecurePreferencesManager;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class PreferenceController {
 
@@ -82,11 +88,11 @@ public class PreferenceController {
             minAgeInputLayout.getEditText().setText(String.valueOf(preferenceToEdit.getMinAge()));
             maxAgeInputLayout.getEditText().setText(String.valueOf(preferenceToEdit.getMaxAge()));
 
-            String gender = preferenceToEdit.getGender();
+            PreferenceGender gender = preferenceToEdit.getGender();
             int radioButtonId = -1;
             for (int i = 0; i < genderGroup.getChildCount(); i++) {
                 RadioButton radioButton = (RadioButton) genderGroup.getChildAt(i);
-                if (radioButton.getTag().toString().equals(gender)) {
+                if (radioButton.getTag().toString().equals(gender.toString())) {
                     radioButtonId = radioButton.getId();
                     break;
                 }
@@ -127,16 +133,16 @@ public class PreferenceController {
                 public void OnCommandGot(Command command) {
                     switch (command.getOperation()) {
                         case "CreateToken":
-                            String token = command.getData("token", String.class);
-                            SecurePreferencesManager.saveAuthToken(activity, token);
-                            connectionManager.setToken(token);
+                            TokenResponse tokenResponse = command.getData(TokenResponse.class);
+                            SecurePreferencesManager.saveAuthToken(activity, tokenResponse.token);
+                            connectionManager.setToken(tokenResponse.token);
                             break;
                         case "LoginIn":
                             ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
                             Intent intent = new Intent(activity, MainActivity.class);
-                            int userId = command.getData("userId", int.class);
-                            SecurePreferencesManager.saveUserId(activity, userId);
-                            intent.putExtra("userId", userId);
+                            LoginInResponse loginInResponse = command.getData(LoginInResponse.class);
+                            SecurePreferencesManager.saveUserId(activity, loginInResponse.userId);
+                            intent.putExtra("userId", loginInResponse.userId);
                             activity.startActivity(intent);
                             activity.finish();
                             break;
@@ -162,11 +168,8 @@ public class PreferenceController {
             int minAge = Integer.parseInt(minAgeInputLayout.getEditText().getText().toString().trim());
             int selectedGenderId = genderGroup.getCheckedRadioButtonId();
             RadioButton selectedGender = activity.findViewById(selectedGenderId);
-            String gender = selectedGender.getTag().toString();
-
-            Preference preference = new Preference(minAge, maxAge, gender);
-            Command command = new Command(isEditMode ? "UpdatePreference" : "AddPreference");
-            command.addData("preference", preference);
+            PreferenceGender gender = PreferenceGender.valueOf(selectedGender.getTag().toString());
+            Command command = new Command(isEditMode ? "UpdatePreference" : "AddPreference", new PreferenceRequest(minAge, maxAge, gender));
             connectionManager.SendCommand(command);
         });
 

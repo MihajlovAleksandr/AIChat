@@ -13,6 +13,12 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.example.aichat.dto.request.AuthRequest;
+import com.example.aichat.dto.request.GoogleTokenRequest;
+import com.example.aichat.dto.response.EntryTokenResponse;
+import com.example.aichat.dto.response.LoginInResponse;
+import com.example.aichat.dto.response.TokenResponse;
+import com.example.aichat.dto.response.UseOtherLoginInServiceResponse;
 import com.example.aichat.model.SecurePreferencesManager;
 import com.example.aichat.view.LoginActivity;
 import com.example.aichat.view.UserDataActivity;
@@ -38,6 +44,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Objects;
+import java.util.UUID;
 
 public class LoginController {
     private static final int RC_SIGN_IN = 1001;
@@ -130,8 +137,7 @@ public class LoginController {
     }
 
     private void sendGoogleTokenToServer(String idToken) {
-        Command command = new Command("SendGoogleTokenCommand");
-        command.addData("token", idToken);
+        Command command = new Command("SendGoogleTokenCommand", new GoogleTokenRequest(idToken));
         connectionManager.SendCommand(command);
         Log.d("LoginController", "Google token sent to server");
     }
@@ -172,13 +178,13 @@ public class LoginController {
                         GoogleRegistrationSuccess();
                         break;
                     case "UseOtherLoginInService":
-                        String service = command.getData("service", String.class);
-                        if(Objects.equals(service, "Password")){
+                        UseOtherLoginInServiceResponse response = command.getData(UseOtherLoginInServiceResponse.class);
+                        if(Objects.equals(response.service, "Password")){
                             activity.runOnUiThread(()-> {
                                 validatePassword();
                             });
                         }
-                        else if(Objects.equals(service, "Google")) {
+                        else if(Objects.equals(response.service, "Google")) {
                             activity.runOnUiThread(() -> {
                                     passwordInputLayout.setError("Use Google auth");
                                 }
@@ -202,25 +208,25 @@ public class LoginController {
     }
 
     private void handleEntryToken(Command command) {
-        String token = command.getData("token", String.class);
-        Log.d("LoginController", "Entry token received: " + token);
-        Bitmap bitmap = QRCodeGenerator.generateQRCodeImage(token, 400, 400);
+        EntryTokenResponse entryTokenResponse = command.getData(EntryTokenResponse.class);
+        Log.d("LoginController", "Entry token received: " + entryTokenResponse.token);
+        Bitmap bitmap = QRCodeGenerator.generateQRCodeImage(entryTokenResponse.token, 400, 400);
         activity.runOnUiThread(() -> imageView.setImageBitmap(bitmap));
     }
 
     private void handleCreateToken(Command command) {
-        String tokenCreated = command.getData("token", String.class);
-        SecurePreferencesManager.saveAuthToken(activity, tokenCreated);
-        connectionManager.setToken(tokenCreated);
+        TokenResponse tokenResponse = command.getData(TokenResponse.class);
+        SecurePreferencesManager.saveAuthToken(activity, tokenResponse.token);
+        connectionManager.setToken(tokenResponse.token);
     }
 
     private void handleLoginSuccess(Command command) {
-        int userId = command.getData("userId", int.class);
-        SecurePreferencesManager.saveUserId(activity, userId);
+        LoginInResponse loginInResponse = command.getData(LoginInResponse.class);
+        SecurePreferencesManager.saveUserId(activity, loginInResponse.userId);
 
         activity.runOnUiThread(() -> {
             Intent intent = new Intent(activity, MainActivity.class);
-            intent.putExtra("userId", userId);
+            intent.putExtra("userId", loginInResponse.userId.toString());
             activity.startActivity(intent);
             activity.finish();
         });
@@ -288,9 +294,7 @@ public class LoginController {
 
     private void setupLoginButton() {
         loginButton.setOnClickListener(v -> {
-            Command command = new Command("LoginIn");
-            command.addData("email", emailEditText.getText().toString().trim());
-            command.addData("password", passwordEditText.getText().toString().trim());
+            Command command = new Command("LoginIn", new AuthRequest(emailEditText.getText().toString().trim(), passwordEditText.getText().toString().trim()));
             connectionManager.SendCommand(command);
         });
     }

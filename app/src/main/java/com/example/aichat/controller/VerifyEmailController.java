@@ -7,6 +7,8 @@ import android.text.Editable;
 import android.util.Log;
 import android.widget.EditText;
 
+import com.example.aichat.dto.request.VerificationCodeRequest;
+import com.example.aichat.dto.response.VerificationCodeResponse;
 import com.example.aichat.view.UserDataActivity;
 import com.example.aichat.view.VerifyEmailActivity;
 import com.example.aichat.model.entities.Command;
@@ -51,7 +53,7 @@ public class VerifyEmailController {
     }
 
     private void handleVerificationResponse(Command command) {
-        if (command.getData("answer", int.class) == 1) {
+        if (command.getData(VerificationCodeResponse.class).answer == 1) {
             ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
             Intent intent = new Intent(activity, UserDataActivity.class);
             activity.startActivity(intent);
@@ -88,8 +90,7 @@ public class VerifyEmailController {
         if (s.length() == 1 && currentIndex == codeFields.length - 1) {
             String fullCode = getFullCode();
             Log.d("VerifyEmailController", "Full code: " + fullCode);
-            Command command = new Command("VerificationCode");
-            command.addData("code", fullCode);
+            Command command = new Command("VerificationCode", new VerificationCodeRequest(Integer.parseInt(fullCode)));
             connectionManager.SendCommand(command);
         }
     }

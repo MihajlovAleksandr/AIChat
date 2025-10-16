@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.aichat.R;
 import com.example.aichat.model.entities.UserData;
+import com.example.aichat.model.utils.JsonHelper;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Objects;
@@ -43,7 +44,10 @@ public class UserDataActivity extends BaseActivity {
         submitButton = findViewById(R.id.submitButton);
         nameInfoIcon = findViewById(R.id.nameInfoIcon);
         ageInfoIcon = findViewById(R.id.ageInfoIcon);
-        UserData userData = intent.getSerializableExtra("userData", UserData.class);
+        String strUserData =  intent.getStringExtra("userData");
+        UserData userData = null;
+        if(strUserData!=null)
+            userData = JsonHelper.Deserialize(strUserData, UserData.class);
         if(userData==null) {
             controller = new com.example.aichat.controller.UserDataController(
                     this,

@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.aichat.R;
+import com.example.aichat.dto.request.RegistrationRequest;
+import com.example.aichat.model.LocaleManager;
 import com.example.aichat.view.RegistrationActivity;
 import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.connection.ConnectionManager;
@@ -113,9 +115,7 @@ public class RegistrationController {
     private void setupRegistrationButton() {
         registrationButton.setOnClickListener(v -> {
             String email = emailEditText.getText().toString().trim();
-            Command command = new Command("Registration");
-            command.addData("email", email);
-            command.addData("password", passwordController.getPassword());
+            Command command = new Command("Registration", new RegistrationRequest(email, passwordController.getPassword(), LocaleManager.getLocale(activity).toString()));
             connectionManager.SendCommand(command);
         });
     }

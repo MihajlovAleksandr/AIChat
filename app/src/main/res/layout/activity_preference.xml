@@ -96,20 +96,20 @@
                 android:id="@+id/maleRadio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:tag="M"
+                android:tag="MALE"
                 android:text="@string/gender_male"/>
 
             <RadioButton
                 android:id="@+id/femaleRadio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:tag="F"
+                android:tag="FEMALE"
                 android:text="@string/gender_female"/>
             <RadioButton
                 android:id="@+id/anyRadio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:tag="Any"
+                android:tag="ANY"
                 android:text="@string/gender_any"/>
         </RadioGroup>
 

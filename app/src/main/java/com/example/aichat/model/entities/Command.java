@@ -1,50 +1,55 @@
 package com.example.aichat.model.entities;
 
 import androidx.annotation.NonNull;
-
-import com.example.aichat.model.utils.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Command {
 
     @JsonProperty
-    private final String operation;
+    private String operation;
 
     @JsonProperty
-    private final Map<String, String> data;
+    private JsonNode data;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @JsonIgnore
     public String getOperation() {
         return operation;
     }
     @JsonIgnore
-    public Command(String operation) {
+    public Command(String operation){
         this.operation = operation;
-        this.data = new HashMap<>();
     }
     public Command(){
-        operation="";
-        this.data = new HashMap<>();
+        operation = "";
     }
     @JsonIgnore
-    public <T> void addData(String name, T obj) {
-        data.put(name, JsonHelper.Serialize(obj));
-    }
-    @JsonIgnore
-    public <T> T getData(String name, Class<T> type) {
-        if (data.containsKey(name)) {
-            return JsonHelper.Deserialize(data.get(name), type);
+    public Command(String operation, Object data) {
+        this.operation = operation;
+        if (data != null) {
+            this.data = objectMapper.valueToTree(data);
         }
-        return null;
+    }
+
+    public <T> T getData(Class<T> type) {
+        if (data == null) {
+            return null;
+        }
+        try {
+            return objectMapper.treeToValue(data, type);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to convert data to type: " + type.getSimpleName(), e);
+        }
     }
 
     @NonNull
     @Override
     public String toString() {
-        return operation + ": \nData count: " + data.size();
+        return data != null ? operation + ": \nData count: " + data.size() : operation;
     }
 }

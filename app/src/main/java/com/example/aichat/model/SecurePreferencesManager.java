@@ -8,6 +8,7 @@ import androidx.security.crypto.MasterKey;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.UUID;
 
 public class SecurePreferencesManager {
 
@@ -36,12 +37,14 @@ public class SecurePreferencesManager {
         remove(context, AUTH_TOKEN_KEY);
     }
 
-    public static void saveUserId(Context context, int userId) {
-        saveInt(context, USER_ID_KEY, userId);
+    public static void saveUserId(Context context, UUID userId) {
+        saveString(context, USER_ID_KEY, userId.toString());
     }
 
-    public static int getUserId(Context context) {
-        return getInt(context, USER_ID_KEY, -1);
+    public static UUID getUserId(Context context) {
+        String strUserId = getString(context, USER_ID_KEY);
+        if(strUserId == null) return  null;
+        return UUID.fromString(strUserId);
     }
 
     public static void removeUserId(Context context) {

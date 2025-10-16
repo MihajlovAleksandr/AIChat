@@ -15,6 +15,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.aichat.controller.main.chatlist.ChatController;
+import com.example.aichat.dto.request.DeleteConnectionRequest;
+import com.example.aichat.dto.request.EntryTokenRequest;
+import com.example.aichat.dto.response.ConnectionChangeResponse;
+import com.example.aichat.dto.response.DeleteConnectionResponse;
+import com.example.aichat.dto.response.DeviceResponse;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.OnConnectionEvents;
@@ -26,15 +31,16 @@ import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class DevicesActivity extends BaseActivity {
 
     private static final int REQUEST_CODE = 783;
     private RecyclerView devicesRecyclerView;
     private DevicesAdapter devicesAdapter;
-    private static int currentConnectionId;
+    private static UUID currentConnectionId;
     private List<ConnectionInfo> devicesList = new ArrayList<>();
-    Button terminateButton;
+    private Button terminateButton;
     private ConnectionManager connectionManager;
 
     @Override
@@ -58,16 +64,19 @@ public class DevicesActivity extends BaseActivity {
             public void OnCommandGot(Command command) {
                 switch (command.getOperation()) {
                     case "GetDevices":
-                        ConnectionInfo[] connectionInfos = command.getData("devices", ConnectionInfo[].class);
+                        DeviceResponse deviceResponse = command.getData(DeviceResponse.class);
+
+                        ConnectionInfo[] connectionInfos = deviceResponse.connectionInfo;
                         devicesList.addAll(Arrays.asList(connectionInfos));
-                        currentConnectionId = command.getData("currentConnectionId", int.class);
+                        currentConnectionId = deviceResponse.currentConnection;
                         updateTabs(tabLayout.getSelectedTabPosition());
                         break;
                     case "ConnectionsChange":
-                        ConnectionInfo connectionInfo = command.getData("connectionInfo", ConnectionInfo.class);
+                        ConnectionChangeResponse connectionChangeResponse = command.getData(ConnectionChangeResponse.class);
+                        ConnectionInfo connectionInfo = connectionChangeResponse.connectionInfo;
                         boolean isNewDevice = true;
                         for(int i =0; i<devicesList.size();i++){
-                            if(devicesList.get(i).getId()==connectionInfo.getId()){
+                            if(devicesList.get(i).getId().equals(connectionInfo.getId())){
                                 devicesList.set(i,connectionInfo);
                                 isNewDevice =  false;
                                 break;
@@ -79,9 +88,9 @@ public class DevicesActivity extends BaseActivity {
                         updateTabs(tabLayout.getSelectedTabPosition());
                         break;
                     case "DeleteConnection":
-                        ConnectionInfo info = command.getData("connectionInfo", ConnectionInfo.class);
+                        DeleteConnectionResponse response = command.getData(DeleteConnectionResponse.class);
                         for (int i = 0; i < devicesList.size(); i++) {
-                            if(devicesList.get(i).equals(info)){
+                            if(devicesList.get(i).equals(response.connectionInfo)){
                                 devicesList.remove(i);
                                 break;
                             }
@@ -138,7 +147,7 @@ public class DevicesActivity extends BaseActivity {
             case 0:
                 for (int i = 0; i < devicesList.size(); i++) {
                     ConnectionInfo device = devicesList.get(i);
-                    if(device.getId()!=currentConnectionId)terminateSession(device.getId());
+                    if(!device.getId().equals(currentConnectionId))terminateSession(device.getId());
                 }
                 break;
             case 1:
@@ -150,14 +159,13 @@ public class DevicesActivity extends BaseActivity {
             case 2:
                 for (int i = 0; i < devicesList.size(); i++) {
                     ConnectionInfo device = devicesList.get(i);
-                    if(device.getId()!=currentConnectionId&&device.getLastOnlineFormat()==null)terminateSession(device.getId());
+                    if(!device.getId().equals(currentConnectionId)&&device.getLastOnlineFormat()==null)terminateSession(device.getId());
                 }
                 break;
         }
     }
-    private void terminateSession(int connectionId){
-        Command logoutCommand = new Command("DeleteConnection");
-        logoutCommand.addData("connectionId", connectionId);
+    private void terminateSession(UUID connectionId){
+        Command logoutCommand = new Command("DeleteConnection", new DeleteConnectionRequest(connectionId));
         connectionManager.SendCommand(logoutCommand);
     }
     private void updateTabs(int position) {
@@ -180,7 +188,7 @@ public class DevicesActivity extends BaseActivity {
     private void handleYouTabSelected() {
         for(int i=0;i<devicesList.size();i++){
             ConnectionInfo device = devicesList.get(i);
-            if(device.getId()== currentConnectionId){
+            if(device.getId().equals(currentConnectionId)){
                 List<ConnectionInfo> newDevices = new ArrayList<>();
                 newDevices.add(device);
                 runOnUiThread(()->
@@ -219,8 +227,7 @@ public class DevicesActivity extends BaseActivity {
 
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
             String resultData = data.getStringExtra("QRCodeResult");
-            Command command = new Command("EntryTokenRead");
-            command.addData("token", resultData);
+            Command command = new Command("EntryTokenRead", new EntryTokenRequest(resultData));
             connectionManager.SendCommand(command);
         }
     }
@@ -231,7 +238,7 @@ public class DevicesActivity extends BaseActivity {
         private final OnLogoutClickListener logoutClickListener;
 
         public interface OnLogoutClickListener {
-            void onLogoutClick(int connectionId);
+            void onLogoutClick(UUID connectionId);
         }
 
         public DevicesAdapter(OnLogoutClickListener logoutClickListener) {
@@ -283,7 +290,7 @@ public class DevicesActivity extends BaseActivity {
                         itemView.getContext().getString(R.string.online) :
                         ChatController.getFormattedTime(device.getLastOnlineFormat()));
 
-                if(currentConnectionId == device.getId()) {
+                if(currentConnectionId.equals(device.getId())) {
                     btn_logout.setVisibility(View.GONE);
                 } else {
                     btn_logout.setVisibility(View.VISIBLE);

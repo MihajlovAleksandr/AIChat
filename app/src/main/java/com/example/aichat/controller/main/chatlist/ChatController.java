@@ -30,7 +30,7 @@ public class ChatController {
                 android.R.drawable.presence_online :
                 android.R.drawable.presence_invisible;
     }
-    public static List<Message> getLastMessages(Message[] messages){
+    public static Message[] getLastMessages(Message[] messages){
         List<Message> messageList =new ArrayList<>();
         if(messages.length>0) {
             messageList.add(messages[messages.length - 1]);
@@ -41,6 +41,6 @@ public class ChatController {
                 }
             }
         }
-        return   messageList;
+        return messageList.toArray(new Message[0]);
     }
 }

@@ -1,5 +1,8 @@
 package com.example.aichat.model.entities;
 
+import android.health.connect.datatypes.StepsCadenceRecord;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -11,6 +14,7 @@ import com.example.aichat.model.utils.TimeConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity(tableName = "Messages",
         foreignKeys = @ForeignKey(entity = Chat.class,
@@ -22,16 +26,17 @@ public class Message {
 
     @PrimaryKey
     @JsonProperty
-    private int id;
+    @NonNull
+    private UUID id;
 
     @JsonProperty
     private String text;
 
     @JsonProperty
-    private int sender;
+    private UUID sender;
 
     @JsonProperty
-    private int chat;
+    private UUID chat;
 
     @JsonProperty
     private String time;
@@ -39,22 +44,33 @@ public class Message {
     @JsonProperty
     private String lastUpdate;
     @Ignore
-    public Message(String text, int sender, int chat) {
+    public Message(String text, UUID sender, UUID chat) {
         this.text = text;
         this.sender = sender;
         this.chat = chat;
         time = null;
+    }
+    @Ignore
+    public Message(@NonNull UUID id, String text, UUID sender, UUID chat, String time, String lastUpdate){
+        this.id = id;
+        this.text = text;
+        this.sender = sender;
+        this.chat = chat;
+        this.time = time;
+        this.lastUpdate = lastUpdate;
     }
 
     public Message() {
     }
 
     @JsonIgnore
-    public int getId() {
+    @NonNull
+    public UUID getId() {
         return id;
     }
 
-    public void setId(int id) {
+    @NonNull
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -68,20 +84,20 @@ public class Message {
     }
 
     @JsonIgnore
-    public int getSender() {
+    public UUID getSender() {
         return sender;
     }
 
-    public void setSender(int sender) {
+    public void setSender(UUID sender) {
         this.sender = sender;
     }
 
     @JsonIgnore
-    public int getChat() {
+    public UUID getChat() {
         return chat;
     }
 
-    public void setChat(int chat) {
+    public void setChat(UUID chat) {
         this.chat = chat;
     }
 
@@ -114,8 +130,8 @@ public class Message {
     }
 
     @JsonIgnore
-    public boolean isMyMessage(int userId) {
-        return userId == sender;
+    public boolean isMyMessage(UUID userId) {
+        return userId.equals(sender);
     }
     @JsonIgnore
     @Override

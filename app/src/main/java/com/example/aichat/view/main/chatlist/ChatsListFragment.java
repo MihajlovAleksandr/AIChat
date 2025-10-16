@@ -21,6 +21,7 @@ import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.entities.Chat;
+import com.example.aichat.model.entities.ChatType;
 import com.example.aichat.model.entities.Message;
 import com.example.aichat.model.entities.MessageChat;
 import com.example.aichat.view.main.MainActivity;
@@ -29,6 +30,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -93,13 +96,13 @@ public class ChatsListFragment extends Fragment {
 
                     int id = item.getItemId();
                     if (id == R.id.menu_human) {
-                        controller.addChat("human");
+                        controller.addChat(ChatType.HUMAN);
                         return true;
                     } else if (id == R.id.menu_ai) {
-                        controller.addChat("ai");
+                        controller.addChat(ChatType.AI);
                         return true;
                     } else if (id == R.id.menu_random) {
-                        controller.addChat("random");
+                        controller.addChat(ChatType.RANDOM);
                         return true;
                     }
                     return false;
@@ -139,33 +142,11 @@ public class ChatsListFragment extends Fragment {
     public void loadChatsFromDatabase() {
         databaseExecutor.execute(() -> {
             List<Chat> chats = DatabaseManager.getDatabase().chatDao().getAllChats();
-            List<Integer> chatIds = chats.stream()
+            List<UUID> chatIds = chats.stream()
                     .map(Chat::getId)
                     .collect(Collectors.toList());
             List<Message> lastMessages = DatabaseManager.getDatabase().messageDao().getLastMessages(chatIds);
-            int currentMessage = 0;
-            List<MessageChat> messageChats = new ArrayList<>();
-
-            if (lastMessages.size() == 0) {
-                for (Chat chat : chats) {
-                    messageChats.add(new MessageChat(null, chat));
-                }
-            } else {
-                for (int i = 0; i < chats.size(); i++) {
-                    int finalI = i;
-                    if (currentMessage >= lastMessages.size()) {
-                        messageChats.add(new MessageChat(null, chats.get(finalI)));
-                    } else {
-                        if (chats.get(finalI).getId() == lastMessages.get(currentMessage).getChat()) {
-                            int finalCurrentMessage = currentMessage;
-                            currentMessage++;
-                            messageChats.add(new MessageChat(lastMessages.get(finalCurrentMessage), chats.get(finalI)));
-                        } else {
-                            messageChats.add(new MessageChat(null, chats.get(finalI)));
-                        }
-                    }
-                }
-            }
+            List<MessageChat> messageChats = GetMessageChats(lastMessages, chats);
 
             Collections.sort(messageChats);
             requireActivity().runOnUiThread(() -> {
@@ -173,6 +154,29 @@ public class ChatsListFragment extends Fragment {
             });
         });
     }
+
+    public List<MessageChat> GetMessageChats(List<Message> msgs, List<Chat> chats) {
+        if (chats == null || chats.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Map<UUID, Message> messageByChatId = msgs == null ?
+                Collections.emptyMap() :
+                msgs.stream()
+                        .collect(Collectors.toMap(
+                                Message::getChat,
+                                msg -> msg
+                        ));
+
+        List<MessageChat> result = new ArrayList<>(chats.size());
+        for (Chat chat : chats) {
+            Message msg = messageByChatId.get(chat.getId());
+            result.add(new MessageChat(msg, chat));
+        }
+
+        return result;
+    }
+
     public void updateChatList(List<MessageChat> messageChats){
         requireActivity().runOnUiThread(()->
             chatAdapter.setVisibleChats(messageChats));

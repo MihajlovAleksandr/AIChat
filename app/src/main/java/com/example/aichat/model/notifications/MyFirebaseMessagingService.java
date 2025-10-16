@@ -2,11 +2,14 @@ package com.example.aichat.model.notifications;
 
 import android.util.Log;
 
+import com.example.aichat.dto.request.UpdateNotificationTokenRequest;
 import com.example.aichat.model.SecurePreferencesManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.entities.Command;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+
+import java.util.UUID;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "MyFirebaseMsgService";
@@ -22,7 +25,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             String isBodyPrompt = remoteMessage.getData().get("isBodyPrompt");
 
             try {
-                int chatId = (chatIdStr != null) ? Integer.parseInt(chatIdStr) : -1;
+                UUID chatId = (chatIdStr != null) ? UUID.fromString(chatIdStr) : null;
                 boolean isBodyPromptBool = isBodyPrompt != null && Boolean.parseBoolean(isBodyPrompt);
 
                 if (isBodyPromptBool && body != null) {
@@ -64,8 +67,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     public static void sendRegistrationTokenToServer(String token) {
         if (token != null) {
-            Command command = new Command("UpdateNotificationToken");
-            command.addData("token", token);
+            Command command = new Command("UpdateNotificationToken", new UpdateNotificationTokenRequest(token));
             ConnectionSingleton.getInstance().getConnectionManager().SendCommand(command);
         }
     }

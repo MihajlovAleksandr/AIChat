@@ -7,20 +7,26 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.viewpager2.widget.ViewPager2;
 import com.example.aichat.R;
+import com.example.aichat.dto.response.EntryTokenResponse;
+import com.example.aichat.dto.response.UserDataResponse;
+import com.example.aichat.model.LocaleManager;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.InAppConnection;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.SecurePreferencesManager;
 import com.example.aichat.model.entities.Command;
+import com.example.aichat.model.entities.Gender;
 import com.example.aichat.model.notifications.MyFirebaseMessagingService;
 import com.example.aichat.model.notifications.NotificationHelper;
 import com.example.aichat.model.notifications.NotificationSettingsManager;
 import com.example.aichat.model.notifications.NotificationSettingsManager.NotificationCallback;
 import com.example.aichat.model.notifications.NotificationSingleton;
+import com.example.aichat.model.utils.JsonHelper;
 import com.example.aichat.view.BaseActivity;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class MainActivity extends BaseActivity {
     private ViewPager2 viewPager;
@@ -36,9 +42,14 @@ public class MainActivity extends BaseActivity {
         setupViewPager();
         setupBackPressHandler();
         checkAndRequestNotificationPermission();
-        inAppConnection =  new InAppConnection(connectionManager, this,pagerAdapter.getCurrentUserId());
+        inAppConnection =  new InAppConnection(connectionManager, this);
         Intent intent = getIntent();
-        openChat(intent.getIntExtra("chatId", -1));
+        String chatId = intent.getStringExtra("chatId");
+        if(chatId!=null) {
+            openChat(UUID.fromString(chatId));
+        }
+
+
     }
 
     private ConnectionManager setupConnection() {
@@ -52,8 +63,12 @@ public class MainActivity extends BaseActivity {
             isNewActivity = true;
         }
 
-        int userId = getIntent().getIntExtra("userId", -1);
-        if (userId == -1) {
+        String strUserId = getIntent().getStringExtra("userId");
+        UUID userId = null;
+        if(strUserId!=null) {
+            userId =UUID.fromString(strUserId);
+        }
+        if (userId == null) {
             userId = SecurePreferencesManager.getUserId(this);
             pagerAdapter = new MainActivityAdapter(this, connectionManager, userId, isNewActivity);
         } else {
@@ -121,11 +136,11 @@ public class MainActivity extends BaseActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        openChat(intent.getIntExtra("chatId", -1));
+        openChat(UUID.fromString(intent.getStringExtra("chatId")));
     }
 
-    public void openChat(int chatId) {
-        if(chatId != -1) {
+    public void openChat(UUID chatId) {
+        if(chatId != null) {
             NotificationSingleton.getInstance().getNotificationHelper().setCurrentChatId(chatId);
             pagerAdapter.setChatId(chatId);
             viewPager.setCurrentItem(1, true);
@@ -133,7 +148,7 @@ public class MainActivity extends BaseActivity {
     }
 
     public void backToChats() {
-        NotificationSingleton.getInstance().getNotificationHelper().setCurrentChatId(0);
+        NotificationSingleton.getInstance().getNotificationHelper().setCurrentChatId(null);
         viewPager.setCurrentItem(0, true);
     }
 

@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.aichat.R;
 import com.example.aichat.controller.PasswordController;
+import com.example.aichat.dto.request.ChangePasswordRequest;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.OnConnectionEvents;
@@ -118,9 +119,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         String currentPassword = currentPasswordEditText.getText().toString().trim();
         String newPassword = passwordController.getPassword();
         if(!currentPassword.equals(newPassword)) {
-            Command command = new Command("ChangePassword");
-            command.addData("currentPassword", currentPassword);
-            command.addData("newPassword", newPassword);
+            Command command = new Command("ChangePassword", new ChangePasswordRequest(currentPassword, newPassword));
             connectionManager.SendCommand(command);
         }
         else{

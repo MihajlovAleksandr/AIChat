@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.aichat.R;
 import com.example.aichat.controller.PreferenceController;
 import com.example.aichat.model.entities.Preference;
+import com.example.aichat.model.utils.JsonHelper;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.google.android.material.textfield.TextInputLayout;
 import android.widget.RadioGroup;
 
@@ -48,7 +50,10 @@ public class PreferenceActivity extends BaseActivity {
         maxAgeInfoIcon.setOnClickListener(v ->
                 showPopup(v, getString(R.string.max_age_info)));
         Intent intent = getIntent();
-        Preference preference = intent.getSerializableExtra("preference",Preference.class);
+        Preference preference = null;
+        String strPreference = intent.getStringExtra("preference");
+        if(strPreference!=null)
+            preference = JsonHelper.Deserialize(strPreference, Preference.class);
         if(preference!=null){
             controller = new PreferenceController(
                     this,

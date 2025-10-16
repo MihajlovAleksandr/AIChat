@@ -15,17 +15,19 @@ import com.example.aichat.model.entities.Command;
 import com.example.aichat.view.main.chat.ChatFragment;
 import com.example.aichat.view.main.chatlist.ChatsListFragment;
 
+import java.util.UUID;
+
 public class MainActivityAdapter extends FragmentStateAdapter {
     private MainActivityController chatPageController;
     private ConnectionManager connectionManager;
-    private final int currentUserId;
+    private final UUID currentUserId;
     private long lastChatFragmentId = System.currentTimeMillis();
     private ChatsListFragment chatsListFragment;
     private FragmentActivity fragmentActivity;
 
     public MainActivityAdapter(@NonNull FragmentActivity fragmentActivity,
                                ConnectionManager connectionManager,
-                               int currentUserId,boolean isNewActivity) {
+                               UUID currentUserId,boolean isNewActivity) {
         super(fragmentActivity);
         this.fragmentActivity = fragmentActivity;
         this.currentUserId = currentUserId;
@@ -33,7 +35,7 @@ public class MainActivityAdapter extends FragmentStateAdapter {
         this.connectionManager = connectionManager;
     }
 
-    public void setChatId(int chatId) {
+    public void setChatId(UUID chatId) {
         chatPageController.setCurrentChatId(chatId);
         lastChatFragmentId = System.currentTimeMillis();
         fragmentActivity.runOnUiThread(() -> notifyItemChanged(1));
@@ -44,7 +46,7 @@ public class MainActivityAdapter extends FragmentStateAdapter {
             chatsListFragment.loadChatsFromDatabase();
     }
 
-    public int getCurrentUserId(){
+    public UUID getCurrentUserId(){
         return currentUserId;
     }
 
@@ -62,7 +64,7 @@ public class MainActivityAdapter extends FragmentStateAdapter {
         chatsListFragment = new ChatsListFragment(connectionManager);
         return chatsListFragment;
     }
-    public int getCurrentChatId(){
+    public UUID getCurrentChatId(){
         return chatPageController.getCurrentChatId();
     }
 

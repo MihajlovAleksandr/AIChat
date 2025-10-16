@@ -1,5 +1,7 @@
 package com.example.aichat.model.entities;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 
 import com.example.aichat.model.utils.TimeConverter;
@@ -8,14 +10,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class ConnectionInfo implements Serializable {
 
     @JsonProperty
-    private int id;
+    private UUID id;
 
     @JsonProperty
-    private int userId;
+    private UUID userId;
 
     @JsonProperty
     private String device;
@@ -23,7 +26,7 @@ public class ConnectionInfo implements Serializable {
     @JsonProperty
     private String lastOnline;
 
-    public ConnectionInfo(int userId, String device) {
+    public ConnectionInfo(UUID userId, String device) {
         this.userId = userId;
         this.device = device;
         this.lastOnline = null;
@@ -33,20 +36,20 @@ public class ConnectionInfo implements Serializable {
     }
 
     @JsonIgnore
-    public int getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
     @JsonIgnore
-    public int getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 
@@ -84,7 +87,9 @@ public class ConnectionInfo implements Serializable {
         if(obj!=null){
             if(obj.getClass()==ConnectionInfo.class){
                 ConnectionInfo other = (ConnectionInfo) obj;
-                return other.id==id;
+                Log.e("", other.id.toString() + "\n"+ id.toString()+ "\n" + (id==other.id) + "\n" + (id.equals(other.id)));
+
+                return other.id.equals(id);
             }
         }
         return false;

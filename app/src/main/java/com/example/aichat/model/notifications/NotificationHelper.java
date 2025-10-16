@@ -13,16 +13,19 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import com.example.aichat.R;
 import com.example.aichat.view.main.MainActivity;
+import com.fasterxml.jackson.databind.deser.std.UUIDDeserializer;
+
 import java.util.Random;
+import java.util.UUID;
 
 public class NotificationHelper {
     private static final String CHANNEL_ID = "default_channel";
     private static final String CHANNEL_NAME = "Default notifications";
     private static final long[] DEFAULT_VIBRATION_PATTERN = {0, 500, 500, 500};
-    private int currentChatId;
+    private UUID currentChatId;
 
     public NotificationHelper(){
-        currentChatId = 0;
+        currentChatId = null;
     }
 
     public void vibrate(Context context) {
@@ -35,7 +38,7 @@ public class NotificationHelper {
         }
     }
 
-    public void sendNotification(Context context, String title, String message, int chatId) {
+    public void sendNotification(Context context, String title, String message, UUID chatId) {
         if (!NotificationSettingsManager.canSendNotifications(context)) {
             return;
         }
@@ -75,7 +78,7 @@ public class NotificationHelper {
         }
     }
 
-    private Notification buildNotification(Context context, String title, String message, int chatId) {
+    private Notification buildNotification(Context context, String title, String message, UUID chatId) {
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra("chatId", chatId);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -105,7 +108,7 @@ public class NotificationHelper {
 
         return builder.build();
     }
-    public void setCurrentChatId(int currentChatId){
+    public void setCurrentChatId(UUID currentChatId){
         this.currentChatId = currentChatId;
     }
 }

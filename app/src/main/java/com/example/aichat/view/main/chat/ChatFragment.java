@@ -27,6 +27,7 @@ import com.example.aichat.model.entities.User;
 import com.example.aichat.view.main.MainActivity;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class ChatFragment extends Fragment {
     private RecyclerView rvMessages;
@@ -34,8 +35,8 @@ public class ChatFragment extends Fragment {
     private Button bSendMessage;
     private MessageAdapter messageAdapter;
     private ChatFragmentController controller;
-    private int chatId;
-    private int currentUserId;
+    private UUID chatId;
+    private UUID currentUserId;
     private ConnectionManager connectionManager;
     private View rootView;
     private FragmentActivity activity;
@@ -55,7 +56,7 @@ public class ChatFragment extends Fragment {
         this.activity = activity;
     }
 
-    public ChatFragment(ConnectionManager connectionManager, int chatId, int currentUserId) {
+    public ChatFragment(ConnectionManager connectionManager, UUID chatId, UUID currentUserId) {
         this.connectionManager = connectionManager;
         this.chatId = chatId;
         this.currentUserId = currentUserId;
@@ -138,7 +139,7 @@ public class ChatFragment extends Fragment {
         return rootView;
     }
 
-    public void updateOnlineState(int id, boolean isOnline){
+    public void updateOnlineState(UUID id, boolean isOnline){
         activity.runOnUiThread(()-> {
             membersAdapter.updateOnlineState(id, isOnline);
         });
@@ -217,10 +218,10 @@ public class ChatFragment extends Fragment {
         super.onDestroy();
     }
 
-    private class LoadChatAndMessagesTask extends AsyncTask<Integer, Void, ChatAndMessages> {
+    private class LoadChatAndMessagesTask extends AsyncTask<UUID, Void, ChatAndMessages> {
         @Override
-        protected ChatAndMessages doInBackground(Integer... params) {
-            int chatId = params[0];
+        protected ChatAndMessages doInBackground(UUID... params) {
+            UUID chatId = params[0];
             List<Message> messages = DatabaseManager.getDatabase().messageDao().getMessagesByChatId(chatId);
             Chat chat = DatabaseManager.getDatabase().chatDao().getChatById(chatId);
             return new ChatAndMessages(chat, messages);
@@ -289,13 +290,13 @@ public class ChatFragment extends Fragment {
     private static class ChatMembersAdapter extends RecyclerView.Adapter<ChatMembersAdapter.ChatMemberViewHolder> {
         private List<User> members;
         private OnMemberClickListener listener;
-        private int currentUserId;
+        private UUID currentUserId;
 
         interface OnMemberClickListener {
             void onMemberClick(User member);
         }
 
-        ChatMembersAdapter(List<User> members, int currentUserId) {
+        ChatMembersAdapter(List<User> members, UUID currentUserId) {
             this.members = members;
             this.currentUserId = currentUserId;
         }
@@ -309,9 +310,9 @@ public class ChatFragment extends Fragment {
             notifyDataSetChanged();
         }
 
-        public void updateOnlineState(int id, boolean isOnline){
+        public void updateOnlineState(UUID id, boolean isOnline){
             for (User user : members) {
-                if (user.getId() == id) {
+                if (user.getId().equals(id)) {
                     user.setOnline(isOnline);
                     notifyDataSetChanged();
                     break;
@@ -360,13 +361,13 @@ public class ChatFragment extends Fragment {
                 resources = itemView.getContext().getResources();
             }
 
-            void bind(User member, int currentUserId) {
+            void bind(User member, UUID currentUserId) {
                 if (member == null || member.getUserData() == null) {
                     return;
                 }
 
                 String name = member.getUserData().getName();
-                if (member.getId() == currentUserId) {
+                if (member.getId().equals(currentUserId)) {
                     name += " (" + resources.getString(R.string.you) + ")";
                 }
                 memberName.setText(name);

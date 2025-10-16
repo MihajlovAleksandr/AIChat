@@ -9,10 +9,12 @@ import android.widget.RadioGroup;
 import android.widget.Button;
 
 import com.example.aichat.R;
+import com.example.aichat.dto.request.UserDataRequest;
 import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.OnConnectionEvents;
+import com.example.aichat.model.entities.Gender;
 import com.example.aichat.model.entities.UserData;
 import com.example.aichat.view.PreferenceActivity;
 import com.example.aichat.view.UserDataActivity;
@@ -99,11 +101,11 @@ public class UserDataController {
         if (userDataToEdit != null) {
             nameInputLayout.getEditText().setText(userDataToEdit.getName());
             ageInputLayout.getEditText().setText(String.valueOf(userDataToEdit.getAge()));
-            char gender = userDataToEdit.getGender();
+            Gender gender = userDataToEdit.getGender();
             int radioButtonId = -1;
             for (int i = 0; i < genderGroup.getChildCount(); i++) {
                 RadioButton radioButton = (RadioButton) genderGroup.getChildAt(i);
-                if (radioButton.getTag().toString().charAt(0) == gender) {
+                if (Gender.valueOf(radioButton.getTag().toString()) == gender) {
                     radioButtonId = radioButton.getId();
                     break;
                 }
@@ -153,10 +155,7 @@ public class UserDataController {
         int selectedGenderId = genderGroup.getCheckedRadioButtonId();
         RadioButton selectedGender = activity.findViewById(selectedGenderId);
         String gender = selectedGender.getTag().toString();
-
-        UserData userData = new UserData(name, age, gender.charAt(0));
-        Command command = new Command(isEditMode ? "UpdateUserData" : "AddUserData");
-        command.addData("userData", userData);
+        Command command = new Command(isEditMode ? "UpdateUserData" : "AddUserData", new UserDataRequest(name, age, Gender.valueOf(gender)));
         connectionManager.SendCommand(command);
     }
 

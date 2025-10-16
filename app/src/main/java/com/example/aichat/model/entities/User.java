@@ -1,11 +1,13 @@
 package com.example.aichat.model.entities;
 
+import java.util.UUID;
+
 public class User {
-    int id;
+    UUID id;
     private UserData userData;
     private boolean isOnline;
 
-    public int getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -21,7 +23,7 @@ public class User {
         isOnline = online;
     }
 
-    public User(int id, UserData userData, boolean isOnline){
+    public User(UUID id, UserData userData, boolean isOnline){
         this.id = id;
         this.userData = userData;
         this.isOnline = isOnline;

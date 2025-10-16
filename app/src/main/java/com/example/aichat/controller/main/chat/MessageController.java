@@ -5,11 +5,12 @@ import com.example.aichat.model.entities.Message;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.UUID;
 
 public class MessageController {
-    private int currentUserId;
+    private UUID currentUserId;
 
-    public MessageController(int currentUserId) {
+    public MessageController(UUID currentUserId) {
         this.currentUserId = currentUserId;
     }
 

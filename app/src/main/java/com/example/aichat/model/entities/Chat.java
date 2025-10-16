@@ -1,18 +1,22 @@
 package com.example.aichat.model.entities;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.example.aichat.model.utils.TimeConverter;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity(tableName = "Chats")
 public class Chat implements Comparable<Chat> {
 
     @PrimaryKey
-    private int id;
+    @NonNull
+    private UUID id;
     private String name;
     private String creationTime;
     private String endTime;
@@ -20,11 +24,22 @@ public class Chat implements Comparable<Chat> {
     public Chat() {
         this.creationTime = TimeConverter.getString(LocalDateTime.now());
     }
-    public int getId() {
+
+    @Ignore
+    public Chat(UUID id, String name, String creationTime, String endTime){
+        this.id = id;
+        this.name = name;
+        this.creationTime = creationTime;
+        this.endTime = endTime;
+    }
+
+    @NonNull
+    public UUID getId() {
         return id;
     }
 
-    public void setId(int id) {
+    @NonNull
+    public void setId(UUID id) {
         this.id = id;
     }
     public String getName() {

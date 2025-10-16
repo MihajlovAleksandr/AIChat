@@ -11,6 +11,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+
+import com.example.aichat.dto.request.DeleteConnectionRequest;
+import com.example.aichat.dto.request.SetNotificationRequest;
+import com.example.aichat.dto.response.ConnectionChangeResponse;
+import com.example.aichat.dto.response.NotificationResponse;
+import com.example.aichat.dto.response.PreferenceResponse;
+import com.example.aichat.dto.response.SettingsInfoResponse;
+import com.example.aichat.dto.response.UserDataResponse;
 import com.example.aichat.model.LocaleManager;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
@@ -20,6 +28,10 @@ import com.example.aichat.model.entities.Preference;
 import com.example.aichat.model.entities.UserData;
 import com.example.aichat.model.notifications.NotificationSettingsManager;
 import com.example.aichat.model.notifications.NotificationSettingsManager.NotificationCallback;
+import com.example.aichat.model.utils.JsonHelper;
+import com.example.aichat.model.utils.mappers.MapperResponse;
+import com.example.aichat.model.utils.mappers.PreferenceMapper;
+import com.example.aichat.model.utils.mappers.UserDataMapper;
 import com.example.aichat.view.BaseActivity;
 import com.example.aichat.view.PreferenceActivity;
 import com.example.aichat.view.UserDataActivity;
@@ -38,6 +50,8 @@ public class SettingsActivity extends BaseActivity {
     private OnConnectionEvents events;
     private UserData userData;
     private Preference preference;
+    private final MapperResponse<Preference, PreferenceResponse> preferenceMapper = new PreferenceMapper();
+    private final MapperResponse<UserData, UserDataResponse> userDataMapper = new UserDataMapper();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,35 +107,35 @@ public class SettingsActivity extends BaseActivity {
                     switch (command.getOperation()) {
                         case "GetSettingsInfo":
                             isProgrammaticChange = true;
-
-                            // Получаем данные пользователя
-                            emailText.setText(command.getData("email", String.class));
-                            preference = command.getData("preference", Preference.class);
-                            userData = command.getData("userData", UserData.class);
+                            SettingsInfoResponse settingsInfoResponse = command.getData(SettingsInfoResponse.class);
+                            emailText.setText(settingsInfoResponse.email);
+                            preference = preferenceMapper.ToModel(settingsInfoResponse.preference);
+                            userData = userDataMapper.ToModel(settingsInfoResponse.userData);
                             preferenceText.setText(preference.toString());
                             userDataText.setText(userData.toString());
-                            int[] devicesCount = command.getData("devices", int[].class);
+                            int[] devicesCount = settingsInfoResponse.connectionCount;
                             devicesText.setText(getString(R.string.device_status, devicesCount[0], devicesCount[1]));
-                            showEmailNotificationsSwitch.setChecked(command.getData("emailNotifications", boolean.class));
+                            showEmailNotificationsSwitch.setChecked(settingsInfoResponse.notifications.emailNotificationsEnabled);
 
                             isProgrammaticChange = false;
                             break;
                         case "PreferenceUpdated":
-                            preference = command.getData("preference", Preference.class);
+                            preference = preferenceMapper.ToModel(command.getData(PreferenceResponse.class));
                             preferenceText.setText(preference.toString());
                             break;
                         case "UserDataUpdated":
-                            userData = command.getData("userData", UserData.class);
+                            userData = userDataMapper.ToModel(command.getData(UserDataResponse.class));
                             userDataText.setText(userData.toString());
                             break;
                         case "DeleteConnection":
                         case "ConnectionsChange":
-                            int[] devices = command.getData("count", int[].class);
+                            int[] devices = command.getData(ConnectionChangeResponse.class).count;
                             devicesText.setText(getString(R.string.device_status, devices[0], devices[1]));
                             break;
-                        case "EmailNotifications":
+                        case "UpdateNotifications":
                             isProgrammaticChange = true;
-                            showEmailNotificationsSwitch.setChecked(command.getData("enabled", boolean.class));
+
+                            showEmailNotificationsSwitch.setChecked(command.getData(NotificationResponse.class).emailNotificationsEnabled);
                             isProgrammaticChange = false;
                             break;
                     }
@@ -148,8 +162,7 @@ public class SettingsActivity extends BaseActivity {
         // Изменение пароля
         findViewById(R.id.change_password_item).setOnClickListener(v -> {
             if (userData != null) {
-                startActivity(new Intent(this, ChangePasswordActivity.class)
-                        .putExtra("userData", userData));
+                startActivity(new Intent(this, ChangePasswordActivity.class));
             }
         });
 
@@ -161,7 +174,7 @@ public class SettingsActivity extends BaseActivity {
         findViewById(R.id.userData_item).setOnClickListener(v -> {
             if (userData != null) {
                 startActivity(new Intent(this, UserDataActivity.class)
-                        .putExtra("userData", userData));
+                        .putExtra("userData", JsonHelper.Serialize(userData)));
             }
         });
 
@@ -169,13 +182,13 @@ public class SettingsActivity extends BaseActivity {
         findViewById(R.id.preference_item).setOnClickListener(v -> {
             if (preference != null) {
                 startActivity(new Intent(this, PreferenceActivity.class)
-                        .putExtra("preference", preference));
+                        .putExtra("preference", JsonHelper.Serialize(preference)));
             }
         });
 
         // Выход
         findViewById(R.id.logout_item).setOnClickListener(v ->
-                connectionManager.SendCommand(new Command("DeleteConnection")));
+                connectionManager.SendCommand(new Command("DeleteConnection", new DeleteConnectionRequest(null))));
     }
 
     private void setupNotificationSection() {
@@ -183,8 +196,7 @@ public class SettingsActivity extends BaseActivity {
         showEmailNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isProgrammaticChange) return;
 
-            Command command = new Command("EmailNotifications");
-            command.addData("enabled", isChecked);
+            Command command = new Command("UpdateNotifications", new SetNotificationRequest(isChecked));
             connectionManager.SendCommand(command);
         });
 
@@ -208,8 +220,7 @@ public class SettingsActivity extends BaseActivity {
                 NotificationSettingsManager.setVibrationEnabled(this, false);
 
                 // Отправляем команду для email уведомлений
-                Command command = new Command("EmailNotifications");
-                command.addData("enabled", false);
+                Command command = new Command("UpdateNotifications", new SetNotificationRequest(false));
                 connectionManager.SendCommand(command);
             } else {
                 NotificationSettingsManager.requestNotificationPermissionIfNeeded(this);

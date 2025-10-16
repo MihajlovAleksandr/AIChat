@@ -24,7 +24,7 @@ public class MessageChat implements Comparable<MessageChat> {
 
     public MessageChat(Message message, Chat chat){
         if (message!=null) {
-            if (message.getChat() != chat.getId())
+            if (!message.getChat().equals(chat.getId()))
                 throw new IllegalArgumentException("Message is not from chat");
             this.message = message;
         }
