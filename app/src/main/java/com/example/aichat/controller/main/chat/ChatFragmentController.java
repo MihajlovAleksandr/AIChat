@@ -5,6 +5,7 @@ import com.example.aichat.dto.request.MessageRequest;
 import com.example.aichat.dto.request.UsersInChatRequest;
 import com.example.aichat.dto.response.ChatResponse;
 import com.example.aichat.dto.response.MessageResponse;
+import com.example.aichat.dto.response.SyncDBResponse;
 import com.example.aichat.dto.response.UserDataResponse;
 import com.example.aichat.dto.response.UserOnlineChangesResponse;
 import com.example.aichat.dto.response.UsersInChatResponse;
@@ -16,12 +17,14 @@ import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.entities.Message;
 import com.example.aichat.model.entities.User;
 import com.example.aichat.model.entities.UserData;
+import com.example.aichat.model.utils.TimeConverter;
 import com.example.aichat.model.utils.mappers.Mapper;
 import com.example.aichat.model.utils.mappers.MapperResponse;
 import com.example.aichat.model.utils.mappers.MessageMapper;
 import com.example.aichat.model.utils.mappers.UserDataMapper;
 import com.example.aichat.view.main.chat.ChatFragment;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -46,12 +49,12 @@ public class ChatFragmentController {
                         fragment.sendMessage(message);
                     break;
                 case "SyncDB":
-                    Message[] newMessages = ParseMessage(command.getData(MessageResponse[].class));
+                    Message[] newMessages = ParseMessage(command.getData(SyncDBResponse.class).newMessages);
                     for (Message newMessage: newMessages) {
                         if(newMessage.getChat().equals(chatId))
                             fragment.sendMessage(newMessage);
                     }
-                    Message[] oldMessages = ParseMessage(command.getData(MessageResponse[].class));
+                    Message[] oldMessages = ParseMessage(command.getData(SyncDBResponse.class).oldMessages);
                     for (Message oldMessage: oldMessages) {
                         //
                     }
@@ -112,8 +115,15 @@ public class ChatFragmentController {
         this.chatId = chatId;
     }
     public void sendMessage(String text) {
-        Command command = new Command("SendMessage", new MessageRequest(chatId, currentUserId, text));
+        Message message = new Message(UUID.randomUUID(), text, currentUserId,
+                chatId, TimeConverter.getString(LocalDateTime.now()),
+                TimeConverter.getString(LocalDateTime.now()));
+        Command command = new Command("SendMessage", new MessageRequest(message.getId(), chatId, currentUserId, text));
         connectionManager.SendCommand(command);
+        fragment.sendMessage(message);
+        new Thread(() -> {
+            DatabaseManager.getDatabase().messageDao().upsertMessage(message);
+        }).start();
     }
     public void endChat(){
         Command command = new Command("EndChat", new EndChatRequest(chatId));

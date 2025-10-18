@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.aichat.BuildConfig;
+import com.example.aichat.model.database.AppDatabase;
 import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.utils.JsonHelper;
 import com.example.aichat.model.entities.PendingCommand;
@@ -37,29 +38,27 @@ public class ConnectionManager {
     private final WebSocketListener webSocketListener;
     private long lastInitializeTime = 0;
     private static final long RECONNECT_INTERVAL_MS = 1000;
-    private List<PendingCommand> unsendedCommands;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private List<OnConnectionEvents> connectionEvents = new ArrayList<OnConnectionEvents>();
     public ConnectionManager(String token) {
         request = getRequest(token);
-        new Thread(() ->{
-            unsendedCommands = DatabaseManager.getDatabase().pendingCommandDao().getAllCommands();
-            Log.d("NotSendCommand", "Initialised");} ).start();
         webSocketListener = new WebSocketListener(){
             @Override
             public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
                 Connected = true;
                 invokeOnOpen();
                 Log.d("NotSendCommand", "Trying find");
-                for(PendingCommand c : unsendedCommands)
-                {
-                    Log.d("NotSendCommand", "Send");
-                    SendCommand(c.getCommandFormat());
-                    new Thread(() -> DatabaseManager.getDatabase().pendingCommandDao().deleteCommand(c)).start();
-                }
-                unsendedCommands.clear();
+                new Thread(() -> {
+                    AppDatabase database = DatabaseManager.getDatabase();
+                    List<PendingCommand> unsendedCommands = database.pendingCommandDao().getAllCommands();
+                    for (PendingCommand c : unsendedCommands) {
+                        Log.d("NotSendCommand", "Send");
+                        SendCommand(c.getCommandFormat());
+                        new Thread(() -> database.pendingCommandDao().deleteCommand(c)).start();
+                    }
+                    unsendedCommands.clear();
+                }).start();
             }
-
             @Override
             public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
                 Connected = false;
@@ -135,7 +134,6 @@ public class ConnectionManager {
         }
         else{
             PendingCommand pendingCommand = new PendingCommand(command);
-            unsendedCommands.add(pendingCommand);
 
             Log.d("NotSendCommand", "Added");
             new Thread(() -> DatabaseManager.getDatabase().pendingCommandDao().insertCommand(pendingCommand)).start();

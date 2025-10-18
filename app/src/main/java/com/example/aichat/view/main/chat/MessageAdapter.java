@@ -1,21 +1,18 @@
 package com.example.aichat.view.main.chat;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.aichat.R;
 import com.example.aichat.controller.main.chat.MessageController;
 import com.example.aichat.model.entities.Message;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,10 +34,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         this.recyclerView = recyclerView;
     }
 
-    public void addMessage(Message newMessage) {
-        messages.add(newMessage);
-        notifyItemInserted(messages.size() - 1);
-
+    public void addOrUpdateMessage(Message newMessage) {
+        int messagePosition = getMessagePosition(newMessage);
+        if (messagePosition != -1) {
+            messages.set(messagePosition, newMessage);
+            notifyItemChanged(messagePosition);
+        } else {
+            messages.add(newMessage);
+            notifyItemInserted(messages.size() - 1);
+        }
         if (messageController.isMyMessage(newMessage)) {
             if (recyclerView != null) {
                 recyclerView.post(() -> {
@@ -49,13 +51,18 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             }
         }
     }
+
+    private int getMessagePosition(Message message) {
+        for (int i = 0; i < messages.size(); i++)
+            if (messages.get(i).getId().equals(message.getId())) return i;
+        return -1;
+    }
+
     public void findMessages(Message messageToFind) {
-        for (int i = 0; i < messages.size(); i++) {
-            if (messages.get(i).getId().equals(messageToFind.getId())) {
-                if (recyclerView != null) {
-                    recyclerView.scrollToPosition(i);
-                }
-                break;
+        int messagePosition = getMessagePosition(messageToFind);
+        if (messagePosition != -1) {
+            if (recyclerView != null) {
+                recyclerView.scrollToPosition(messagePosition);
             }
         }
     }

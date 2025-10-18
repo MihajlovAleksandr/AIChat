@@ -12,7 +12,9 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import com.example.aichat.controller.main.MainActivityController;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.entities.Command;
+import com.example.aichat.model.entities.Message;
 import com.example.aichat.view.main.chat.ChatFragment;
+import com.example.aichat.view.main.chat.OnMessageSend;
 import com.example.aichat.view.main.chatlist.ChatsListFragment;
 
 import java.util.UUID;
@@ -57,7 +59,13 @@ public class MainActivityAdapter extends FragmentStateAdapter {
         if (position == 1) {
             ChatFragment fragment = new ChatFragment(connectionManager,
                     chatPageController.getCurrentChatId(),
-                    currentUserId);
+                    currentUserId,
+                    new OnMessageSend() {
+                        @Override
+                        public void sendMessage(Message message) {
+                            chatsListFragment.updateLastMessage(message);
+                        }
+                    });
             fragment.setActivity(fragmentActivity);
             return fragment;
         }

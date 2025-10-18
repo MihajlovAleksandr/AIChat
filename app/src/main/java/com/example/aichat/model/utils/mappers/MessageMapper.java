@@ -8,7 +8,7 @@ public class MessageMapper implements Mapper<MessageRequest, Message, MessageRes
 
     @Override
     public MessageRequest ToDTO(Message model) {
-        return new MessageRequest(model.getId(), model.getSender(), model.getText());
+        return new MessageRequest(model.getId(), model.getChat(), model.getSender(), model.getText());
     }
 
     @Override

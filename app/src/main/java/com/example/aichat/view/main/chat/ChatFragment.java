@@ -52,12 +52,15 @@ public class ChatFragment extends Fragment {
     private int foundMessageNumber;
     private TextView tvChatTitle;
 
+    private OnMessageSend onMessageSendHandler;
+
     public void setActivity(FragmentActivity activity) {
         this.activity = activity;
     }
 
-    public ChatFragment(ConnectionManager connectionManager, UUID chatId, UUID currentUserId) {
+    public ChatFragment(ConnectionManager connectionManager, UUID chatId, UUID currentUserId, OnMessageSend onMessageSendHandler) {
         this.connectionManager = connectionManager;
+        this.onMessageSendHandler = onMessageSendHandler;
         this.chatId = chatId;
         this.currentUserId = currentUserId;
     }
@@ -168,7 +171,8 @@ public class ChatFragment extends Fragment {
 
     public void sendMessage(Message message) {
         if (activity != null && messageAdapter != null) {
-            activity.runOnUiThread(() -> {messageAdapter.addMessage(message); });
+            onMessageSendHandler.sendMessage(message);
+            activity.runOnUiThread(() -> {messageAdapter.addOrUpdateMessage(message); });
         }
     }
 
