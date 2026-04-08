@@ -1,6 +1,5 @@
 package com.example.aichat.view;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -8,53 +7,54 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.RadioGroup;
 import android.widget.TextView;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.aichat.R;
 import com.example.aichat.controller.PreferenceController;
 import com.example.aichat.model.entities.Preference;
 import com.example.aichat.model.utils.JsonHelper;
-import com.fasterxml.jackson.annotation.JsonAlias;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
-import android.widget.RadioGroup;
 
 public class PreferenceActivity extends BaseActivity {
 
     private PreferenceController controller;
-    private TextInputLayout minAgeInputLayout;
-    private TextInputLayout maxAgeInputLayout;
-    private RadioGroup genderGroup;
-    private Button submitButton;
-    private Button skipButton;
-    private ImageView minAgeInfoIcon;
-    private ImageView maxAgeInfoIcon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_preference);
+        FullScreenHelper.enableFullScreen(getWindow());
 
-        minAgeInputLayout = findViewById(R.id.minAgeInputLayout);
-        maxAgeInputLayout = findViewById(R.id.maxAgeInputLayout);
-        genderGroup = findViewById(R.id.genderGroup);
-        submitButton = findViewById(R.id.submitButton);
-        skipButton = findViewById(R.id.skipButton);
-        minAgeInfoIcon = findViewById(R.id.minAgeInfoIcon);
-        maxAgeInfoIcon = findViewById(R.id.maxAgeInfoIcon);
+        TextInputLayout minAgeInputLayout = findViewById(R.id.minAgeInputLayout);
+        TextInputLayout maxAgeInputLayout = findViewById(R.id.maxAgeInputLayout);
+        RadioGroup genderGroup = findViewById(R.id.genderGroup);
+        Button submitButton = findViewById(R.id.submitButton);
+        Button skipButton = findViewById(R.id.skipButton);
+        ImageView minAgeInfoIcon = findViewById(R.id.minAgeInfoIcon);
+        ImageView maxAgeInfoIcon = findViewById(R.id.maxAgeInfoIcon);
+        TextView btnLanguage = findViewById(R.id.btnLanguage);
+        FloatingActionButton btnBack = findViewById(R.id.btnBack);
 
         minAgeInfoIcon.setOnClickListener(v ->
                 showPopup(v, getString(R.string.min_age_info)));
         maxAgeInfoIcon.setOnClickListener(v ->
                 showPopup(v, getString(R.string.max_age_info)));
-        Intent intent = getIntent();
+
+        LanguageHandler languageHandler = new LanguageHandler(this);
+        LanguageMenuHelper languageMenuHelper = new LanguageMenuHelper(languageHandler);
+        if (btnLanguage != null) {
+            languageMenuHelper.attachToButton(btnLanguage);
+        }
+
         Preference preference = null;
-        String strPreference = intent.getStringExtra("preference");
-        if(strPreference!=null)
+        String strPreference = getIntent().getStringExtra("preference");
+        if (strPreference != null) {
             preference = JsonHelper.Deserialize(strPreference, Preference.class);
-        if(preference!=null){
+        }
+
+        if (preference != null) {
             controller = new PreferenceController(
                     this,
                     minAgeInputLayout,
@@ -64,18 +64,41 @@ public class PreferenceActivity extends BaseActivity {
                     skipButton,
                     preference
             );
-            findViewById(R.id.progressDots).setVisibility(View.GONE);
-        }
-        else{
+
+            View progressDots = findViewById(R.id.progressDots);
+            if (progressDots != null) {
+                progressDots.setVisibility(View.GONE);
+            }
+
+            if (btnBack != null) {
+                btnBack.setVisibility(View.VISIBLE);
+                btnBack.setOnClickListener(v -> onBackPressed());
+            }
+
+        } else {
             controller = new PreferenceController(
-                this,
-                minAgeInputLayout,
-                maxAgeInputLayout,
-                genderGroup,
-                submitButton,
-                skipButton
+                    this,
+                    minAgeInputLayout,
+                    maxAgeInputLayout,
+                    genderGroup,
+                    submitButton,
+                    skipButton
+            );
+
+            if (btnBack != null) {
+                btnBack.setVisibility(View.GONE);
+            }
+            skipButton.setOnClickListener(v ->
+                    DialogHelper.showBottomDialog(
+                            this,
+                            getString(R.string.preference_skip_title),
+                            getString(R.string.preference_skip_message),
+                            getString(R.string.preference_skip_ok),
+                            () -> controller.sendSkipCommand()
+                    )
             );
         }
+
         controller.setupValidation();
     }
 

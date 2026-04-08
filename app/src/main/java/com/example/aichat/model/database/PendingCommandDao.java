@@ -11,6 +11,7 @@ import java.util.List;
 
 @Dao
 public interface PendingCommandDao {
+
     @Insert
     void insertCommand(PendingCommand command);
 
@@ -19,4 +20,10 @@ public interface PendingCommandDao {
 
     @Delete
     void deleteCommand(PendingCommand command);
+
+    @Query("DELETE FROM PendingCommands")
+    void clearTable();
+
+    @Query("SELECT COUNT(*) FROM PendingCommands")
+    int getCount();
 }

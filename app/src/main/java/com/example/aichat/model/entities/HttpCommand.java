@@ -1,16 +1,17 @@
 package com.example.aichat.model.entities;
 
 import androidx.annotation.NonNull;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class Command {
+public class HttpCommand {
 
     @JsonProperty
-    private String operation;
+    private CommandOperation operation;
 
     @JsonProperty
     private JsonNode data;
@@ -18,28 +19,34 @@ public class Command {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @JsonIgnore
-    public String getOperation() {
+    public CommandOperation getOperation() {
         return operation;
     }
+
     @JsonIgnore
-    public Command(String operation){
+    public int getCode() {
+        return operation != null ? operation.getCode() : -1;
+    }
+
+    @JsonIgnore
+    public boolean isSuccess() {
+        return operation != null && operation.getCode() == 200;
+    }
+
+    @JsonIgnore
+    public HttpCommand(CommandOperation operation) {
         this.operation = operation;
     }
-    public Command(){
-        operation = "";
-    }
+
     @JsonIgnore
-    public Command(String operation, Object data) {
+    public HttpCommand(CommandOperation operation, JsonNode data) {
         this.operation = operation;
-        if (data != null) {
-            this.data = objectMapper.valueToTree(data);
-        }
+        this.data = data;
     }
 
     public <T> T getData(Class<T> type) {
-        if (data == null) {
-            return null;
-        }
+        if (data == null) return null;
+
         try {
             return objectMapper.treeToValue(data, type);
         } catch (JsonProcessingException e) {
@@ -50,6 +57,11 @@ public class Command {
     @NonNull
     @Override
     public String toString() {
-        return data != null ? operation + ": \nData count: " + data.size() : operation;
+        String op = operation != null ? operation.name() : "NULL_OPERATION";
+        int code = operation != null ? operation.getCode() : -1;
+
+        return data != null
+                ? op + " (code=" + code + "):\n" + data.toString()
+                : op + " (code=" + code + ")";
     }
 }

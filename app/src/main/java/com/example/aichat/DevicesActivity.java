@@ -1,16 +1,21 @@
 package com.example.aichat;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,13 +25,22 @@ import com.example.aichat.dto.request.EntryTokenRequest;
 import com.example.aichat.dto.response.ConnectionChangeResponse;
 import com.example.aichat.dto.response.DeleteConnectionResponse;
 import com.example.aichat.dto.response.DeviceResponse;
+import com.example.aichat.dto.response.EntryTokenResponse;
+import com.example.aichat.model.QRCodeGenerator;
+import com.example.aichat.model.SecurePreferencesManager;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.OnConnectionEvents;
-import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.entities.ConnectionInfo;
+import com.example.aichat.model.entities.WSSCommand;
 import com.example.aichat.view.BaseActivity;
+import com.example.aichat.view.FullScreenHelper;
+import com.example.aichat.view.main.MainActivity;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.tabs.TabLayout;
+
+import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,239 +49,305 @@ import java.util.UUID;
 
 public class DevicesActivity extends BaseActivity {
 
-    private static final int REQUEST_CODE = 783;
     private RecyclerView devicesRecyclerView;
     private DevicesAdapter devicesAdapter;
     private static UUID currentConnectionId;
-    private List<ConnectionInfo> devicesList = new ArrayList<>();
-    private Button terminateButton;
+    private final List<ConnectionInfo> devicesList = new ArrayList<>();
+    private View terminateButton;
+    private View showMyQRCodeButton;
     private ConnectionManager connectionManager;
+
+    private ActivityResultLauncher<Intent> qrLauncher;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_devices);
+        FullScreenHelper.enableFullScreen(getWindow());
+        devicesRecyclerView = findViewById(R.id.devicesRecyclerView);
+        ViewCompat.setOnApplyWindowInsetsListener(devicesRecyclerView, (v, insets) -> {
+            int topInset = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
+            v.setPadding(
+                    v.getPaddingLeft(),
+                    topInset + 20,
+                    v.getPaddingRight(),
+                    v.getPaddingBottom()
+            );
+            return insets;
+        });
 
         connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
-        devicesRecyclerView = findViewById(R.id.devicesRecyclerView);
+        if (connectionManager == null) {
+            String token = SecurePreferencesManager.getAuthToken(this);
+            connectionManager = new ConnectionManager(token);
+            ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
+        }
+
         devicesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
-        devicesAdapter = new DevicesAdapter(this::terminateSession);
+        devicesAdapter = new DevicesAdapter(connectionId -> terminateSession(connectionId));
         devicesRecyclerView.setAdapter(devicesAdapter);
-        findViewById(R.id.qrCodeButton).setOnClickListener(v->{
-            Intent intent = new Intent(this, QRCodeActivity.class);
-            startActivityForResult(intent, REQUEST_CODE);
-        });
+
+        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+
+        showMyQRCodeButton = findViewById(R.id.showMyQRCodeButton);
+        showMyQRCodeButton.setOnClickListener(v -> showQRCodeBottomSheet());
+
         TabLayout tabLayout = findViewById(R.id.tabLayout);
+
+        qrLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        String qr = result.getData().getStringExtra("QRCodeResult");
+                        if (qr != null) {
+                            connectionManager.SendCommand(new WSSCommand("EntryTokenRead", new EntryTokenRequest(qr)));
+                        }
+                    }
+                }
+        );
+
+        findViewById(R.id.qrCodeButton).setOnClickListener(v -> {
+            Intent intent = new Intent(this, QRCodeActivity.class);
+            qrLauncher.launch(intent);
+        });
+
         connectionManager.addConnectionEvent(new OnConnectionEvents() {
             @Override
-            public void OnCommandGot(Command command) {
+            public void OnCommandGot(WSSCommand command) {
                 switch (command.getOperation()) {
                     case "GetDevices":
                         DeviceResponse deviceResponse = command.getData(DeviceResponse.class);
-
-                        ConnectionInfo[] connectionInfos = deviceResponse.connectionInfo;
-                        devicesList.addAll(Arrays.asList(connectionInfos));
+                        devicesList.clear();
+                        devicesList.addAll(Arrays.asList(deviceResponse.connectionInfo));
                         currentConnectionId = deviceResponse.currentConnection;
                         updateTabs(tabLayout.getSelectedTabPosition());
                         break;
+
                     case "ConnectionsChange":
-                        ConnectionChangeResponse connectionChangeResponse = command.getData(ConnectionChangeResponse.class);
-                        ConnectionInfo connectionInfo = connectionChangeResponse.connectionInfo;
-                        boolean isNewDevice = true;
-                        for(int i =0; i<devicesList.size();i++){
-                            if(devicesList.get(i).getId().equals(connectionInfo.getId())){
-                                devicesList.set(i,connectionInfo);
-                                isNewDevice =  false;
+                        ConnectionChangeResponse changeResponse = command.getData(ConnectionChangeResponse.class);
+                        ConnectionInfo info = changeResponse.connectionInfo;
+
+                        boolean isNew = true;
+                        for (int i = 0; i < devicesList.size(); i++) {
+                            if (devicesList.get(i).getId().equals(info.getId())) {
+                                devicesList.set(i, info);
+                                isNew = false;
                                 break;
                             }
                         }
-                        if(isNewDevice){
-                            devicesList.add(connectionInfo);
-                        }
+                        if (isNew) devicesList.add(info);
+
                         updateTabs(tabLayout.getSelectedTabPosition());
                         break;
+
                     case "DeleteConnection":
-                        DeleteConnectionResponse response = command.getData(DeleteConnectionResponse.class);
-                        for (int i = 0; i < devicesList.size(); i++) {
-                            if(devicesList.get(i).equals(response.connectionInfo)){
-                                devicesList.remove(i);
-                                break;
-                            }
-                        }
+                        DeleteConnectionResponse delResp = command.getData(DeleteConnectionResponse.class);
+                        devicesList.removeIf(device -> device.equals(delResp.connectionInfo));
                         updateTabs(tabLayout.getSelectedTabPosition());
+                        break;
+
+                    case "EntryTokenRead":
+                        handleEntryTokenRead(command);
+                        break;
+
+                    case "EntryTokenLoginSuccess":
+                        runOnUiThread(() -> {
+                            startActivity(new Intent(DevicesActivity.this, MainActivity.class));
+                            finish();
+                        });
+                        break;
+
+                    case "EntryTokenLoginFailed":
+                        runOnUiThread(() -> Toast.makeText(
+                                DevicesActivity.this,
+                                "Не удалось войти по QR-коду",
+                                Toast.LENGTH_SHORT
+                        ).show());
                         break;
                 }
             }
 
-            @Override
-            public void OnConnectionFailed() {
-                // Handle connection failure
-            }
+            @Override public void OnConnectionFailed() {}
+            @Override public void OnOpen() {}
+        });
 
-            @Override
-            public void OnOpen() {
-                // Handle connection open
-            }
-        });
         terminateButton = findViewById(R.id.terminateButton);
-        terminateButton.setOnClickListener(v->{
-            terminateSessions(tabLayout.getSelectedTabPosition());
-        });
+        terminateButton.setOnClickListener(v -> terminateSessions(tabLayout.getSelectedTabPosition()));
+
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                int position = tab.getPosition();
-                updateTerminateButton(position);
-                updateTabs(position);
+                updateTerminateButton(tab.getPosition());
+                updateTabs(tab.getPosition());
             }
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-            }
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        connectionManager.SendCommand(new Command("GetDevices"));
+        connectionManager.SendCommand(new WSSCommand("GetDevices"));
     }
-    private void updateTerminateButton(int position){
-        if(position==3){
-            terminateButton.setVisibility(View.GONE);
-        }
-        else{
-            terminateButton.setVisibility(View.VISIBLE);
+
+    private void handleEntryTokenRead(WSSCommand command) {
+        EntryTokenResponse response = command.getData(EntryTokenResponse.class);
+        if (response != null && response.token != null) {
+            SecurePreferencesManager.saveAuthToken(this, response.token);
+            connectionManager.SendCommand(new WSSCommand("EntryTokenRead", new EntryTokenRequest(response.token)));
         }
     }
-    private void terminateSessions(int position){
+
+    private void updateTerminateButton(int position) {
+        terminateButton.setVisibility(View.VISIBLE);
+    }
+
+    private void terminateSessions(int position) {
         switch (position) {
             case 3:
             case 0:
-                for (int i = 0; i < devicesList.size(); i++) {
-                    ConnectionInfo device = devicesList.get(i);
-                    if(!device.getId().equals(currentConnectionId))terminateSession(device.getId());
-                }
+                for (ConnectionInfo device : devicesList)
+                    if (!device.getId().equals(currentConnectionId))
+                        terminateSession(device.getId());
                 break;
+
             case 1:
-                for (int i = 0; i < devicesList.size(); i++) {
-                    ConnectionInfo device = devicesList.get(i);
-                    if(device.getLastOnlineFormat()!=null)terminateSession(device.getId());
-                }
+                for (ConnectionInfo device : devicesList)
+                    if (device.getLastOnlineFormat() != null)
+                        terminateSession(device.getId());
                 break;
+
             case 2:
-                for (int i = 0; i < devicesList.size(); i++) {
-                    ConnectionInfo device = devicesList.get(i);
-                    if(!device.getId().equals(currentConnectionId)&&device.getLastOnlineFormat()==null)terminateSession(device.getId());
-                }
+                for (ConnectionInfo device : devicesList)
+                    if (!device.getId().equals(currentConnectionId)
+                            && device.getLastOnlineFormat() == null)
+                        terminateSession(device.getId());
                 break;
         }
     }
-    private void terminateSession(UUID connectionId){
-        Command logoutCommand = new Command("DeleteConnection", new DeleteConnectionRequest(connectionId));
-        connectionManager.SendCommand(logoutCommand);
+
+    private void terminateSession(UUID connectionId) {
+        connectionManager.SendCommand(new WSSCommand("DeleteConnection", new DeleteConnectionRequest(connectionId)));
     }
+
     private void updateTabs(int position) {
         switch (position) {
-            case 0:
-                handleYouTabSelected();
-                break;
-            case 1:
-                handleOnlineTabSelected();
-                break;
-            case 2:
-                handleOtherDevicesTabSelected();
-                break;
-            case 3:
-                runOnUiThread(()->  devicesAdapter.updateDevices(devicesList));
-                break;
+            case 0: handleYouTabSelected(); break;
+            case 1: handleOnlineTabSelected(); break;
+            case 2: handleOtherDevicesTabSelected(); break;
+            case 3: handleAllDevicesTabSelected(); break;
         }
     }
 
     private void handleYouTabSelected() {
-        for(int i=0;i<devicesList.size();i++){
-            ConnectionInfo device = devicesList.get(i);
-            if(device.getId().equals(currentConnectionId)){
-                List<ConnectionInfo> newDevices = new ArrayList<>();
+        List<ConnectionInfo> newDevices = new ArrayList<>();
+        for (ConnectionInfo device : devicesList)
+            if (device.getId().equals(currentConnectionId)) {
                 newDevices.add(device);
-                runOnUiThread(()->
-                        devicesAdapter.updateDevices(newDevices)
-                );
                 break;
             }
-        }
+        runOnUiThread(() -> devicesAdapter.updateDevices(newDevices));
     }
 
     private void handleOnlineTabSelected() {
         List<ConnectionInfo> newDevices = new ArrayList<>();
-        for(int i=0;i<devicesList.size();i++){
-            ConnectionInfo device = devicesList.get(i);
-            if(device.getLastOnlineFormat()==null){
+        for (ConnectionInfo device : devicesList)
+            if (device.getLastOnlineFormat() == null)
                 newDevices.add(device);
-            }
-        }
-        runOnUiThread(()-> devicesAdapter.updateDevices(newDevices));
+
+        runOnUiThread(() -> devicesAdapter.updateDevices(newDevices));
     }
 
     private void handleOtherDevicesTabSelected() {
         List<ConnectionInfo> newDevices = new ArrayList<>();
-        for(int i=0;i<devicesList.size();i++){
-            ConnectionInfo device = devicesList.get(i);
-            if(device.getLastOnlineFormat()!=null){
+        for (ConnectionInfo device : devicesList)
+            if (device.getLastOnlineFormat() != null)
                 newDevices.add(device);
-            }
-        }
-        runOnUiThread(()-> devicesAdapter.updateDevices(newDevices));
+
+        runOnUiThread(() -> devicesAdapter.updateDevices(newDevices));
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    private void handleAllDevicesTabSelected() {
+        List<ConnectionInfo> sorted = new ArrayList<>(devicesList);
 
-        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
-            String resultData = data.getStringExtra("QRCodeResult");
-            Command command = new Command("EntryTokenRead", new EntryTokenRequest(resultData));
-            connectionManager.SendCommand(command);
-        }
+        sorted.sort((a, b) -> {
+            boolean aOnline = a.getLastOnlineFormat() == null;
+            boolean bOnline = b.getLastOnlineFormat() == null;
+
+            if (aOnline && !bOnline) return -1;
+            if (!aOnline && bOnline) return 1;
+
+            if (!aOnline && !bOnline) {
+                return b.getLastOnlineFormat().compareTo(a.getLastOnlineFormat());
+            }
+
+            return 0;
+        });
+
+        runOnUiThread(() -> devicesAdapter.updateDevices(sorted));
+    }
+
+    private void showQRCodeBottomSheet() {
+        if (currentConnectionId == null) return;
+
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.MyBottomSheetDialogTheme);
+        View view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_qr, null);
+        bottomSheetDialog.setContentView(view);
+
+        ImageView qrCodeImage = view.findViewById(R.id.qrCodeImageBottomSheet);
+        Bitmap qrBitmap = QRCodeGenerator.generateQRCodeImage(currentConnectionId.toString(), 1200, 1200);
+        qrCodeImage.setImageBitmap(qrBitmap);
+        qrCodeImage.setAdjustViewBounds(true);
+        qrCodeImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+        ImageButton btnClose = view.findViewById(R.id.btn_close_qr);
+        btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
+
+        View parent = (View) view.getParent();
+        BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(parent);
+
+        int height = (int) (getResources().getDisplayMetrics().heightPixels * 0.6);
+        parent.getLayoutParams().height = height;
+        parent.requestLayout();
+
+        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        behavior.setSkipCollapsed(true);
+        behavior.setPeekHeight(0);
+
+        bottomSheetDialog.show();
     }
 
     private static class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DeviceViewHolder> {
 
-        private List<ConnectionInfo> devices;
+        private List<ConnectionInfo> devices = new ArrayList<>();
         private final OnLogoutClickListener logoutClickListener;
 
         public interface OnLogoutClickListener {
             void onLogoutClick(UUID connectionId);
         }
 
-        public DevicesAdapter(OnLogoutClickListener logoutClickListener) {
-            this.devices = new ArrayList<>();
-            this.logoutClickListener = logoutClickListener;
-        }
-
-        public void updateDevices(List<ConnectionInfo> devices) {
-            this.devices = devices;
-            notifyDataSetChanged();
+        public DevicesAdapter(OnLogoutClickListener listener) {
+            this.logoutClickListener = listener;
         }
 
         @NonNull
         @Override
         public DeviceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_device, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_device, parent, false);
             return new DeviceViewHolder(view, logoutClickListener);
         }
 
         @Override
         public void onBindViewHolder(@NonNull DeviceViewHolder holder, int position) {
-            ConnectionInfo device = devices.get(position);
-            holder.bind(device);
+            holder.bind(devices.get(position));
         }
 
         @Override
         public int getItemCount() {
             return devices.size();
+        }
+
+        public void updateDevices(List<ConnectionInfo> devices) {
+            this.devices = devices;
+            notifyDataSetChanged();
         }
 
         static class DeviceViewHolder extends RecyclerView.ViewHolder {
@@ -276,29 +356,27 @@ public class DevicesActivity extends BaseActivity {
             private final ImageButton btn_logout;
             private final OnLogoutClickListener logoutClickListener;
 
-            public DeviceViewHolder(@NonNull View itemView, OnLogoutClickListener logoutClickListener) {
+            public DeviceViewHolder(@NonNull View itemView, OnLogoutClickListener listener) {
                 super(itemView);
-                this.logoutClickListener = logoutClickListener;
                 deviceName = itemView.findViewById(R.id.deviceName);
                 lastActivity = itemView.findViewById(R.id.lastActivity);
                 btn_logout = itemView.findViewById(R.id.btn_logout);
+                this.logoutClickListener = listener;
             }
 
             public void bind(ConnectionInfo device) {
                 deviceName.setText(device.getDevice());
-                lastActivity.setText(device.getLastOnline() == null ?
-                        itemView.getContext().getString(R.string.online) :
-                        ChatController.getFormattedTime(device.getLastOnlineFormat()));
+                lastActivity.setText(
+                        device.getLastOnline() == null
+                                ? itemView.getContext().getString(R.string.online)
+                                : ChatController.getFormattedTime(device.getLastOnlineFormat())
+                );
 
-                if(currentConnectionId.equals(device.getId())) {
+                if (currentConnectionId != null && currentConnectionId.equals(device.getId())) {
                     btn_logout.setVisibility(View.GONE);
                 } else {
                     btn_logout.setVisibility(View.VISIBLE);
-                    btn_logout.setOnClickListener(v -> {
-                        if (logoutClickListener != null) {
-                            logoutClickListener.onLogoutClick(device.getId());
-                        }
-                    });
+                    btn_logout.setOnClickListener(v -> logoutClickListener.onLogoutClick(device.getId()));
                 }
             }
         }

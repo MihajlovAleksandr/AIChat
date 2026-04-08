@@ -5,16 +5,17 @@ import android.text.TextWatcher;
 import android.widget.EditText;
 
 import com.example.aichat.R;
+import com.example.aichat.util.InputValidator;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class PasswordController {
-    private TextInputLayout passwordInputLayout;
-    private TextInputLayout confirmPasswordInputLayout;
-    private EditText passwordEditText;
-    private EditText confirmPasswordEditText;
+    private final TextInputLayout passwordInputLayout;
+    private final TextInputLayout confirmPasswordInputLayout;
+    private final EditText passwordEditText;
+    private final EditText confirmPasswordEditText;
     private boolean isPasswordValidFlag = false;
     private boolean isConfirmPasswordValidFlag = false;
-    private Runnable onValidationChanged;
+    private final Runnable onValidationChanged;
 
     public PasswordController(TextInputLayout passwordInputLayout,
                               TextInputLayout confirmPasswordInputLayout,
@@ -32,81 +33,74 @@ public class PasswordController {
 
     private void setupPasswordListeners() {
         passwordEditText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) {
-                validatePassword();
-            }
+            if (!hasFocus) validatePassword();
         });
 
         confirmPasswordEditText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) {
-                validateConfirmPassword();
-            }
+            if (!hasFocus) validateConfirmPassword(true);
         });
 
         passwordEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                isPasswordValidFlag = InputValidator.isPasswordValid(s.toString().trim());
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                passwordInputLayout.setError(null);
-                isPasswordValidFlag = isPasswordValid(s.toString().trim());
-                validateConfirmPassword();
-                if (onValidationChanged != null) {
-                    onValidationChanged.run();
+                if (!passwordEditText.hasFocus() && s.length() > 0) {
+                    passwordInputLayout.setError(isPasswordValidFlag ? null :
+                            passwordInputLayout.getContext().getString(R.string.invalid_password_error));
                 }
-            }
 
-            @Override
-            public void afterTextChanged(Editable s) {}
+                validateConfirmPassword(false);
+
+                if (onValidationChanged != null) onValidationChanged.run();
+            }
+            @Override public void afterTextChanged(Editable s) {}
         });
 
         confirmPasswordEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                confirmPasswordInputLayout.setError(null);
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 isConfirmPasswordValidFlag = s.toString().trim().equals(passwordEditText.getText().toString().trim());
-                if (onValidationChanged != null) {
-                    onValidationChanged.run();
-                }
-            }
 
-            @Override
-            public void afterTextChanged(Editable s) {}
+                if (!confirmPasswordEditText.hasFocus() && s.length() > 0) {
+                    confirmPasswordInputLayout.setError(isConfirmPasswordValidFlag ? null :
+                            confirmPasswordInputLayout.getContext().getString(R.string.password_mismatch_error));
+                }
+
+                if (onValidationChanged != null) onValidationChanged.run();
+            }
+            @Override public void afterTextChanged(Editable s) {}
         });
     }
 
     public void validatePassword() {
         String password = passwordEditText.getText().toString().trim();
-        if (!isPasswordValid(password)) {
+        isPasswordValidFlag = InputValidator.isPasswordValid(password);
+
+        if (!isPasswordValidFlag) {
             passwordInputLayout.setError(passwordInputLayout.getContext().getString(R.string.invalid_password_error));
-            isPasswordValidFlag = false;
         } else {
             passwordInputLayout.setError(null);
-            isPasswordValidFlag = true;
         }
-        if (onValidationChanged != null) {
-            onValidationChanged.run();
-        }
+
+        validateConfirmPassword(false);
+
+        if (onValidationChanged != null) onValidationChanged.run();
     }
 
-    public void validateConfirmPassword() {
-        if (!confirmPasswordEditText.getText().toString().isEmpty()) {
-            String password = passwordEditText.getText().toString().trim();
-            String confirmPassword = confirmPasswordEditText.getText().toString().trim();
-            if (!confirmPassword.equals(password)) {
-                confirmPasswordInputLayout.setError(confirmPasswordInputLayout.getContext().getString(R.string.password_mismatch_error));
-                isConfirmPasswordValidFlag = false;
+    public void validateConfirmPassword(boolean showError) {
+        String confirmPassword = confirmPasswordEditText.getText().toString().trim();
+        String password = passwordEditText.getText().toString().trim();
+
+        isConfirmPasswordValidFlag = confirmPassword.equals(password) && !confirmPassword.isEmpty();
+
+        if (showError) {
+            if (!isConfirmPasswordValidFlag) {
+                confirmPasswordInputLayout.setError(
+                        confirmPasswordInputLayout.getContext().getString(R.string.password_mismatch_error));
             } else {
                 confirmPasswordInputLayout.setError(null);
-                isConfirmPasswordValidFlag = true;
             }
-        }
-        if (onValidationChanged != null) {
-            onValidationChanged.run();
         }
     }
 
@@ -116,14 +110,6 @@ public class PasswordController {
 
     public boolean isConfirmPasswordValid() {
         return isConfirmPasswordValidFlag;
-    }
-
-    private boolean isPasswordValid(String password) {
-        if (password.length() < 8) {
-            return false;
-        }
-        String passwordPattern = "^(?=.*[0-9])(?=.*[a-zа-я])(?=.*[A-ZА-Я])(?=.*[@#$%^&+=!]).{8,}$";
-        return password.matches(passwordPattern);
     }
 
     public String getPassword() {

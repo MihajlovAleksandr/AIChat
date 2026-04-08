@@ -1,12 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/menu_human"
-        android:title="@string/search_human_prompt"/>
+        android:id="@+id/menu_create_chat"
+        android:title="@string/create_chat_prompt">
+        <menu>
+            <item
+                android:id="@+id/menu_human"
+                android:title="@string/search_human_prompt" />
+            <item
+                android:id="@+id/menu_ai"
+                android:title="@string/search_ai_prompt" />
+            <item
+                android:id="@+id/menu_random"
+                android:title="@string/search_random_prompt" />
+            <item
+                android:id="@+id/menu_group"
+                android:title="@string/search_group_prompt"/>
+        </menu>
+    </item>
     <item
-        android:id="@+id/menu_ai"
-        android:title="@string/search_ai_prompt"/>
+        android:id="@+id/menu_cancel_chat_search"
+        android:visible="false"
+        android:title="@string/cancel_chat_searching">
+    </item>
+
     <item
-        android:id="@+id/menu_random"
-        android:title="@string/search_random_prompt"/>
+        android:id="@+id/menu_add_user_to_chat"
+        android:title="@string/add_user_to_chat_prompt">
+        <menu>
+            <item
+                android:id="@+id/join_a_group"
+                android:title="@string/add_user_to_chat_prompt" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/menu_cancel_user_add"
+        android:visible="false"
+        android:title="@string/cancel_user_adding">
+    </item>
 </menu>

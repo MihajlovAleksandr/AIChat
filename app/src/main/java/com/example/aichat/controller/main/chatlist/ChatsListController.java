@@ -1,115 +1,165 @@
 package com.example.aichat.controller.main.chatlist;
 
 import android.content.Intent;
-import android.util.Log;
 
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.aichat.SettingsActivity;
+import com.example.aichat.dto.request.AddUserToChatRequest;
 import com.example.aichat.dto.request.MessageRequest;
+import com.example.aichat.dto.request.RemoveUserFromChatRequest;
 import com.example.aichat.dto.request.SearchChatRequest;
+import com.example.aichat.dto.request.UpdateChatNameRequest;
 import com.example.aichat.dto.response.ChatResponse;
+import com.example.aichat.dto.response.DeleteChatResponse;
 import com.example.aichat.dto.response.MessageResponse;
 import com.example.aichat.dto.response.SearchChatResponse;
 import com.example.aichat.dto.response.SyncDBResponse;
+import com.example.aichat.dto.response.UpdateChatNameResponse;
+import com.example.aichat.dto.response.UpdateMessageStatusResponse;
+import com.example.aichat.dto.response.UserAddingResponse;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.OnConnectionEvents;
 import com.example.aichat.model.database.AppDatabase;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.entities.Chat;
 import com.example.aichat.model.entities.ChatType;
-import com.example.aichat.model.entities.Command;
+import com.example.aichat.model.entities.WSSCommand;
 import com.example.aichat.model.entities.Message;
 import com.example.aichat.model.entities.MessageChat;
+import com.example.aichat.model.entities.MessageStatus;
+import com.example.aichat.model.utils.ChatPdfExporter;
 import com.example.aichat.model.utils.mappers.ChatMapper;
 import com.example.aichat.model.utils.mappers.Mapper;
 import com.example.aichat.model.utils.mappers.MapperResponse;
 import com.example.aichat.model.utils.mappers.MessageMapper;
 import com.example.aichat.view.main.chatlist.ChatsListFragment;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ChatsListController {
+
     private boolean isChatSearching = false;
+    private boolean isUserAdding;
     private final ChatsListFragment fragment;
     private final ConnectionManager connectionManager;
-    private final Mapper<MessageRequest, Message, MessageResponse> messageMapper = new MessageMapper();
+    private final Mapper<MessageRequest, Message, MessageResponse> messageMapper;
     private final MapperResponse<Chat, ChatResponse> chatMapper = new ChatMapper();
+    private final UUID userId;
 
-    public ChatsListController(ChatsListFragment fragment, ConnectionManager connectionManager) {
+    private List<MessageChat> allChats = new ArrayList<>();
+
+    private CreateChatController createChatController;
+
+    public ChatsListController(ChatsListFragment fragment,
+                               ConnectionManager connectionManager,
+                               boolean isUserAdding,
+                               UUID userId) {
         this.fragment = fragment;
-        Log.d("ChatsListController", "Constructor started");
-        connectionManager.addConnectionEvent(connectionEvents);
+        this.isUserAdding = isUserAdding;
         this.connectionManager = connectionManager;
+        this.userId = userId;
+        this.messageMapper = new MessageMapper(userId);
+
+        connectionManager.addConnectionEvent(connectionEvents);
     }
 
-    private OnConnectionEvents connectionEvents = new OnConnectionEvents() {
+    private final OnConnectionEvents connectionEvents = new OnConnectionEvents() {
         @Override
-        public void OnCommandGot(Command command) {
-            switch (command.getOperation()) {
-                case "SendMessage":
-                    MessageResponse messageResponse = command.getData(MessageResponse.class);
-                    fragment.updateLastMessage(messageMapper.ToModel(messageResponse));
+        public void OnCommandGot(WSSCommand cmd) {
+
+            switch (cmd.getOperation()) {
+
+                case "SendMessage": {
+                    MessageResponse messageResponse = cmd.getData(MessageResponse.class);
+                    if (messageResponse != null) {
+                        fragment.updateLastMessage(messageMapper.ToModel(messageResponse));
+                    }
                     break;
+                }
+
                 case "CreateChat":
-                    ChatResponse createdChat = command.getData(ChatResponse.class);
-                    fragment.requireActivity().runOnUiThread(() -> {
-                        fragment.createChat(chatMapper.ToModel(createdChat));
-                        fragment.setFabAddChatState(true);
-                    });
-                    isChatSearching = false;
+                case "AddChat": {
+                    isUserAdding = false;
                     break;
-                case "EndChat":
-                    ChatResponse endedChat = command.getData(ChatResponse.class);
-                    fragment.endChat(chatMapper.ToModel(endedChat));
-                    break;
-                case "SyncDB":
-                    SyncDBResponse syncDBResponse = command.getData(SyncDBResponse.class);
-                    setIsChatSearching(syncDBResponse.isChatSearching);
-                    Chat[] newChats = ParseChat(syncDBResponse.newChats);
-                    Message[] messageList = ChatController.getLastMessages(ParseMessage(syncDBResponse.newMessages));
-                    int currentMessage = 0;
-                    List<MessageChat> messageChats = new ArrayList<>();
+                }
 
-                    for (int i = 0; i < newChats.length; i++) {
-                        if (!newChats[i].isActive()) {
-                            messageChats.add(new MessageChat(null, newChats[i]));
-                        }
-                        boolean isAdded = false;
-                        UUID currentChatId = newChats[i].getId();
-
-                        for (int j = currentMessage; j < messageList.length; j++) {
-                            UUID messageChatId = messageList[j].getChat();
-                            int comparison = currentChatId.compareTo(messageChatId);
-
-                            if (comparison == 0) { // IDs равны
-                                fragment.createChat(new MessageChat(messageList[j], newChats[i]));
-                                currentMessage = j + 1;
-                                isAdded = true;
-                                break;
-                            } else if (comparison < 0) { // currentChatId < messageChatId
-                                currentMessage = j;
-                                break;
-                            } else { // currentChatId > messageChatId
-                                fragment.updateLastMessage(messageList[j]);
-                                currentMessage = j + 1;
-                            }
-                        }
-                        if (!isAdded) {
-                            fragment.createChat(newChats[i]);
-                        }
-                    }
-
-                    Chat[] oldChats = ParseChat(syncDBResponse.oldChats);
-                    for (Chat chat : oldChats) {
-                        fragment.endChat(chat);
+                case "EndChat": {
+                    ChatResponse endedChat = cmd.getData(ChatResponse.class);
+                    if (endedChat != null) {
+                        fragment.endChat(chatMapper.ToModel(endedChat));
                     }
                     break;
-                case "SearchChat":
-                    setIsChatSearching(command.getData(SearchChatResponse.class).isChatSearching);
+                }
+
+                case "SyncDB": {
+                    SyncDBResponse response = cmd.getData(SyncDBResponse.class);
+                    if (response != null) {
+                        syncDB(response);
+                    }
                     break;
+                }
+
+                case "SearchChat": {
+                    SearchChatResponse response = cmd.getData(SearchChatResponse.class);
+                    if (response != null) {
+                        setIsChatSearching(response.isChatSearching);
+                    }
+                    break;
+                }
+
+                case "DeleteChat": {
+                    DeleteChatResponse deleteChatResponse = cmd.getData(DeleteChatResponse.class);
+                    if (deleteChatResponse != null) {
+                        fragment.removeChat(deleteChatResponse.chatId);
+                    }
+                    break;
+                }
+
+                case "UserAdding": {
+                    UserAddingResponse response = cmd.getData(UserAddingResponse.class);
+                    setIsUserAdding(response != null && response.chatId != null);
+                    break;
+                }
+
+                case "AddUserToChat":
+                    setIsUserAdding(false);
+                    break;
+
+                case "UpdateChatName": {
+                    cmd.getData(UpdateChatNameResponse.class);
+                    break;
+                }
+                case "UpdateMessageStatus": {
+                    UpdateMessageStatusResponse updateMessageStatusResponse =
+                            cmd.getData(UpdateMessageStatusResponse.class);
+                    if (updateMessageStatusResponse == null) break;
+
+                    MessageChat msg = fragment.getMessageChat(updateMessageStatusResponse.chatId);
+                    if (msg == null) break;
+
+                    AppDatabase db = DatabaseManager.getDatabase();
+
+                    for (UUID messageId : updateMessageStatusResponse.messageIds) {
+                        db.messageDao().updateMessageStatusForUser(
+                                messageId,
+                                updateMessageStatusResponse.userId,
+                                updateMessageStatusResponse.status
+                        );
+                        msg.removeUnreadMessage(messageId);
+                        msg.updateLastMessageStatus(
+                                updateMessageStatusResponse.userId,
+                                updateMessageStatusResponse.status
+                        );
+                    }
+
+                    fragment.updateMessageStatus(msg);
+                    break;
+                }
             }
         }
 
@@ -124,14 +174,83 @@ public class ChatsListController {
         }
     };
 
-    private Message[] ParseMessage(MessageResponse[] responses){
+    private void syncDB(SyncDBResponse syncDBResponse) {
+        if (syncDBResponse == null) return;
+
+        ChatResponse[] newChatsResp = syncDBResponse.newChats;
+        if (newChatsResp != null) {
+            Chat[] newChats = ParseChat(newChatsResp);
+            for (Chat newChat : newChats) {
+                fragment.createChat(newChat);
+            }
+        }
+
+        MessageResponse[] newMessagesResp = syncDBResponse.newMessages;
+        if (newMessagesResp != null) {
+            Message[] newMessages = ParseMessage(newMessagesResp);
+            for (Message message : newMessages) {
+                fragment.updateLastMessage(message);
+            }
+        }
+
+        MessageResponse[] updatedMessagesResp = syncDBResponse.oldMessages;
+        if (updatedMessagesResp != null) {
+            Message[] updatedMessages = ParseMessage(updatedMessagesResp);
+            for (Message updatedMessage : updatedMessages) {
+                MessageChat msg = fragment.getMessageChat(updatedMessage.getChat());
+                if (msg == null) continue;
+                if (msg.getMessage() != null
+                        && msg.getMessage().getId().equals(updatedMessage.getId())) {
+                    fragment.updateLastMessage(updatedMessage);
+                }
+            }
+        }
+
+        MessageResponse[] deletedMessagesResp = syncDBResponse.deletedMessages;
+        if (deletedMessagesResp != null) {
+            Message[] deletedMessages = ParseMessage(deletedMessagesResp);
+            for (Message deletedMessage : deletedMessages) {
+                MessageChat msg = fragment.getMessageChat(deletedMessage.getChat());
+                if (msg == null || msg.getMessage() == null) continue;
+                if (msg.getMessage().getId().equals(deletedMessage.getId())) {
+                    AppDatabase db = DatabaseManager.getDatabase();
+                    Message last = db.messageDao()
+                            .getLastMessageInChat(msg.getChat().getId());
+                    fragment.updateLastMessage(last);
+                }
+            }
+        }
+
+        ChatResponse[] updatedChatsResp = syncDBResponse.oldChats;
+        if (updatedChatsResp != null) {
+            Chat[] updatedChats = ParseChat(updatedChatsResp);
+            for (Chat updatedChat : updatedChats) {
+                if (updatedChat.getEndTime() != null) {
+                    fragment.endChat(updatedChat);
+                }
+            }
+        }
+
+        ChatResponse[] deletedChatsResp = syncDBResponse.deletedChats;
+        if (deletedChatsResp != null) {
+            Chat[] deletedChats = ParseChat(deletedChatsResp);
+            for (Chat deletedChat : deletedChats) {
+                fragment.removeChat(deletedChat.getId());
+            }
+        }
+    }
+
+    private Message[] ParseMessage(MessageResponse[] responses) {
+        if (responses == null || responses.length == 0) return new Message[0];
         Message[] messages = new Message[responses.length];
         for (int i = 0; i < responses.length; i++) {
             messages[i] = messageMapper.ToModel(responses[i]);
         }
-        return  messages;
+        return messages;
     }
-    private Chat[] ParseChat(ChatResponse[] responses){
+
+    private Chat[] ParseChat(ChatResponse[] responses) {
+        if (responses == null || responses.length == 0) return new Chat[0];
         Chat[] chats = new Chat[responses.length];
         for (int i = 0; i < responses.length; i++) {
             chats[i] = chatMapper.ToModel(responses[i]);
@@ -140,25 +259,70 @@ public class ChatsListController {
     }
 
     public void addChat(ChatType param) {
-        Command addChat = new Command("SearchChat", new SearchChatRequest(param));
-        connectionManager.SendCommand(addChat);
+        connectionManager.SendCommand(
+                new WSSCommand("SearchChat", new SearchChatRequest(param))
+        );
         setIsChatSearching(true);
     }
 
+    public void addUserToChat() {
+        connectionManager.SendCommand(
+                new WSSCommand("AddUserToChat",
+                        new AddUserToChatRequest(ChatType.GROUP, "AllMatch"))
+        );
+        setIsUserAdding(true);
+    }
+
     public void stopSearchingChat() {
-        connectionManager.SendCommand(new Command("StopSearchingChat"));
+        connectionManager.SendCommand(new WSSCommand("StopSearchingChat"));
         setIsChatSearching(false);
     }
 
-    public boolean getIsChatSearching() {
-        return isChatSearching;
+    public void stopAddingUserToChat() {
+        connectionManager.SendCommand(new WSSCommand("StopAddingUserToChat"));
+        setIsUserAdding(false);
     }
 
-    public void setIsChatSearching(boolean isChatSearching) {
-        fragment.requireActivity().runOnUiThread(() -> {
-            this.isChatSearching = isChatSearching;
-            fragment.setFabAddChatState(!isChatSearching);
-        });
+    public void deleteChat(UUID id) {
+        connectionManager.SendCommand(
+                new WSSCommand("RemoveUserFromChat",
+                        new RemoveUserFromChatRequest(null, id))
+        );
+        fragment.removeChat(id);
+    }
+
+    public void renameChat(UUID id, String newName) {
+        connectionManager.SendCommand(
+                new WSSCommand("UpdateChatName", new UpdateChatNameRequest(id, newName))
+        );
+    }
+
+    public void setAllChats(List<MessageChat> chats) {
+        this.allChats = new ArrayList<>(chats);
+    }
+
+    public void searchChat(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            fragment.rollbackChats();
+            return;
+        }
+
+        String q = query.toLowerCase();
+
+        List<MessageChat> filtered = allChats.stream()
+                .filter(mc -> {
+                    String name = mc.getChat().getName();
+                    String last = mc.getMessage() != null ? mc.getMessage().getText() : "";
+                    return (name != null && name.toLowerCase().contains(q)) ||
+                            (last != null && last.toLowerCase().contains(q));
+                })
+                .collect(Collectors.toList());
+
+        fragment.updateChatList(filtered);
+    }
+
+    public void cancelSearch() {
+        fragment.rollbackChats();
     }
 
     public void openSettings(FragmentActivity activity) {
@@ -166,24 +330,53 @@ public class ChatsListController {
         activity.startActivity(intent);
     }
 
-    public void searchChat(String query) {
+    public void exportChat(Chat chat) {
         new Thread(() -> {
-            AppDatabase appDatabase = DatabaseManager.getDatabase();
-            List<Message> messages = appDatabase.messageDao().getMessagesByText("%" + query + "%");
-            List<MessageChat> messageChats = new ArrayList<MessageChat>();
-            for (int i = 0; i < messages.size(); i++) {
-                Message msg = messages.get(i);
-                messageChats.add(new MessageChat(msg, appDatabase.chatDao().getChatById(msg.getChat())));
+            try {
+                List<Message> messages =
+                        DatabaseManager.getDatabase()
+                                .messageDao()
+                                .getMessagesByChatId(chat.getId());
+                if (messages == null || messages.isEmpty()) return;
+                ChatPdfExporter chatPdfExporter =
+                        new ChatPdfExporter(fragment.getActivity(), userId);
+                chatPdfExporter.exportChat(messages, chat.getName());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            fragment.updateChatList(messageChats);
         }).start();
     }
 
-    public void cancelSearch() {
-        fragment.rollbackChats();
+    public boolean getIsChatSearching() {
+        return isChatSearching;
+    }
+
+    public boolean getIsUserAddingToChat() {
+        return isUserAdding;
+    }
+
+    public void setIsChatSearching(boolean isChatSearching) {
+        fragment.requireActivity().runOnUiThread(() -> {
+            this.isChatSearching = isChatSearching;
+            fragment.setCreateChatState();
+        });
+    }
+
+    public void setIsUserAdding(boolean isUserAdding) {
+        fragment.requireActivity().runOnUiThread(() -> {
+            this.isUserAdding = isUserAdding;
+            fragment.setAddUserState();
+        });
     }
 
     public void Destroy() {
         connectionManager.removeConnectionEvent(connectionEvents);
+    }
+
+    public CreateChatController getCreateChatController() {
+        if (createChatController == null) {
+            createChatController = new CreateChatController(connectionManager, userId);
+        }
+        return createChatController;
     }
 }

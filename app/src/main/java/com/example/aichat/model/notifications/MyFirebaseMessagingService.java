@@ -4,8 +4,9 @@ import android.util.Log;
 
 import com.example.aichat.dto.request.UpdateNotificationTokenRequest;
 import com.example.aichat.model.SecurePreferencesManager;
+import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
-import com.example.aichat.model.entities.Command;
+import com.example.aichat.model.entities.WSSCommand;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -41,14 +42,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 if (title != null && body != null) {
                     NotificationHelper notificationHelper = NotificationSingleton.getInstance().getNotificationHelper();
-                    if(notificationHelper==null){
+                    if (notificationHelper == null) {
                         notificationHelper = new NotificationHelper();
                         NotificationSingleton.getInstance().setNotificationHelper(notificationHelper);
                         Log.d(TAG, "Create new NotificationHelper");
                     }
                     notificationHelper.sendNotification(this, title, body, chatId);
                 }
-            } catch (NumberFormatException e) {
+            } catch (Exception e) {
                 Log.e(TAG, "Invalid chatId format", e);
             }
         }
@@ -57,18 +58,23 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onNewToken(String token) {
         Log.d(TAG, "Refreshed token: " + token);
-        sendRegistrationToServer(token);
-    }
-
-    private void sendRegistrationToServer(String token) {
         SecurePreferencesManager.saveNotificationToken(this, token);
-        sendRegistrationTokenToServer(token);
     }
 
     public static void sendRegistrationTokenToServer(String token) {
-        if (token != null) {
-            Command command = new Command("UpdateNotificationToken", new UpdateNotificationTokenRequest(token));
-            ConnectionSingleton.getInstance().getConnectionManager().SendCommand(command);
+        if (token == null) return;
+
+        ConnectionManager cm = ConnectionSingleton.getInstance().getConnectionManager();
+        if (cm == null) {
+            Log.w(TAG, "ConnectionManager is null — delaying FCM token send");
+            return;
         }
+
+        WSSCommand command = new WSSCommand(
+                "UpdateNotificationToken",
+                new UpdateNotificationTokenRequest(token)
+        );
+
+        cm.SendCommand(command);
     }
 }

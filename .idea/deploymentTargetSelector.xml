@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-17T12:45:42.139434300Z">
+        <DropdownSelection timestamp="2026-04-07T23:42:39.347926100Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Borovick Inna\.android\avd\Pixel_8a_API_35.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\addon\.android\avd\Pixel_9_Pro.avd" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -15,12 +15,12 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Borovick Inna\.android\avd\Pixel_8a_API_35.avd" />
+                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Borovick Inna\.android\avd\Pixel_9_Pro_XL_API_35.avd" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Borovick Inna\.android\avd\Pixel_9_Pro_XL_API_35.avd" />
+                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Borovick Inna\.android\avd\Pixel_8a_API_35.avd" />
               </handle>
             </Target>
           </targets>

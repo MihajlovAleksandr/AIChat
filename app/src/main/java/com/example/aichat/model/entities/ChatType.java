@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum ChatType {
     AI("AI"),
     HUMAN("Human"),
-    RANDOM("Random");
+    RANDOM("Random"),
+    GROUP("Group");
 
     private final String value;
 

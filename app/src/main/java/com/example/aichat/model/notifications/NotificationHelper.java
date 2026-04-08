@@ -42,7 +42,7 @@ public class NotificationHelper {
         if (!NotificationSettingsManager.canSendNotifications(context)) {
             return;
         }
-        if(chatId==currentChatId) return;
+        if(chatId.equals(currentChatId)) return;
         createNotificationChannel(context);
 
         NotificationManager manager =
@@ -80,7 +80,7 @@ public class NotificationHelper {
 
     private Notification buildNotification(Context context, String title, String message, UUID chatId) {
         Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra("chatId", chatId);
+        intent.putExtra("chatId", chatId.toString());
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(
@@ -97,7 +97,6 @@ public class NotificationHelper {
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
 
-        // Вибрация (если включена)
         if (NotificationSettingsManager.isVibrationEnabled(context)) {
             builder.setVibrate(DEFAULT_VIBRATION_PATTERN);
         }

@@ -1,0 +1,39 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape>
+            <gradient
+                android:type="linear"
+                android:angle="315"
+                android:startColor="#06181B"
+                android:centerColor="#031012"
+                android:endColor="#00090B"/>
+        </shape>
+    </item>
+
+    <item>
+        <shape>
+            <gradient
+                android:type="radial"
+                android:gradientRadius="800dp"
+                android:centerX="0.2"
+                android:centerY="0.1"
+                android:startColor="#3042969E"
+                android:endColor="#00000000"/>
+        </shape>
+    </item>
+
+    <!-- Нижний мягкий свет -->
+    <item>
+        <shape>
+            <gradient
+                android:type="radial"
+                android:gradientRadius="900dp"
+                android:centerX="0.8"
+                android:centerY="1.2"
+                android:startColor="#20318F8F"
+                android:endColor="#00000000"/>
+        </shape>
+    </item>
+
+</layer-list>

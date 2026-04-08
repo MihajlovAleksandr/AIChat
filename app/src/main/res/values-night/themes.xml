@@ -1,7 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base application theme. -->
-    <style name="Base.Theme.AIChat" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+
+    <style name="Theme.AIChat.Dark" parent="Theme.Material3.Dark.NoActionBar">
+
+        <item name="colorPrimary">@color/teal_primary</item>
+        <item name="colorOnPrimary">@color/buttonTextDark</item>
+        <item name="chatCircleStroke">@color/chat_circle_stroke_dark</item>
+        <item name="bottomSheetOverlayColor">#CC1C1C1C</item>
+        <item name="colorSurface">@color/buttonBackgroundDark</item>
+        <item name="colorOnSurface">@color/primaryTextDark</item>
+        <item name="colorOnSurfaceVariant">@color/secondaryTextDark</item>
+        <item name="colorControlHighlight">@color/rippleDark</item>
+        <item name="toolbarBackground">@color/teal_primary</item>
+        <item name="toolbarTitleColor">@color/buttonTextDark</item>
+        <item name="toolbarIconColor">@color/buttonTextDark</item>
+        <item name="dividerColor">@color/secondaryTextDark</item>
+        <item name="searchHintColor">@color/secondaryTextDark</item>
+        <item name="searchTextColor">@color/primaryTextDark</item>
+        <item name="searchIconColor">@color/buttonTextDark</item>
+        <item name="bottomIconColor">@color/primaryTextDark</item>
+        <item name="bottomTextColor">@color/primaryTextDark</item>
+        <item name="toolbarIconColorCustom">@color/primaryTextDark</item>
+        <item name="toolbarTextColorCustom">@color/primaryTextDark</item>
+        <item name="android:windowBackground">@drawable/bg_oil_dark_gradient</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:textColor">@color/primaryTextDark</item>
+        <item name="android:autofilledHighlight">@android:color/transparent</item>
+        <item name="login_button_text">@color/login_text_enabled_dark</item>
+        <item name="login_button_tint">@color/login_background_enabled_dark</item>
+        <item name="textinput_hint_selector">@color/textinputHintDark</item>
+        <item name="textinput_endicon_tint">@color/textinputEndIconTintDark</item>
+        <item name="textInputStyle">@style/Widget.AIChat.TextInput.Dark</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Material3.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Material3.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.Material3.BodySmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.Material3.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.Material3.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Material3.TitleSmall</item>
+        <item name="colorSecondary">@color/teal_primary</item>
+        <item name="colorSecondaryContainer">@color/teal_primary</item>
+        <item name="colorOnSecondaryContainer">@color/buttonTextDark</item>
+
     </style>
+
+    <style name="Widget.AIChat.TextInput.Dark" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@android:color/transparent</item>
+        <item name="android:textColor">@color/primaryTextDark</item>
+        <item name="android:autofilledHighlight">@android:color/transparent</item>
+    </style>
+
+    <style name="ShapeAppearance.AIChat.Glow.Dark" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+
+    <style name="CodeInputStyle.Dark">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_margin">5dp</item>
+        <item name="android:background">@drawable/edittext_border</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">number</item>
+        <item name="android:maxLength">1</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
 </resources>

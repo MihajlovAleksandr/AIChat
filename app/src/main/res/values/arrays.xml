@@ -12,4 +12,18 @@
         <item>es</item>
         <item>be</item>
     </string-array>
+
+    <string-array name="theme_modes">
+        <item>@string/theme_light</item>
+        <item>@string/theme_dark</item>
+        <item>@string/theme_system</item>
+    </string-array>
+
+    <string-array name="theme_mode_values">
+        <item>light</item>
+        <item>dark</item>
+        <item>system</item>
+    </string-array>
+
 </resources>
+

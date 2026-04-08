@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.appbar.MaterialToolbar
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/topAppBar"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="@android:color/transparent"
+    android:elevation="0dp"
+    android:title="">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_gravity="start|center_vertical"
+        android:layout_marginStart="16dp"
+        style="@style/TextAppearance.Material3.TitleMedium"/>
+
+    <EditText
+        android:id="@+id/et_toolbar_search"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@null"
+        android:hint="@string/search_hint"
+        android:textColor="?attr/colorOnSurface"
+        android:textColorHint="?attr/colorOnSurfaceVariant"
+        android:textSize="16sp"
+        android:paddingStart="16dp"
+        android:paddingEnd="48dp"
+        android:singleLine="true"
+        android:visibility="gone"
+        android:layout_gravity="center_vertical"/>
+
+    <ImageButton
+        android:id="@+id/btn_close_search"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:padding="8dp"
+        android:src="@drawable/ic_cancel"
+        android:background="@drawable/ripple_toolbar_icon"
+        android:contentDescription="@string/back_button"
+        android:visibility="gone"
+        app:tint="?attr/colorOnSurface"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginEnd="8dp"/>
+
+    <ImageButton
+        android:id="@+id/btn_search"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:padding="8dp"
+        android:src="@drawable/ic_search"
+        android:background="@drawable/ripple_toolbar_icon"
+        android:contentDescription="@string/search"
+        app:tint="?attr/colorOnSurface"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginEnd="8dp"/>
+</com.google.android.material.appbar.MaterialToolbar>

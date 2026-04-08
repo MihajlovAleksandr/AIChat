@@ -2,106 +2,81 @@ package com.example.aichat.view;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextPaint;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.PopupWindow;
 import android.widget.TextView;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.example.aichat.R;
 import com.example.aichat.controller.RegistrationController;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import android.widget.EditText;
-import android.widget.Button;
 
 public class RegistrationActivity extends BaseActivity {
-
-    private TextInputLayout emailInputLayout;
-    private TextInputLayout passwordInputLayout;
-    private TextInputLayout confirmPasswordInputLayout;
-    private EditText emailEditText;
-    private EditText passwordEditText;
-    private EditText confirmPasswordEditText;
-    private Button registrationButton;
-    private TextView loginTextView;
-
-    private RegistrationController controller;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
+        FullScreenHelper.enableFullScreen(getWindow());
 
-        loginTextView = findViewById(R.id.loginTextView);
+        TextInputLayout emailInputLayout = findViewById(R.id.emailInputLayout);
+        TextInputLayout passwordInputLayout = findViewById(R.id.passwordInputLayout);
+        TextInputLayout confirmPasswordInputLayout = findViewById(R.id.confirmPasswordInputLayout);
+        TextInputEditText emailEditText = findViewById(R.id.email);
+        TextInputEditText passwordEditText = findViewById(R.id.password);
+        TextInputEditText confirmPasswordEditText = findViewById(R.id.confirmPassword);
+        MaterialButton registrationButton = findViewById(R.id.registration);
+        TextView loginTextView = findViewById(R.id.loginTextView);
 
-        // Получаем текст полностью без префикса
-        String fullText = getString(R.string.login_prompt);
-        String linkText = getString(R.string.login_link_text);
-        SpannableString spannableString = new SpannableString(fullText);
-
-        ClickableSpan clickableSpan = new ClickableSpan() {
-            @Override
-            public void onClick(View widget) {
-                Intent intent = new Intent(RegistrationActivity.this, LoginActivity.class);
-                startActivity(intent);
+        if (loginTextView != null) {
+            loginTextView.setOnClickListener(v -> {
+                startActivity(new Intent(this, LoginActivity.class));
                 finish();
-            }
+            });
+        }
 
-            @Override
-            public void updateDrawState(TextPaint ds) {
-                super.updateDrawState(ds);
-                ds.setColor(ContextCompat.getColor(RegistrationActivity.this, R.color.link_color));
-                ds.setUnderlineText(true);
-            }
-        };
+        LanguageHandler languageHandler = new LanguageHandler(this);
+        LanguageMenuHelper languageMenuHelper = new LanguageMenuHelper(languageHandler);
+        TextView btnLanguage = findViewById(R.id.btnLanguage);
+        languageMenuHelper.attachToButton(btnLanguage);
 
-        // Устанавливаем span только на кликабельную часть текста
-        int startIndex = fullText.indexOf(linkText);
-        int endIndex = startIndex + linkText.length();
-        spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        applyThemeColors(emailInputLayout, passwordInputLayout, confirmPasswordInputLayout);
 
-        loginTextView.setText(spannableString);
-        loginTextView.setMovementMethod(LinkMovementMethod.getInstance());
-
-        emailInputLayout = findViewById(R.id.emailInputLayout);
-        passwordInputLayout = findViewById(R.id.passwordInputLayout);
-        confirmPasswordInputLayout = findViewById(R.id.confirmPasswordInputLayout);
-        emailEditText = findViewById(R.id.email);
-        passwordEditText = findViewById(R.id.password);
-        confirmPasswordEditText = findViewById(R.id.confirmPassword);
-        registrationButton = findViewById(R.id.registration);
-
-        controller = new RegistrationController(this,
+        new RegistrationController(
+                this,
                 emailInputLayout,
                 passwordInputLayout,
                 confirmPasswordInputLayout,
                 emailEditText,
                 passwordEditText,
                 confirmPasswordEditText,
-                registrationButton);
+                registrationButton
+        );
     }
 
-    public void showPopup(String message) {
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupView = inflater.inflate(R.layout.popup_info, null);
+    private void applyThemeColors(TextInputLayout emailLayout, TextInputLayout passwordLayout, TextInputLayout confirmLayout) {
+        boolean isDarkTheme = (getResources().getConfiguration().uiMode
+                & android.content.res.Configuration.UI_MODE_NIGHT_MASK)
+                == android.content.res.Configuration.UI_MODE_NIGHT_YES;
 
-        PopupWindow popupWindow = new PopupWindow(
-                popupView,
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-                true
-        );
+        int endIconColor = isDarkTheme
+                ? getResources().getColor(R.color.textinput_endicon_dark, getTheme())
+                : getResources().getColor(R.color.textinput_endicon_light, getTheme());
 
-        TextView popupText = popupView.findViewById(R.id.popupText);
-        popupText.setText(message);
+        emailLayout.setEndIconTintList(android.content.res.ColorStateList.valueOf(endIconColor));
+        passwordLayout.setEndIconTintList(android.content.res.ColorStateList.valueOf(endIconColor));
+        confirmLayout.setEndIconTintList(android.content.res.ColorStateList.valueOf(endIconColor));
 
-        popupWindow.showAsDropDown(findViewById(android.R.id.content), 0, 0);
+        int hintColor;
+        if (!isDarkTheme && emailLayout.getDefaultHintTextColor() != null) {
+            hintColor = emailLayout.getDefaultHintTextColor().getDefaultColor();
+        } else {
+            hintColor = isDarkTheme
+                    ? getResources().getColor(R.color.primaryTextDark, getTheme())
+                    : 0xFF000000; // fallback
+        }
+
+        emailLayout.setDefaultHintTextColor(android.content.res.ColorStateList.valueOf(hintColor));
+        passwordLayout.setDefaultHintTextColor(android.content.res.ColorStateList.valueOf(hintColor));
+        confirmLayout.setDefaultHintTextColor(android.content.res.ColorStateList.valueOf(hintColor));
     }
 }

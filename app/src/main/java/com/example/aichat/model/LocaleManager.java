@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
+
 import java.util.Locale;
 
 public class LocaleManager {
@@ -22,8 +23,13 @@ public class LocaleManager {
         return new Locale(lang);
     }
 
+    public static String getLanguage(Context context) {
+        return getLocale(context).getLanguage();
+    }
+
     private static void persistLanguage(Context context, String language) {
-        getPreferences(context).edit()
+        getPreferences(context)
+                .edit()
                 .putString(KEY_LANGUAGE, language)
                 .apply();
     }
@@ -40,16 +46,16 @@ public class LocaleManager {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             configuration.setLocale(locale);
+            configuration.setLayoutDirection(locale);
             return context.createConfigurationContext(configuration);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             configuration.setLocale(locale);
-            context = context.createConfigurationContext(configuration);
+            configuration.setLayoutDirection(locale);
+            return context.createConfigurationContext(configuration);
         } else {
             configuration.locale = locale;
-            context.getResources().updateConfiguration(configuration,
-                    context.getResources().getDisplayMetrics());
+            context.getResources().updateConfiguration(configuration, context.getResources().getDisplayMetrics());
+            return context;
         }
-
-        return context;
     }
 }

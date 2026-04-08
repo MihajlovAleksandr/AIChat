@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="login_button_text" format="reference|color"/>
+    <attr name="login_button_tint" format="reference|color"/>
+    <attr name="textinput_hint_selector" format="reference|color"/>
+    <attr name="textinput_endicon_tint" format="reference|color"/>
+    <attr name="bottomIconColor" format="color"/>
+    <attr name="bottomTextColor" format="color"/>
+    <attr name="toolbarIconColorCustom" format="color"/>
+    <attr name="toolbarTextColorCustom" format="color"/>
+
+    <declare-styleable name="NeonTextView">
+    <attr name="neonBaseColor" format="color"/>
+    <attr name="neonBrightColor" format="color"/>
+    </declare-styleable>
+
+    <attr name="toolbarBackground" format="reference|color"/>
+    <attr name="toolbarTitleColor" format="reference|color"/>
+    <attr name="toolbarIconColor" format="reference|color"/>
+    <attr name="dividerColor" format="reference|color"/>
+    <attr name="searchHintColor" format="reference|color"/>
+    <attr name="searchTextColor" format="reference|color"/>
+    <attr name="searchIconColor" format="reference|color"/>
+    <attr name="stateLayerColor" format="color" />
+    <attr name="chatCircleStroke" format="reference|color"/>
+    <attr name="bottomSheetOverlayColor" format="color" />
+
+</resources>

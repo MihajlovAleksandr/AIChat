@@ -1,7 +1,5 @@
 package com.example.aichat.view;
 
-
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -12,65 +10,61 @@ import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.aichat.R;
 import com.example.aichat.model.entities.UserData;
 import com.example.aichat.model.utils.JsonHelper;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.util.Objects;
-
 public class UserDataActivity extends BaseActivity {
-    private TextInputLayout nameInputLayout;
-    private TextInputLayout ageInputLayout;
-    private RadioGroup genderGroup;
-    private Button submitButton;
-    private ImageView nameInfoIcon;
-    private ImageView ageInfoIcon;
-
-    private com.example.aichat.controller.UserDataController controller;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Intent intent = getIntent();
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_data);
+        FullScreenHelper.enableFullScreen(getWindow());
 
-        nameInputLayout = findViewById(R.id.nameInputLayout);
-        ageInputLayout = findViewById(R.id.ageInputLayout);
-        genderGroup = findViewById(R.id.genderGroup);
-        submitButton = findViewById(R.id.submitButton);
-        nameInfoIcon = findViewById(R.id.nameInfoIcon);
-        ageInfoIcon = findViewById(R.id.ageInfoIcon);
-        String strUserData =  intent.getStringExtra("userData");
+        TextInputLayout nameInputLayout = findViewById(R.id.nameInputLayout);
+        TextInputLayout ageInputLayout = findViewById(R.id.ageInputLayout);
+        RadioGroup genderGroup = findViewById(R.id.genderGroup);
+        Button submitButton = findViewById(R.id.submitButton);
+        ImageView nameInfoIcon = findViewById(R.id.nameInfoIcon);
+        ImageView ageInfoIcon = findViewById(R.id.ageInfoIcon);
+        View btnLanguage = findViewById(R.id.btnLanguage);
+
+        String strUserData = getIntent().getStringExtra("userData");
         UserData userData = null;
-        if(strUserData!=null)
+        if (strUserData != null)
             userData = JsonHelper.Deserialize(strUserData, UserData.class);
-        if(userData==null) {
+
+        com.example.aichat.controller.UserDataController controller;
+        if (userData == null) {
             controller = new com.example.aichat.controller.UserDataController(
-                    this,
-                    nameInputLayout,
-                    ageInputLayout,
-                    genderGroup,
-                    submitButton
+                    this, nameInputLayout, ageInputLayout, genderGroup, submitButton
             );
-        }
-        else {
+        } else {
             controller = new com.example.aichat.controller.UserDataController(
-                    this,
-                    nameInputLayout,
-                    ageInputLayout,
-                    genderGroup,
-                    submitButton,
-                    userData
+                    this, nameInputLayout, ageInputLayout, genderGroup, submitButton, userData
             );
-            findViewById(R.id.progressDots).setVisibility(View.GONE);
+            View progressDots = findViewById(R.id.progressDots);
+            if (progressDots != null) progressDots.setVisibility(View.GONE);
         }
-        // Используем строковые ресурсы на английском языке для всплывающих подсказок
-        nameInfoIcon.setOnClickListener(v -> showPopup(v, getString(R.string.name_popup_info)));
-        ageInfoIcon.setOnClickListener(v -> showPopup(v, getString(R.string.age_popup_info)));
+
+        nameInfoIcon.setOnClickListener(v ->
+                showPopup(v, getString(R.string.name_popup_info)));
+        ageInfoIcon.setOnClickListener(v ->
+                showPopup(v, getString(R.string.age_popup_info)));
+
+        LanguageHandler languageHandler = new LanguageHandler(this);
+        LanguageMenuHelper languageMenuHelper = new LanguageMenuHelper(languageHandler);
+        if (btnLanguage != null) {
+            languageMenuHelper.attachToButton(btnLanguage);
+        }
+
+        FloatingActionButton btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> onBackPressed());
+        }
     }
 
     public void showPopup(View anchorView, String message) {

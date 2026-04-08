@@ -1,27 +1,38 @@
 package com.example.aichat.model.entities;
 
-import android.health.connect.datatypes.StepsCadenceRecord;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import androidx.room.ForeignKey;
+import androidx.room.TypeConverters;
 
+import com.example.aichat.model.utils.HashMapConverter;
+import com.example.aichat.model.utils.ListMessageReplyConverter;
 import com.example.aichat.model.utils.TimeConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
-@Entity(tableName = "Messages",
-        foreignKeys = @ForeignKey(entity = Chat.class,
+@Entity(
+        tableName = "Messages",
+        foreignKeys = @ForeignKey(
+                entity = Chat.class,
                 parentColumns = "id",
                 childColumns = "chat",
-                onDelete = ForeignKey.CASCADE),
-        indices = {@Index(value = "chat")})
+                onDelete = ForeignKey.CASCADE
+        ),
+        indices = {@Index(value = "chat")}
+)
+@TypeConverters({HashMapConverter.class, ListMessageReplyConverter.class})
 public class Message {
 
     @PrimaryKey
@@ -43,24 +54,45 @@ public class Message {
 
     @JsonProperty
     private String lastUpdate;
+
+    @JsonProperty
+    private List<MessageReply> replyMessages;
+
+    @JsonProperty
+    private HashMap<UUID, MessageStatus> statuses;
+
+    public Message() {
+        this.replyMessages = new ArrayList<>();
+        this.statuses = new HashMap<>();
+    }
+
     @Ignore
     public Message(String text, UUID sender, UUID chat) {
+        this();
         this.text = text;
         this.sender = sender;
         this.chat = chat;
-        time = null;
     }
+
     @Ignore
-    public Message(@NonNull UUID id, String text, UUID sender, UUID chat, String time, String lastUpdate){
+    public Message(
+            @NonNull UUID id,
+            String text,
+            UUID sender,
+            UUID chat,
+            String time,
+            String lastUpdate,
+            @Nullable List<MessageReply> replyMessages,
+            @Nullable HashMap<UUID, MessageStatus> statuses
+    ) {
         this.id = id;
         this.text = text;
         this.sender = sender;
         this.chat = chat;
         this.time = time;
         this.lastUpdate = lastUpdate;
-    }
-
-    public Message() {
+        this.replyMessages = replyMessages != null ? replyMessages : new ArrayList<>();
+        this.statuses = statuses != null ? statuses : new HashMap<>();
     }
 
     @JsonIgnore
@@ -69,8 +101,7 @@ public class Message {
         return id;
     }
 
-    @NonNull
-    public void setId(UUID id) {
+    public void setId(@NonNull UUID id) {
         this.id = id;
     }
 
@@ -112,7 +143,7 @@ public class Message {
 
     @JsonIgnore
     public LocalDateTime getTimeFormat() {
-        return TimeConverter.getLocalDateTime(time);
+        return time != null ? TimeConverter.getLocalDateTime(time) : null;
     }
 
     @JsonIgnore
@@ -126,19 +157,41 @@ public class Message {
 
     @JsonIgnore
     public LocalDateTime getLastUpdateFormat() {
-        return TimeConverter.getLocalDateTime(lastUpdate);
+        return lastUpdate != null ? TimeConverter.getLocalDateTime(lastUpdate) : null;
+    }
+
+    public List<MessageReply> getReplyMessages() {
+        return replyMessages;
+    }
+
+    public void setReplyMessages(List<MessageReply> replyMessages) {
+        this.replyMessages = replyMessages != null ? replyMessages : new ArrayList<>();
+    }
+
+    public HashMap<UUID, MessageStatus> getStatuses() {
+        return statuses;
+    }
+
+    public void setStatuses(HashMap<UUID, MessageStatus> statuses) {
+        this.statuses = statuses != null ? statuses : new HashMap<>();
     }
 
     @JsonIgnore
     public boolean isMyMessage(UUID userId) {
-        return userId.equals(sender);
+        return userId != null && userId.equals(sender);
     }
-    @JsonIgnore
+
+
     @Override
     public boolean equals(@Nullable Object obj) {
-        if(obj==null) return false;
-        if(obj.getClass()!=Message.class)return false;
-        Message other = (Message)obj;
-        return other.chat==chat;
+        if (this == obj) return true;
+        if (!(obj instanceof Message)) return false;
+        Message other = (Message) obj;
+        return Objects.equals(id, other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

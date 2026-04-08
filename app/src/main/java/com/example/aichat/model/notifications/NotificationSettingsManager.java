@@ -4,11 +4,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
+
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 public class NotificationSettingsManager {
+
     private static final String PREFS_NAME = "notification_prefs";
     private static final String KEY_ENABLED = "notifications_enabled";
     private static final String KEY_VIBRATION_ENABLED = "vibration_enabled";
@@ -92,6 +97,18 @@ public class NotificationSettingsManager {
                     grantResults[0] == PackageManager.PERMISSION_GRANTED;
             callback.onPermissionResult(granted);
         }
+    }
+
+    public static void playNotificationSound(Context context) {
+        try {
+            Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            if (soundUri != null) {
+                Ringtone ringtone = RingtoneManager.getRingtone(context, soundUri);
+                if (ringtone != null) {
+                    ringtone.play();
+                }
+            }
+        } catch (Exception ignored) {}
     }
 
     public interface NotificationCallback {

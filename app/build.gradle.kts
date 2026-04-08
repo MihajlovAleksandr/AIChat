@@ -14,7 +14,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "SERVER_URL", "\"wss://192.168.19.151:8888/\"")
+        buildConfigField("String", "SERVER_URL", "\"wss://192.168.0.105:8888/\"")
     }
 
     buildTypes {
@@ -37,6 +37,7 @@ android {
         buildConfig = true
     }
 }
+
 dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -74,4 +75,6 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
     annotationProcessor ("androidx.room:room-compiler:2.5.0")
+    implementation ("io.noties.markwon:core:4.6.2")
+    implementation("com.google.android.material:material:1.12.0")
 }

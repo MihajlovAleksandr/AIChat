@@ -1,87 +1,61 @@
 package com.example.aichat.view.main;
 
-import android.app.Activity;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
-import androidx.appcompat.view.menu.ActionMenuItem;
-import androidx.fragment.app.Fragment;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.example.aichat.R;
 import com.example.aichat.controller.main.MainActivityController;
-import com.example.aichat.model.connection.ConnectionManager;
-import com.example.aichat.model.entities.Command;
-import com.example.aichat.model.entities.Message;
+import com.example.aichat.model.SecurePreferencesManager;
+import com.example.aichat.model.entities.Chat;
 import com.example.aichat.view.main.chat.ChatFragment;
-import com.example.aichat.view.main.chat.OnMessageSend;
 import com.example.aichat.view.main.chatlist.ChatsListFragment;
 
 import java.util.UUID;
 
+
 public class MainActivityAdapter extends FragmentStateAdapter {
-    private MainActivityController chatPageController;
-    private ConnectionManager connectionManager;
+
+    private final MainActivityController controller;
     private final UUID currentUserId;
-    private long lastChatFragmentId = System.currentTimeMillis();
+    private final FragmentActivity activity;
+
     private ChatsListFragment chatsListFragment;
-    private FragmentActivity fragmentActivity;
 
-    public MainActivityAdapter(@NonNull FragmentActivity fragmentActivity,
-                               ConnectionManager connectionManager,
-                               UUID currentUserId,boolean isNewActivity) {
-        super(fragmentActivity);
-        this.fragmentActivity = fragmentActivity;
-        this.currentUserId = currentUserId;
-        this.chatPageController = new MainActivityController(connectionManager, fragmentActivity,this,  isNewActivity);
-        this.connectionManager = connectionManager;
-    }
+    public MainActivityAdapter(
+            @NonNull FragmentActivity activity,
+            UUID ignoredUserId,
+            boolean isNewActivity
+    ) {
+        super(activity);
 
-    public void setChatId(UUID chatId) {
-        chatPageController.setCurrentChatId(chatId);
-        lastChatFragmentId = System.currentTimeMillis();
-        fragmentActivity.runOnUiThread(() -> notifyItemChanged(1));
-    }
-    public void loadChatList()
-    {
-        if (chatsListFragment != null)
-            chatsListFragment.loadChatsFromDatabase();
-    }
+        this.activity = activity;
+        this.currentUserId = SecurePreferencesManager.getUserId(activity);
 
-    public UUID getCurrentUserId(){
-        return currentUserId;
+        controller = new MainActivityController(
+                activity,
+                this,
+                currentUserId,
+                isNewActivity
+        );
     }
-
     @NonNull
     @Override
-    public Fragment createFragment(int position) {
-        Log.d("Fragment", "Create Fragment");
+    public androidx.fragment.app.Fragment createFragment(int position) {
         if (position == 1) {
-            ChatFragment fragment = new ChatFragment(connectionManager,
-                    chatPageController.getCurrentChatId(),
-                    currentUserId,
-                    new OnMessageSend() {
-                        @Override
-                        public void sendMessage(Message message) {
-                            chatsListFragment.updateLastMessage(message);
-                        }
-                    });
-            fragment.setActivity(fragmentActivity);
-            return fragment;
+            UUID chatId = controller.getCurrentChatId();
+            return ChatFragment.newInstance(chatId, currentUserId);
         }
-        chatsListFragment = new ChatsListFragment(connectionManager);
+
+        if (chatsListFragment == null) {
+            chatsListFragment = ChatsListFragment.newInstance(false, currentUserId);
+            chatsListFragment.loadChatsFromDatabase(currentUserId);
+        }
+
         return chatsListFragment;
-    }
-    public UUID getCurrentChatId(){
-        return chatPageController.getCurrentChatId();
-    }
-
-    public void logout(Activity activity){
-        chatPageController.logout(activity);
-    }
-
-    public boolean destroy(){
-        return chatPageController.destroy();
     }
 
     @Override
@@ -89,13 +63,51 @@ public class MainActivityAdapter extends FragmentStateAdapter {
         return 2;
     }
 
-    @Override
-    public long getItemId(int position) {
-        return position == 1 ? lastChatFragmentId : super.getItemId(position);
+    public void setChatId(@Nullable UUID chatId) {
+        controller.setCurrentChatId(chatId);
+
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
+
+        FragmentManager fm = activity.getSupportFragmentManager();
+        String tag = "CHAT_FRAGMENT";
+        ChatFragment existing = (ChatFragment) fm.findFragmentByTag(tag);
+        if (existing != null) {
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.remove(existing);
+            ft.commitNowAllowingStateLoss();
+        }
+
+        if (chatId != null) {
+            ChatFragment newFragment = ChatFragment.newInstance(chatId, currentUserId);
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.add(R.id.view_pager_fragment_container, newFragment, tag);
+            ft.commitNowAllowingStateLoss();
+        }
     }
 
-    @Override
-    public boolean containsItem(long itemId) {
-        return itemId == lastChatFragmentId || super.containsItem(itemId);
+    public UUID getCurrentChatId() {
+        return controller.getCurrentChatId();
+    }
+
+    public void onChatCreated(Chat chat) {
+        if (chatsListFragment != null) {
+            chatsListFragment.createChat(chat);
+        }
+    }
+
+    public void reloadChats() {
+        if (chatsListFragment != null) {
+            chatsListFragment.loadChatsFromDatabase(currentUserId);
+        }
+    }
+
+
+    public boolean destroy() {
+        boolean isLogout = controller.destroy();
+        if (!isLogout) {
+            com.example.aichat.model.connection.ConnectionSingleton.getInstance().setAvailableToClose(false);
+        }
+        chatsListFragment = null;
+        return isLogout;
     }
 }

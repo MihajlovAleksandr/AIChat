@@ -1,6 +1,7 @@
-<!-- activity_settings.xml -->
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/settings_scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground"
@@ -23,8 +24,9 @@
 
             <ImageButton
                 android:id="@+id/back_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
                 android:src="@drawable/ic_cancel"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/back_button_description"/>
@@ -39,7 +41,6 @@
                 android:layout_marginStart="16dp"/>
         </LinearLayout>
 
-        <!-- Profile Section -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -51,12 +52,13 @@
             android:layout_marginBottom="8dp"/>
 
         <LinearLayout
+            android:id="@+id/profile_email_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:id="@+id/profile_email_item"
+            android:focusable="true"
             android:padding="16dp">
 
             <TextView
@@ -75,12 +77,13 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/change_password_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:id="@+id/change_password_item"
+            android:focusable="true"
             android:padding="16dp">
 
             <TextView
@@ -91,12 +94,13 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/userData_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:id="@+id/userData_item"
+            android:focusable="true"
             android:padding="16dp">
 
             <TextView
@@ -104,6 +108,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/about"
                 android:textColor="?android:attr/textColorPrimary"/>
+
             <TextView
                 android:id="@+id/userData_text"
                 android:text="@string/no_about"
@@ -112,13 +117,15 @@
                 android:textColor="?android:attr/textColorSecondary"
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
+
         <LinearLayout
+            android:id="@+id/preference_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:id="@+id/preference_item"
+            android:focusable="true"
             android:padding="16dp">
 
             <TextView
@@ -126,6 +133,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/preferences"
                 android:textColor="?android:attr/textColorPrimary"/>
+
             <TextView
                 android:id="@+id/preference_text"
                 android:text="@string/no_preference"
@@ -134,13 +142,15 @@
                 android:textColor="?android:attr/textColorSecondary"
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
+
         <LinearLayout
+            android:id="@+id/devices_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:id="@+id/devices_item"
+            android:focusable="true"
             android:padding="16dp">
 
             <TextView
@@ -148,6 +158,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/devices"
                 android:textColor="?android:attr/textColorPrimary"/>
+
             <TextView
                 android:id="@+id/devices_text"
                 android:text="@string/no_devices"
@@ -157,14 +168,14 @@
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
 
-        <!-- Добавленная кнопка выхода -->
         <LinearLayout
+            android:id="@+id/logout_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:id="@+id/logout_item"
+            android:focusable="true"
             android:padding="16dp"
             android:layout_marginTop="8dp">
 
@@ -176,7 +187,6 @@
                 android:textStyle="bold"/>
         </LinearLayout>
 
-        <!-- Notifications Section -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -188,14 +198,8 @@
             android:layout_marginBottom="8dp"/>
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
             android:id="@+id/email_notifications_item"
-            android:padding="16dp">
+            style="@style/SettingsSwitchItem">
 
             <TextView
                 android:layout_width="0dp"
@@ -204,21 +208,16 @@
                 android:text="@string/send_email_notifications"
                 android:textColor="?android:attr/textColorPrimary"/>
 
-            <Switch
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/email_notifications_switch"
+                style="@style/CustomSwitchStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
             android:id="@+id/show_notifications_item"
-            android:padding="16dp">
+            style="@style/SettingsSwitchItem">
 
             <TextView
                 android:layout_width="0dp"
@@ -227,21 +226,16 @@
                 android:text="@string/show_notifications"
                 android:textColor="?android:attr/textColorPrimary"/>
 
-            <Switch
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/show_notifications_switch"
+                style="@style/CustomSwitchStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
             android:id="@+id/background_notifications_item"
-            android:padding="16dp">
+            style="@style/SettingsSwitchItem">
 
             <TextView
                 android:layout_width="0dp"
@@ -250,21 +244,16 @@
                 android:text="@string/background_notifications"
                 android:textColor="?android:attr/textColorPrimary"/>
 
-            <Switch
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/background_notifications_switch"
+                style="@style/CustomSwitchStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
             android:id="@+id/in_app_notifications_item"
-            android:padding="16dp">
+            style="@style/SettingsSwitchItem">
 
             <TextView
                 android:layout_width="0dp"
@@ -273,21 +262,16 @@
                 android:text="@string/in_app_notifications"
                 android:textColor="?android:attr/textColorPrimary"/>
 
-            <Switch
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/in_app_notifications_switch"
+                style="@style/CustomSwitchStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
             android:id="@+id/vibration_item"
-            android:padding="16dp">
+            style="@style/SettingsSwitchItem">
 
             <TextView
                 android:layout_width="0dp"
@@ -296,8 +280,9 @@
                 android:text="@string/vibration"
                 android:textColor="?android:attr/textColorPrimary"/>
 
-            <Switch
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/vibration_switch"
+                style="@style/CustomSwitchStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
@@ -305,7 +290,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/language_section"
+            android:text="@string/appearance_section"
             android:textSize="18sp"
             android:textColor="?android:attr/textColorPrimary"
             android:textStyle="bold"
@@ -313,29 +298,107 @@
             android:layout_marginBottom="8dp"/>
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:id="@+id/language_item"
-            android:padding="16dp">
+            android:id="@+id/fullscreen_item"
+            style="@style/SettingsSwitchItem">
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/language"
+                android:layout_weight="1"
+                android:text="@string/fullscreen_mode"
                 android:textColor="?android:attr/textColorPrimary"/>
 
-            <TextView
-                android:id="@+id/current_language_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="?android:attr/textColorSecondary"
-                android:layout_marginTop="4dp"/>
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/fullscreen_switch"
+                style="@style/CustomSwitchStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
         </LinearLayout>
 
-        <!-- Ref Section -->
+        <LinearLayout
+            android:id="@+id/theme_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/theme_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/theme"
+                    android:textSize="14sp"
+                    android:textColor="?android:attr/textColorPrimary"/>
+
+                <TextView
+                    android:id="@+id/current_theme_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:layout_marginTop="2dp"/>
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_chevron_right"
+                android:contentDescription="@string/chevron_description"
+                app:tint="?android:attr/textColorSecondary"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/language_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/language_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/language"
+                    android:textSize="14sp"
+                    android:textColor="?android:attr/textColorPrimary"/>
+
+                <TextView
+                    android:id="@+id/current_language_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:layout_marginTop="2dp"/>
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_chevron_right"
+                android:contentDescription="@string/chevron_description"
+                app:tint="?android:attr/textColorSecondary"/>
+        </LinearLayout>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -347,12 +410,13 @@
             android:layout_marginBottom="8dp"/>
 
         <LinearLayout
+            android:id="@+id/faq_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:id="@+id/faq_item"
+            android:focusable="true"
             android:padding="16dp">
 
             <TextView
@@ -363,12 +427,13 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/policy_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:id="@+id/policy_item"
+            android:focusable="true"
             android:padding="16dp">
 
             <TextView
@@ -379,12 +444,13 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/support_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:id="@+id/support_item"
+            android:focusable="true"
             android:padding="16dp">
 
             <TextView
@@ -394,16 +460,15 @@
                 android:textColor="?android:attr/textColorPrimary"/>
         </LinearLayout>
 
-        <!-- Version -->
         <TextView
+            android:id="@+id/version_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/version"
             android:textSize="14sp"
             android:textColor="?android:attr/textColorSecondary"
             android:gravity="center"
-            android:layout_marginTop="24dp"
-            android:id="@+id/version_text"/>
+            android:layout_marginTop="24dp"/>
 
     </LinearLayout>
 </ScrollView>

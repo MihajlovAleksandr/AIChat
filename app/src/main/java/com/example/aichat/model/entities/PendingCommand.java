@@ -13,8 +13,8 @@ public class PendingCommand {
 
     private String command;
 
-    public PendingCommand(Command command) {
-        this.command = JsonHelper.Serialize(command);
+    public PendingCommand(WSSCommand WSSCommand) {
+        this.command = JsonHelper.Serialize(WSSCommand);
     }
 
     public PendingCommand() {}
@@ -35,7 +35,7 @@ public class PendingCommand {
         this.command = commandJson;
     }
 
-    public Command getCommandFormat() {
-        return JsonHelper.Deserialize(command, Command.class);
+    public WSSCommand getCommandFormat() {
+        return JsonHelper.Deserialize(command, WSSCommand.class);
     }
 }

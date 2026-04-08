@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/big_circle_root"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:layout_margin="32dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="@drawable/bg_circle_ripple">
+
+    <TextView
+        android:id="@+id/big_circle_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/menu_create_chat"
+        android:textColor="#FFFFFF"
+        android:layout_gravity="center"/>
+</FrameLayout>

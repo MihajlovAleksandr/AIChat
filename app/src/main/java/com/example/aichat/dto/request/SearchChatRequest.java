@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SearchChatRequest {
     public final ChatType chatType;
+    public final String chatMatchPredicate = "AllMatch";
 
     @JsonCreator
     public SearchChatRequest(@JsonProperty("chatType") ChatType chatType) {

@@ -1,8 +1,5 @@
 <resources>
-    <!-- App Info -->
     <string name="app_name">AIChat</string>
-
-    <!-- Common UI -->
     <string name="close_button_description">Close</string>
     <string name="back_button_description">Back</string>
     <string name="options_button_description">More options</string>
@@ -11,13 +8,9 @@
     <string name="send_button">Send</string>
     <string name="update_button">Update</string>
     <string name="logout">Logout</string>
-
-    <!-- Fragments -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
-    <!-- Language Selection -->
     <string name="language">Language</string>
     <string name="select_language">Select language</string>
     <string name="no_devices">Your devices will be here</string>
@@ -27,7 +20,6 @@
     <string name="no_about">Here will be information about you</string>
     <string name="no_preference">Here will be your preferences</string>
     <string name="no_email">Your email address will be here.</string>
-    <!-- Authentication -->
     <string name="email_hint">Enter email</string>
     <string name="new_password_hint">Enter new password</string>
     <string name="password_hint">Enter password</string>
@@ -41,8 +33,6 @@
     <string name="chat_created">Chat was created</string>
     <string name="chat_ended">Chat was ended</string>
     <string name="you">You</string>
-
-    <!-- Profile Settings -->
     <string name="name_hint">Name</string>
     <string name="age_hint">Age</string>
     <string name="min_age_hint">Minimum age</string>
@@ -52,36 +42,27 @@
     <string name="gender_female">Female</string>
     <string name="gender_any">Any</string>
     <string name="scan_me">Scan me</string>
-
     <string name="email" translatable="false">Email</string>
-
-
-    <!-- Chat -->
     <string name="chat_members_title">Chat members</string>
     <string name="message_hint">Type a message</string>
     <string name="end_chat_menu">End chat</string>
     <string name="view_members_menu">Members</string>
     <string name="search_words_menu">Search words</string>
-
-    <!-- Field Information -->
+    <string name="export_chat">Export chat</string>
     <string name="age_info_description">Age field information</string>
     <string name="name_info_description">Name field information</string>
     <string name="min_age_info">What is the minimum age you prefer for a chat partner? Enter a number, e.g., 18. This will help us find people you can chat with comfortably.</string>
     <string name="max_age_info">What is the maximum age you prefer for a chat partner? Enter a number, e.g., 23. This will help us find people you can chat with comfortably.</string>
     <string name="name_popup_info">How would you like to be addressed? Enter your name, nickname, or any preferred label. Ensure it is comfortable and convenient for you.</string>
     <string name="age_popup_info">How old are you? Simply enter a number, e.g., 19. It isn\'t necessary to be entirely truthful (we\'re all 18), but keep in mind that this helps us match you with interesting people.</string>
-
-    <!-- Validation Errors -->
     <string name="invalid_email_error">Please enter a valid email address</string>
-    <string name="invalid_password_error">Password must contain at least 8 characters, including uppercase and lowercase letters, numbers and special characters</string>
+    <string name="invalid_password_error">Password must contain\nat least 8 characters,\nincluding uppercase and\nlowercase letters, numbers\nand special characters</string>
     <string name="age_range_error">Age must be between 18 and 120 years</string>
     <string name="max_age_error">Maximum age must be greater than minimum age</string>
     <string name="min_age_error">Minimum age must be less than maximum age</string>
     <string name="password_mismatch_error">Passwords don\'t match</string>
     <string name="email_in_use_error">Email is already in use</string>
     <string name="name_validation_error">Name must contain between 1 and 50 characters</string>
-
-    <!-- Settings -->
     <string name="profile_section">Profile</string>
     <string name="change_password">Change password</string>
     <string name="devices">Devices</string>
@@ -110,7 +91,6 @@
     <string name="offline">Offline</string>
     <string name="Online">Online</string>
     <string name="terminate_button">Terminate all other sessions</string>
-    <!-- Notification Strings -->
     <string name="notifications_permission_denied_message">Notifications will remain disabled without permission</string>
     <string name="browser_not_found">Browser not found</string>
     <string name="email_app_not_found">Email app not found</string>
@@ -130,4 +110,108 @@
     <string name="search_human_prompt">Human</string>
     <string name="search_ai_prompt">AI</string>
     <string name="search_random_prompt">Random</string>
+    <string name="search_group_prompt">Group</string>
+    <string name="manage_users">Manage users</string>
+    <string name="add_new_member">Add member</string>
+    <string name="remove_member_description">Remove member</string>
+    <string name="add_user_to_chat_prompt">Join a group</string>
+    <string name="create_chat_prompt">Create chat</string>
+    <string name="cancel_chat_searching">Cancel chat search</string>
+    <string name="cancel_user_adding">Cancel group search</string>
+    <string name="searching_chat_user">Searching for a participant for %s</string>
+    <string name="chat_link">chat</string>
+    <string name="this_chat">this chat</string>
+    <string name="cancel">Cancel</string>
+    <string name="searching_new_group">Searching new group</string>
+    <string name="rename_chat">Rename chat</string>
+    <string name="delete_chat">Delete chat</string>
+    <string name="enter_new_chat_name">Enter new chat name</string>
+    <string name="language_mark">ENG</string>
+    <string name="sign_in_title">Sign in</string>
+    <string name="sign_in_subtitle">Please enter your email and password.</string>
+    <string name="login_by_qr">Log in by QR code</string>
+    <string name="registration">Registration</string>
+    <string name="facebook_login_desc" translatable="false">Login with Facebook</string>
+    <string name="google_login_desc" translatable="false">Login with Google</string>
+    <string name="instagram_login_desc" translatable="false">Login with Instagram</string>
+    <string name="change_language_desc">Change application language</string>
+    <string name="registration_title">Registration</string>
+    <string name="registration_subtitle">Enter your details to create a new account</string>
+    <string name="verify_email_title">Verify Your Email</string>
+    <string name="verify_email_subtitle">Enter the 6-digit code sent to your email</string>
+    <string name="already_account">Already have an account?</string>
+    <string name="login_text">Login</string>
+    <string name="already_account_prompt">Already have an account? <b>Login</b></string>
+    <string name="already_account_prefix">Already have an account?</string>
+    <string name="camera_permission_required">Camera permission is required to scan QR codes</string>
+    <string name="scan_success_sound_description">QR code scanned successfully</string>
+    <string name="personal_data_title">Personal Data</string>
+    <string name="personal_data_subtitle">Enter your details</string>
+    <string name="filter_title">Preferences</string>
+    <string name="filter_subtitle">Select the preferred age and gender of interlocutors</string>
+    <string name="otp_hint_1">1</string>
+    <string name="otp_hint_2">2</string>
+    <string name="otp_hint_3">3</string>
+    <string name="otp_hint_4">4</string>
+    <string name="otp_hint_5">5</string>
+    <string name="otp_hint_6">6</string>
+    <string name="desc_btn_back">Back</string>
+    <string name="desc_btn_flash">Toggle Flash</string>
+    <string name="facebook_login_not_implemented">Facebook login (not implemented yet)</string>
+    <string name="instagram_login_not_implemented">Instagram login (not implemented yet)</string>
+    <string name="qr_login_result">QR: %1$s</string>
+    <string name="login_error_account_not_exist">Invalid login or password. Please try again.</string>
+    <string name="back_button_desc">Back</string>
+    <string name="verify_code_error">You entered an incorrect verification code. Please try again.</string>
+    <string name="settings_button">Settings</string>
+    <string name="search_button">Search</string>
+    <string name="back_button">Back</string>
+    <string name="search_hint">Type to search</string>
+    <string name="search_input">Search input field</string>
+    <string name="search_button_action">Search</string>
+    <string name="menu_create_chat">Create chat</string>
+    <string name="menu_join_group">Join a group</string>
+    <string name="chat_human">Human</string>
+    <string name="chat_ai">AI</string>
+    <string name="chat_random">Random</string>
+    <string name="chat_group">Group</string>
+    <string name="join_group">Join a group</string>
+    <string name="back">Back</string>
+    <string name="menu">Menu</string>
+    <string name="chat_join_group">Join group</string>
+    <string name="chat_single">Single person</string>
+    <string name="choose_with_whom">Choose with whom?</string>
+    <string name="show_my_qr">Show My QR Code</string>
+    <string name="theme">Theme</string>
+    <string name="qr_image_description">QR code image</string>
+    <string name="show_qr_prompt">Tap to show your QR code</string>
+    <string name="close">Close</string>
+    <string name="your_qr_code">Your QR code</string>
+    <string name="close_qr_button">Close QR code window</string>
+    <string name="qr_code_image">QR code image</string>
+    <string name="change_password_title">Change Password</string>
+    <string name="change_password_subtitle">Enter your current password and new password below</string>
+    <string name="fullscreen_mode">Fullscreen mode</string>
+    <string name="preference_skip_title">Skip preference setup</string>
+    <string name="preference_skip_message">You can set your preferences later in the settings.</string>
+    <string name="preference_skip_ok">OK</string>
+    <string name="save_button">Save</string>
+    <string name="search_counter">%1$d of %2$d</string>
+    <string name="search_counter_empty">No results</string>
+    <string name="member_details">%1$s, %2$d</string>
+    <string name="connection_restored">Connection restored</string>
+    <string name="connection_lost">No connection</string>
+    <string name="language_applied">Language changed</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="language_arrow_description">Open language selection</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_system">System default</string>
+    <string name="select_theme">Choose theme</string>
+    <string name="appearance_section">Appearance</string>
+    <string name="chevron_description">Open</string>
+    <string name="pin_chat">Pin chat</string>
+    <string name="unpin_chat">Unpin chat</string>
+
+
 </resources>

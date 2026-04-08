@@ -1,16 +1,20 @@
 package com.example.aichat;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.net.Uri;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
-import android.widget.CompoundButton;
+import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.Switch;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.example.aichat.dto.request.DeleteConnectionRequest;
 import com.example.aichat.dto.request.SetNotificationRequest;
@@ -23,53 +27,82 @@ import com.example.aichat.model.LocaleManager;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.OnConnectionEvents;
-import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.entities.Preference;
 import com.example.aichat.model.entities.UserData;
+import com.example.aichat.model.entities.WSSCommand;
 import com.example.aichat.model.notifications.NotificationSettingsManager;
-import com.example.aichat.model.notifications.NotificationSettingsManager.NotificationCallback;
 import com.example.aichat.model.utils.JsonHelper;
 import com.example.aichat.model.utils.mappers.MapperResponse;
 import com.example.aichat.model.utils.mappers.PreferenceMapper;
 import com.example.aichat.model.utils.mappers.UserDataMapper;
+import com.example.aichat.util.HoneycombRevealView;
 import com.example.aichat.view.BaseActivity;
+import com.example.aichat.view.FullScreenHelper;
 import com.example.aichat.view.PreferenceActivity;
 import com.example.aichat.view.UserDataActivity;
+import com.example.aichat.view.main.MainActivity;
+import com.google.android.material.materialswitch.MaterialSwitch;
 
 public class SettingsActivity extends BaseActivity {
-    private static final String WEBSITE_URL = "https://mihajlovaleksandr.github.io/AIChatSite/";
-    private static final String SUPPORT_EMAIL = "aichatcorp@gmail.com";
-    private Switch showEmailNotificationsSwitch;
-    private Switch showNotificationsSwitch;
-    private Switch backgroundNotificationsSwitch;
-    private Switch inAppNotificationsSwitch;
-    private Switch vibrationSwitch;
+
+    private MaterialSwitch showEmailNotificationsSwitch;
+    private MaterialSwitch showNotificationsSwitch;
+    private MaterialSwitch backgroundNotificationsSwitch;
+    private MaterialSwitch inAppNotificationsSwitch;
+    private MaterialSwitch vibrationSwitch;
+    private MaterialSwitch fullscreenSwitch;
+
+    private TextView currentLanguageText;
+    private TextView currentThemeText;
+    private ScrollView scrollView;
+    private int savedScrollY = 0;
+
     private boolean isProgrammaticChange = false;
+    private SharedPreferences prefs;
+
     private ConnectionManager connectionManager;
-    private TextView emailText, devicesText, userDataText, preferenceText;
     private OnConnectionEvents events;
     private UserData userData;
     private Preference preference;
     private final MapperResponse<Preference, PreferenceResponse> preferenceMapper = new PreferenceMapper();
     private final MapperResponse<UserData, UserDataResponse> userDataMapper = new UserDataMapper();
 
+    private TextView emailText, devicesText, userDataText, preferenceText;
+    private int emailClickCount = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
 
+        prefs = getSharedPreferences("settings_prefs", MODE_PRIVATE);
+        savedScrollY = prefs.getInt("settings_scroll_y", 0);
         connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
 
+        applyTheme(prefs.getString("app_theme", "system"));
+
+        setContentView(R.layout.activity_settings);
+
         initializeViews();
+        restoreScrollPosition();
+
         setupConnectionEvents();
         setupClickListeners();
+        setupNotificationSection();
         loadNotificationSettings();
+        loadFullscreenSetting();
+        updateCurrentLanguageText();
+        updateCurrentThemeText();
 
-        connectionManager.SendCommand(new Command("GetSettingsInfo"));
+        if (connectionManager != null) {
+            connectionManager.SendCommand(new WSSCommand("GetSettingsInfo"));
+        }
+
         NotificationSettingsManager.requestNotificationPermissionIfNeeded(this);
     }
 
     private void initializeViews() {
+        scrollView = findViewById(R.id.settings_scroll);
+
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(v -> finish());
 
@@ -86,173 +119,288 @@ public class SettingsActivity extends BaseActivity {
         backgroundNotificationsSwitch = findViewById(R.id.background_notifications_switch);
         inAppNotificationsSwitch = findViewById(R.id.in_app_notifications_switch);
         vibrationSwitch = findViewById(R.id.vibration_switch);
+        fullscreenSwitch = findViewById(R.id.fullscreen_switch);
+        currentLanguageText = findViewById(R.id.current_language_text);
+        currentThemeText = findViewById(R.id.current_theme_text);
+
+        findViewById(R.id.language_item).setOnClickListener(v -> showLanguageSelectionDialog());
+        findViewById(R.id.theme_item).setOnClickListener(v -> showThemeSelectionDialog());
+
+        fullscreenSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefs.edit().putBoolean("fullscreen_mode", isChecked).apply();
+            if (isChecked) FullScreenHelper.enableFullScreen(getWindow());
+            else restoreSystemUI();
+        });
+    }
+
+    private void applyTheme(String mode) {
+        switch (mode) {
+            case "light":
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
+            case "dark":
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
+            default:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                break;
+        }
+    }
+
+    private void restoreSystemUI() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            getWindow().setDecorFitsSystemWindows(true);
+            WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                controller.show(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+            }
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        }
+    }
+
+    private void restoreScrollPosition() {
+        scrollView.post(() -> scrollView.scrollTo(0, savedScrollY));
+    }
+
+    private void saveScrollPosition() {
+        prefs.edit().putInt("settings_scroll_y", scrollView.getScrollY()).apply();
+    }
+
+    private void loadFullscreenSetting() {
+        boolean isFullscreen = prefs.getBoolean("fullscreen_mode", true);
+        fullscreenSwitch.setChecked(isFullscreen);
+        if (isFullscreen) FullScreenHelper.enableFullScreen(getWindow());
+    }
+
+    private void updateCurrentLanguageText() {
+        String[] languages = getResources().getStringArray(R.array.languages);
+        String[] codes = getResources().getStringArray(R.array.language_codes);
+        String currentLang = LocaleManager.getLocale(this).getLanguage();
+        for (int i = 0; i < codes.length; i++) {
+            if (codes[i].equals(currentLang)) {
+                currentLanguageText.setText(languages[i]);
+                return;
+            }
+        }
+        currentLanguageText.setText(languages[0]);
+    }
+
+    private void updateCurrentThemeText() {
+        String mode = prefs.getString("app_theme", "system");
+        switch (mode) {
+            case "light":
+                currentThemeText.setText(getString(R.string.theme_light));
+                break;
+            case "dark":
+                currentThemeText.setText(getString(R.string.theme_dark));
+                break;
+            default:
+                currentThemeText.setText(getString(R.string.theme_system));
+                break;
+        }
+    }
+
+    private void showLanguageSelectionDialog() {
+        String[] languages = getResources().getStringArray(R.array.languages);
+        String[] codes = getResources().getStringArray(R.array.language_codes);
+        String currentLang = LocaleManager.getLocale(this).getLanguage();
+
+        int currentIndex = 0;
+        for (int i = 0; i < codes.length; i++) {
+            if (codes[i].equals(currentLang)) currentIndex = i;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.select_language)
+                .setSingleChoiceItems(languages, currentIndex, (dialog, which) -> {
+                    String selectedLang = codes[which];
+                    if (!selectedLang.equals(currentLang)) {
+                        prefs.edit().putString("app_language", selectedLang).apply();
+                        LocaleManager.setLocale(this, selectedLang);
+
+                        if (connectionManager != null && events != null) {
+                            connectionManager.removeConnectionEvent(events);
+                            events = null;
+                        }
+
+                        dialog.dismiss();
+
+                        HoneycombRevealView honey = new HoneycombRevealView(this);
+                        addContentView(honey, new FrameLayout.LayoutParams(
+                                FrameLayout.LayoutParams.MATCH_PARENT,
+                                FrameLayout.LayoutParams.MATCH_PARENT
+                        ));
+                        honey.start(false, () -> restartAppTo(MainActivity.class));
+                    } else dialog.dismiss();
+                }).show();
+    }
+
+    private void showThemeSelectionDialog() {
+        String[] themes = getResources().getStringArray(R.array.theme_modes);
+        String[] values = getResources().getStringArray(R.array.theme_mode_values);
+
+        String current = prefs.getString("app_theme", "system");
+        int currentIndex = 0;
+
+        for (int i = 0; i < values.length; i++) {
+            if (values[i].equals(current)) {
+                currentIndex = i;
+                break;
+            }
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.select_theme)
+                .setSingleChoiceItems(themes, currentIndex, (dialog, which) -> {
+                    String selected = values[which];
+                    if (!selected.equals(current)) {
+                        prefs.edit().putString("app_theme", selected).apply();
+                        applyTheme(selected);
+
+                        if (connectionManager != null && events != null) {
+                            connectionManager.removeConnectionEvent(events);
+                            events = null;
+                        }
+
+                        dialog.dismiss();
+
+                        HoneycombRevealView honey = new HoneycombRevealView(this);
+                        addContentView(honey, new FrameLayout.LayoutParams(
+                                FrameLayout.LayoutParams.MATCH_PARENT,
+                                FrameLayout.LayoutParams.MATCH_PARENT
+                        ));
+                        honey.start(false, () -> restartAppTo(MainActivity.class));
+                    } else dialog.dismiss();
+                })
+                .show();
     }
 
     private void loadNotificationSettings() {
         isProgrammaticChange = true;
-
         showNotificationsSwitch.setChecked(NotificationSettingsManager.areNotificationsEnabled(this));
         backgroundNotificationsSwitch.setChecked(NotificationSettingsManager.areBackgroundNotificationsEnabled(this));
         inAppNotificationsSwitch.setChecked(NotificationSettingsManager.areInAppNotificationsEnabled(this));
         vibrationSwitch.setChecked(NotificationSettingsManager.isVibrationEnabled(this));
-
         isProgrammaticChange = false;
     }
 
     private void setupConnectionEvents() {
+        if (connectionManager == null) return;
+        if (events != null) connectionManager.removeConnectionEvent(events);
+
         events = new OnConnectionEvents() {
             @Override
-            public void OnCommandGot(Command command) {
+            public void OnCommandGot(WSSCommand cmd) {
                 runOnUiThread(() -> {
-                    switch (command.getOperation()) {
+                    switch (cmd.getOperation()) {
                         case "GetSettingsInfo":
                             isProgrammaticChange = true;
-                            SettingsInfoResponse settingsInfoResponse = command.getData(SettingsInfoResponse.class);
-                            emailText.setText(settingsInfoResponse.email);
-                            preference = preferenceMapper.ToModel(settingsInfoResponse.preference);
-                            userData = userDataMapper.ToModel(settingsInfoResponse.userData);
+                            SettingsInfoResponse info = cmd.getData(SettingsInfoResponse.class);
+                            emailText.setText(info.email);
+                            preference = preferenceMapper.ToModel(info.preference);
+                            userData = userDataMapper.ToModel(info.userData);
                             preferenceText.setText(preference.toString());
                             userDataText.setText(userData.toString());
-                            int[] devicesCount = settingsInfoResponse.connectionCount;
+                            int[] devicesCount = info.connectionCount;
                             devicesText.setText(getString(R.string.device_status, devicesCount[0], devicesCount[1]));
-                            showEmailNotificationsSwitch.setChecked(settingsInfoResponse.notifications.emailNotificationsEnabled);
-
+                            showEmailNotificationsSwitch.setChecked(info.notifications.emailNotificationsEnabled);
                             isProgrammaticChange = false;
                             break;
                         case "PreferenceUpdated":
-                            preference = preferenceMapper.ToModel(command.getData(PreferenceResponse.class));
+                            preference = preferenceMapper.ToModel(cmd.getData(PreferenceResponse.class));
                             preferenceText.setText(preference.toString());
                             break;
                         case "UserDataUpdated":
-                            userData = userDataMapper.ToModel(command.getData(UserDataResponse.class));
+                            userData = userDataMapper.ToModel(cmd.getData(UserDataResponse.class));
                             userDataText.setText(userData.toString());
                             break;
-                        case "DeleteConnection":
                         case "ConnectionsChange":
-                            int[] devices = command.getData(ConnectionChangeResponse.class).count;
+                        case "DeleteConnection":
+                            int[] devices = cmd.getData(ConnectionChangeResponse.class).count;
                             devicesText.setText(getString(R.string.device_status, devices[0], devices[1]));
                             break;
                         case "UpdateNotifications":
                             isProgrammaticChange = true;
-
-                            showEmailNotificationsSwitch.setChecked(command.getData(NotificationResponse.class).emailNotificationsEnabled);
+                            showEmailNotificationsSwitch.setChecked(
+                                    cmd.getData(NotificationResponse.class).emailNotificationsEnabled
+                            );
                             isProgrammaticChange = false;
                             break;
                     }
                 });
             }
-
-            @Override
-            public void OnConnectionFailed() {}
-
-            @Override
-            public void OnOpen() {}
+            @Override public void OnConnectionFailed() {}
+            @Override public void OnOpen() {}
         };
         connectionManager.addConnectionEvent(events);
     }
 
     private void setupClickListeners() {
-        setupProfileSection();
-        setupNotificationSection();
-        setupLanguageSection();
-        setupReferenceSection();
-    }
-
-    private void setupProfileSection() {
-        // Изменение пароля
+        findViewById(R.id.profile_email_item).setOnClickListener(v -> handleEmailClicks());
         findViewById(R.id.change_password_item).setOnClickListener(v -> {
-            if (userData != null) {
-                startActivity(new Intent(this, ChangePasswordActivity.class));
-            }
+            if (userData != null) startActivity(new Intent(this, ChangePasswordActivity.class));
         });
-
-        // Устройства
         findViewById(R.id.devices_item).setOnClickListener(v ->
                 startActivity(new Intent(this, DevicesActivity.class)));
-
-        // Данные пользователя
         findViewById(R.id.userData_item).setOnClickListener(v -> {
-            if (userData != null) {
-                startActivity(new Intent(this, UserDataActivity.class)
-                        .putExtra("userData", JsonHelper.Serialize(userData)));
-            }
+            if (userData != null) startActivity(new Intent(this, UserDataActivity.class)
+                    .putExtra("userData", JsonHelper.Serialize(userData)));
         });
-
-        // Настройки
         findViewById(R.id.preference_item).setOnClickListener(v -> {
-            if (preference != null) {
-                startActivity(new Intent(this, PreferenceActivity.class)
-                        .putExtra("preference", JsonHelper.Serialize(preference)));
-            }
+            if (preference != null) startActivity(new Intent(this, PreferenceActivity.class)
+                    .putExtra("preference", JsonHelper.Serialize(preference)));
         });
-
-        // Выход
         findViewById(R.id.logout_item).setOnClickListener(v ->
-                connectionManager.SendCommand(new Command("DeleteConnection", new DeleteConnectionRequest(null))));
+                connectionManager.SendCommand(new WSSCommand("DeleteConnection", new DeleteConnectionRequest(null))));
     }
 
     private void setupNotificationSection() {
-        // Email уведомления
         showEmailNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isProgrammaticChange) return;
-
-            Command command = new Command("UpdateNotifications", new SetNotificationRequest(isChecked));
-            connectionManager.SendCommand(command);
+            connectionManager.SendCommand(new WSSCommand("UpdateNotifications", new SetNotificationRequest(isChecked)));
         });
 
-        // Основные уведомления
         showNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isProgrammaticChange) return;
 
             NotificationSettingsManager.setNotificationsEnabled(this, isChecked);
-
             isProgrammaticChange = true;
+
             if (!isChecked) {
-                // Отключаем все связанные уведомления
                 showEmailNotificationsSwitch.setChecked(false);
                 backgroundNotificationsSwitch.setChecked(false);
                 inAppNotificationsSwitch.setChecked(false);
                 vibrationSwitch.setChecked(false);
 
-                // Сохраняем изменения
                 NotificationSettingsManager.setBackgroundNotificationsEnabled(this, false);
                 NotificationSettingsManager.setInAppNotificationsEnabled(this, false);
                 NotificationSettingsManager.setVibrationEnabled(this, false);
 
-                // Отправляем команду для email уведомлений
-                Command command = new Command("UpdateNotifications", new SetNotificationRequest(false));
-                connectionManager.SendCommand(command);
-            } else {
-                NotificationSettingsManager.requestNotificationPermissionIfNeeded(this);
-            }
+                connectionManager.SendCommand(new WSSCommand("UpdateNotifications", new SetNotificationRequest(false)));
+            } else NotificationSettingsManager.requestNotificationPermissionIfNeeded(this);
+
             isProgrammaticChange = false;
         });
 
-
         backgroundNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isProgrammaticChange) return;
-
             if (isChecked && !showNotificationsSwitch.isChecked()) {
                 isProgrammaticChange = true;
                 backgroundNotificationsSwitch.setChecked(false);
                 isProgrammaticChange = false;
                 Toast.makeText(this, R.string.enable_notifications_first, Toast.LENGTH_SHORT).show();
-            } else {
-                NotificationSettingsManager.setBackgroundNotificationsEnabled(this, isChecked);
-            }
+            } else NotificationSettingsManager.setBackgroundNotificationsEnabled(this, isChecked);
         });
 
         inAppNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isProgrammaticChange) return;
-
             if (isChecked && !showNotificationsSwitch.isChecked()) {
                 isProgrammaticChange = true;
                 inAppNotificationsSwitch.setChecked(false);
                 isProgrammaticChange = false;
                 Toast.makeText(this, R.string.enable_notifications_first, Toast.LENGTH_SHORT).show();
-            } else {
-                NotificationSettingsManager.setInAppNotificationsEnabled(this, isChecked);
-            }
+            } else NotificationSettingsManager.setInAppNotificationsEnabled(this, isChecked);
         });
 
         vibrationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -262,123 +410,35 @@ public class SettingsActivity extends BaseActivity {
                 vibrationSwitch.setChecked(false);
                 isProgrammaticChange = false;
                 Toast.makeText(this, R.string.enable_notifications_first, Toast.LENGTH_SHORT).show();
-            } else {
-                NotificationSettingsManager.setVibrationEnabled(this, isChecked);
-            }
+            } else NotificationSettingsManager.setVibrationEnabled(this, isChecked);
         });
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    private void handleEmailClicks() {
+        emailClickCount++;
+        prefs.edit().putInt("email_click_count", emailClickCount).apply();
 
-        NotificationSettingsManager.handlePermissionResult(
-                this,
-                requestCode,
-                grantResults,
-                new NotificationCallback() {
-                    @Override
-                    public void onPermissionResult(boolean granted) {
-                        if (!granted) {
-                            isProgrammaticChange = true;
-                            showNotificationsSwitch.setChecked(false);
-                            isProgrammaticChange = false;
-                            Toast.makeText(SettingsActivity.this,
-                                    R.string.notifications_permission_denied,
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
-    private void setupLanguageSection() {
-        TextView currentLanguageText = findViewById(R.id.current_language_text);
-        currentLanguageText.setText(getCurrentLanguageName());
-
-        findViewById(R.id.language_item).setOnClickListener(v ->
-                showLanguageSelectionDialog());
-    }
-
-    private void showLanguageSelectionDialog() {
-        String currentLanguage = LocaleManager.getLocale(this).getLanguage();
-        String[] languageCodes = getResources().getStringArray(R.array.language_codes);
-        String[] languageNames = getResources().getStringArray(R.array.languages);
-
-        int checkedItem = 0;
-        for (int i = 0; i < languageCodes.length; i++) {
-            if (languageCodes[i].equals(currentLanguage)) {
-                checkedItem = i;
-                break;
-            }
-        }
-
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.select_language)
-                .setSingleChoiceItems(languageNames, checkedItem, null)
-                .setPositiveButton(R.string.send_button, (dialog, which) -> {
-                    int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-                    if (selectedPosition >= 0) {
-                        changeLanguage(languageCodes[selectedPosition]);
-                    }
-                })
-                .setNegativeButton(R.string.close_button_description, null)
-                .show();
-    }
-
-    private void changeLanguage(String language) {
-        LocaleManager.setLocale(this, language);
-        restartApp();
-    }
-
-    private void setupReferenceSection() {
-        // FAQ
-        findViewById(R.id.faq_item).setOnClickListener(v ->
-                openWebPage(WEBSITE_URL + "faq.html"));
-
-        // Политика конфиденциальности
-        findViewById(R.id.policy_item).setOnClickListener(v ->
-                openWebPage(WEBSITE_URL + "privacy.html"));
-
-        // Поддержка
-        findViewById(R.id.support_item).setOnClickListener(v ->
-                sendEmail(SUPPORT_EMAIL, "Support request"));
-    }
-
-    private void openWebPage(String url) {
-        try {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(this, getString(R.string.browser_not_found), Toast.LENGTH_SHORT).show();
+        if (emailClickCount == 10) showEasterEggToast("Ну чего ты щёлкаешь как дятел?!");
+        else if (emailClickCount == 20) showEasterEggToast("Тебе настолько нечего делать что-ли...?");
+        else if (emailClickCount == 30) showEasterEggToast("Только попробуй ещё раз... :)");
+        else if (emailClickCount >= 31) {
+            prefs.edit().putInt("email_click_count", 0).apply();
+            finishAffinity();
+            System.exit(0);
         }
     }
 
-    private void sendEmail(String email, String subject) {
-        try {
-            startActivity(new Intent(Intent.ACTION_SENDTO)
-                    .setData(Uri.parse("mailto:" + email))
-                    .putExtra(Intent.EXTRA_SUBJECT, subject));
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(this, getString(R.string.email_app_not_found), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private String getCurrentLanguageName() {
-        String currentLanguage = LocaleManager.getLocale(this).getLanguage();
-        String[] languageCodes = getResources().getStringArray(R.array.language_codes);
-        String[] languageNames = getResources().getStringArray(R.array.languages);
-
-        for (int i = 0; i < languageCodes.length; i++) {
-            if (languageCodes[i].equals(currentLanguage)) {
-                return languageNames[i];
-            }
-        }
-        return languageNames[0];
+    private void showEasterEggToast(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+        NotificationSettingsManager.playNotificationSound(this);
     }
 
     @Override
     protected void onDestroy() {
-        if (connectionManager != null) {
+        saveScrollPosition();
+        if (connectionManager != null && events != null) {
             connectionManager.removeConnectionEvent(events);
+            events = null;
         }
         super.onDestroy();
     }

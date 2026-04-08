@@ -2,7 +2,6 @@ package com.example.aichat.controller;
 
 import android.content.Intent;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
@@ -10,22 +9,25 @@ import android.widget.EditText;
 import com.example.aichat.R;
 import com.example.aichat.dto.request.RegistrationRequest;
 import com.example.aichat.model.LocaleManager;
+import com.example.aichat.model.entities.WSSCommand;
+import com.example.aichat.util.InputValidator;
 import com.example.aichat.view.RegistrationActivity;
-import com.example.aichat.model.entities.Command;
 import com.example.aichat.model.connection.ConnectionManager;
 import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.OnConnectionEvents;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class RegistrationController {
-    private RegistrationActivity activity;
-    private ConnectionManager connectionManager;
-    private PasswordController passwordController;
 
-    private TextInputLayout emailInputLayout;
-    private EditText emailEditText;
-    private Button registrationButton;
+    private final RegistrationActivity activity;
+    private final PasswordController passwordController;
+
+    private final TextInputLayout emailInputLayout;
+    private final EditText emailEditText;
+    private final Button registrationButton;
+
     private boolean isEmailValidFlag = false;
+    private final ConnectionManager connectionManager;
 
     public RegistrationController(RegistrationActivity activity,
                                   TextInputLayout emailInputLayout,
@@ -35,6 +37,7 @@ public class RegistrationController {
                                   EditText passwordEditText,
                                   EditText confirmPasswordEditText,
                                   Button registrationButton) {
+
         this.activity = activity;
         this.emailInputLayout = emailInputLayout;
         this.emailEditText = emailEditText;
@@ -48,11 +51,7 @@ public class RegistrationController {
                 this::enableRegistrationButton
         );
 
-        connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
-        if (connectionManager == null) {
-            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(""));
-            connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
-        }
+        this.connectionManager = new ConnectionManager("");
 
         setupConnectionCallbacks();
         setupEmailListener();
@@ -62,30 +61,39 @@ public class RegistrationController {
     }
 
     private void setupConnectionCallbacks() {
-        connectionManager.setConnectionEvent(new OnConnectionEvents() {
+
+        connectionManager.clearConnectionEvents();
+        connectionManager.addConnectionEvent(new OnConnectionEvents() {
+
             @Override
-            public void OnCommandGot(Command command) {
+            public void OnCommandGot(WSSCommand command) {
                 switch (command.getOperation()) {
+
                     case "EmailIsBusy":
-                        activity.runOnUiThread(() -> emailInputLayout.setError(activity.getString(R.string.email_in_use_error)));
+                        activity.runOnUiThread(() ->
+                                emailInputLayout.setError(activity.getString(R.string.email_in_use_error))
+                        );
                         break;
+
                     case "VerificationCodeSend":
                         ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
+
                         Intent intent = new Intent(activity, com.example.aichat.view.VerifyEmailActivity.class);
                         activity.startActivity(intent);
                         activity.finish();
-                        break;
-                    default:
                         break;
                 }
             }
 
             @Override
-            public void OnConnectionFailed() {}
+            public void OnConnectionFailed() {
+            }
 
             @Override
             public void OnOpen() {}
         });
+
+        connectionManager.connect();
     }
 
     private void setupEmailListener() {
@@ -97,32 +105,37 @@ public class RegistrationController {
         });
 
         emailEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 emailInputLayout.setError(null);
-                isEmailValidFlag = isEmailValid(s.toString().trim());
+                isEmailValidFlag = InputValidator.isEmailValid(s.toString().trim());
                 enableRegistrationButton();
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
+            @Override public void afterTextChanged(Editable s) {}
         });
     }
 
     private void setupRegistrationButton() {
         registrationButton.setOnClickListener(v -> {
             String email = emailEditText.getText().toString().trim();
-            Command command = new Command("Registration", new RegistrationRequest(email, passwordController.getPassword(), LocaleManager.getLocale(activity).toString()));
+
+            WSSCommand command = new WSSCommand(
+                    "Registration",
+                    new RegistrationRequest(
+                            email,
+                            passwordController.getPassword(),
+                            LocaleManager.getLocale(activity).toString()
+                    )
+            );
+
             connectionManager.SendCommand(command);
         });
     }
 
     private void validateEmail() {
         String email = emailEditText.getText().toString().trim();
-        if (!isEmailValid(email)) {
+        if (!InputValidator.isEmailValid(email)) {
             emailInputLayout.setError(activity.getString(R.string.invalid_email_error));
             isEmailValidFlag = false;
         } else {
@@ -132,13 +145,10 @@ public class RegistrationController {
     }
 
     private void enableRegistrationButton() {
-        registrationButton.setEnabled(isEmailValidFlag &&
-                passwordController.isPasswordValid() &&
-                passwordController.isConfirmPasswordValid());
-    }
-
-    private boolean isEmailValid(String email) {
-        String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,6}$";
-        return !TextUtils.isEmpty(email) && email.matches(emailPattern);
+        registrationButton.setEnabled(
+                isEmailValidFlag &&
+                        passwordController.isPasswordValid() &&
+                        passwordController.isConfirmPasswordValid()
+        );
     }
 }
