@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -185,6 +186,85 @@
                 android:text="@string/logout"
                 android:textColor="#FF0000"
                 android:textStyle="bold"/>
+        </LinearLayout>
+
+        <!-- Integrations Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/integrations"
+            android:textSize="16sp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"/>
+
+        <LinearLayout
+            android:id="@+id/integrations_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="12dp">
+
+            <!-- Google Integration - используем существующую иконку -->
+            <ImageView
+                android:id="@+id/integration_google"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_margin="8dp"
+                android:src="@mipmap/ic_google_foreground"
+                android:alpha="0.3"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="@drawable/bg_social_ripple"
+                android:scaleType="centerInside"
+                android:contentDescription="@string/integration_google_desc"/>
+
+            <!-- Instagram Integration - используем существующую иконку -->
+            <ImageView
+                android:id="@+id/integration_inst"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_margin="8dp"
+                android:src="@mipmap/ic_instagram_foreground"
+                android:alpha="0.3"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="@drawable/bg_social_ripple"
+                android:scaleType="centerInside"
+                android:contentDescription="@string/integration_instagram_desc"/>
+
+            <!-- Facebook Integration - используем существующую иконку -->
+            <ImageView
+                android:id="@+id/integration_facebook"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_margin="8dp"
+                android:src="@mipmap/ic_facebook_foreground"
+                android:alpha="0.3"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="@drawable/bg_social_ripple"
+                android:scaleType="centerInside"
+                android:contentDescription="@string/integration_facebook_desc"/>
+
+            <!-- Telegram Integration -->
+            <ImageView
+                android:id="@+id/integration_telegram"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_margin="8dp"
+                android:src="@drawable/ic_telegram"
+                android:alpha="0.3"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="@drawable/bg_social_ripple"
+                android:scaleType="centerInside"
+                android:contentDescription="@string/integration_telegram_desc"/>
+
         </LinearLayout>
 
         <TextView
@@ -397,6 +477,42 @@
                 android:src="@drawable/ic_chevron_right"
                 android:contentDescription="@string/chevron_description"
                 app:tint="?android:attr/textColorSecondary"/>
+        </LinearLayout>
+
+        <!-- Storage Item -->
+        <LinearLayout
+            android:id="@+id/storage_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/storage"
+                android:textColor="?android:attr/textColorPrimary"/>
+
+            <TextView
+                android:id="@+id/storage_summary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/storage_usage"
+                android:textColor="?android:attr/textColorSecondary"
+                android:layout_marginTop="4dp"/>
+
+            <ProgressBar
+                android:id="@+id/storage_progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:layout_marginTop="8dp"
+                android:max="100"
+                android:progress="0"
+                android:progressTint="#42969E"/>
         </LinearLayout>
 
         <TextView

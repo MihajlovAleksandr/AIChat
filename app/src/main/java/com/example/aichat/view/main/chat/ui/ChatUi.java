@@ -17,6 +17,7 @@ public class ChatUi {
     private final ChatFragment fragment;
     private final View root;
 
+    private ImageButton btnAttachFile;
     private ImageButton btnBack;
     private ImageButton btnOptions;
     private Button bSendMessage;
@@ -46,8 +47,6 @@ public class ChatUi {
     private boolean isEditMode = false;
     private boolean isReplyMode = false;
 
-    private static final int MENU_PIN_CHAT = 10001;
-    private static final int MENU_UNPIN_CHAT = 10002;
 
     public ChatUi(View root, ChatFragment fragment) {
         this.root = root;
@@ -62,6 +61,8 @@ public class ChatUi {
         bExportChat = root.findViewById(R.id.b_export_chat);
         tvChatEnded = root.findViewById(R.id.tv_chat_ended);
         tvChatTitle = root.findViewById(R.id.tv_chat_title);
+
+        btnAttachFile = root.findViewById(R.id.btn_attach_file);
 
         membersPanel = root.findViewById(R.id.membersPanel);
         invisibleClickArea = root.findViewById(R.id.invisibleClickArea);
@@ -85,14 +86,21 @@ public class ChatUi {
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> fragment.navigateBack());
         }
+
         if (btnOptions != null) {
             btnOptions.setOnClickListener(v -> fragment.onOptionsClick());
         }
+
         if (bSendMessage != null) {
             bSendMessage.setOnClickListener(v -> fragment.onSendMessageClick());
         }
+
         if (bExportChat != null) {
             bExportChat.setOnClickListener(v -> fragment.onExportChatClick());
+        }
+
+        if (btnAttachFile != null) {
+            btnAttachFile.setOnClickListener(v -> fragment.showAttachBottomSheet());
         }
 
         if (invisibleClickArea != null) {
@@ -116,12 +124,40 @@ public class ChatUi {
         if (bSendMessage != null) bSendMessage.setEnabled(false);
     }
 
+    /**
+     * Полностью блокирует ввод сообщений (когда чат завершён)
+     */
+    public void disableMessageInput() {
+        if (bSendMessage != null) {
+            bSendMessage.setEnabled(false);
+            bSendMessage.setAlpha(0.5f);
+        }
+        if (messageInput != null) {
+            messageInput.setEnabled(false);
+            messageInput.setAlpha(0.5f);
+        }
+        if (btnAttachFile != null) {
+            btnAttachFile.setEnabled(false);
+            btnAttachFile.setAlpha(0.5f);
+        }
+    }
+
     public void showChatEnded() {
         if (tvChatEnded != null) tvChatEnded.setVisibility(View.VISIBLE);
         if (bExportChat != null) bExportChat.setVisibility(View.VISIBLE);
-        if (bSendMessage != null) bSendMessage.setVisibility(View.GONE);
-        if (messageInput != null) messageInput.setVisibility(View.GONE);
+        if (bSendMessage != null) {
+            bSendMessage.setVisibility(View.GONE);
+            bSendMessage.setEnabled(false);
+        }
+        if (messageInput != null) {
+            messageInput.setVisibility(View.GONE);
+            messageInput.setEnabled(false);
+        }
         if (btnOptions != null) btnOptions.setEnabled(false);
+        if (btnAttachFile != null) {
+            btnAttachFile.setVisibility(View.GONE);
+            btnAttachFile.setEnabled(false);
+        }
     }
 
     public void toggleMembersPanel() {
@@ -227,6 +263,7 @@ public class ChatUi {
         messageInput.setText(current + "@" + name + " ");
         messageInput.setSelection(messageInput.getText().length());
     }
+
     public void showOptionsMenu() {
         if (btnOptions == null) return;
 
@@ -234,11 +271,6 @@ public class ChatUi {
         popupMenu.getMenuInflater().inflate(R.menu.chat_options_menu, popupMenu.getMenu());
         boolean pinned = fragment.getChat().isPinned();
 
-        if (!pinned) {
-            popupMenu.getMenu().add(0, MENU_PIN_CHAT, 100, "Закрепить чат");
-        } else {
-            popupMenu.getMenu().add(0, MENU_UNPIN_CHAT, 100, "Открепить чат");
-        }
 
         popupMenu.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
@@ -257,14 +289,6 @@ public class ChatUi {
             }
             if (id == R.id.menu_export_chat) {
                 fragment.onExportChatClick();
-                return true;
-            }
-            if (id == MENU_PIN_CHAT) {
-                fragment.onPinChatClick();
-                return true;
-            }
-            if (id == MENU_UNPIN_CHAT) {
-                fragment.onUnpinChatClick();
                 return true;
             }
 

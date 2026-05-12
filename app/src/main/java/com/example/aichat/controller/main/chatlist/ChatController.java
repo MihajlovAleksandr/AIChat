@@ -1,6 +1,5 @@
 package com.example.aichat.controller.main.chatlist;
 
-import com.example.aichat.controller.main.chat.MessageController;
 import com.example.aichat.model.entities.Chat;
 import com.example.aichat.model.entities.Message;
 import com.example.aichat.model.entities.MessageStatus;
@@ -54,12 +53,42 @@ public class ChatController {
         return result.toArray(new Message[0]);
     }
 
+    /**
+     * Получить максимальный статус из Map статусов
+     */
+    private static MessageStatus getMaxStatus(Map<UUID, MessageStatus> statuses) {
+        if (statuses == null || statuses.isEmpty()) {
+            return MessageStatus.SENT;
+        }
+
+        MessageStatus maxStatus = null;
+        for (MessageStatus status : statuses.values()) {
+            if (status == null) continue;
+            if (maxStatus == null || status.getPriority() > maxStatus.getPriority()) {
+                maxStatus = status;
+            }
+        }
+
+        return maxStatus != null ? maxStatus : MessageStatus.SENT;
+    }
+
     public static List<Message> getUnreadMessages(List<Message> messages, UUID userId) {
+        // Защита от null
+        if (messages == null || userId == null) {
+            return new ArrayList<>();
+        }
+
         List<Message> unread = new ArrayList<>();
 
         for (Message msg : messages) {
+            // Защита от null сообщения и null отправителя
+            if (msg == null || msg.getSender() == null) {
+                continue;
+            }
+
+            // Непрочитанные - это сообщения НЕ от текущего пользователя
             if (!msg.getSender().equals(userId)) {
-                MessageStatus status = MessageController.getMaxStatus(msg.getStatuses());
+                MessageStatus status = getMaxStatus(msg.getStatuses());
                 if (status != MessageStatus.READ) {
                     unread.add(msg);
                 }

@@ -24,6 +24,7 @@ public class ConnectionInfo implements Serializable {
     private String device;
 
     @JsonProperty
+    @Nullable
     private String lastOnline;
 
     public ConnectionInfo(UUID userId, String device) {
@@ -63,11 +64,12 @@ public class ConnectionInfo implements Serializable {
     }
 
     @JsonIgnore
+    @Nullable
     public String getLastOnline() {
         return lastOnline;
     }
 
-    public void setLastOnline(String lastOnline) {
+    public void setLastOnline(@Nullable String lastOnline) {
         this.lastOnline = lastOnline;
     }
 
@@ -93,5 +95,10 @@ public class ConnectionInfo implements Serializable {
             }
         }
         return false;
+    }
+
+    @JsonIgnore
+    public boolean isOnline(){
+        return lastOnline == null;
     }
 }

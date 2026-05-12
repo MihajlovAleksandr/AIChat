@@ -1,28 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- Login / TextInput attributes -->
     <attr name="login_button_text" format="reference|color"/>
     <attr name="login_button_tint" format="reference|color"/>
     <attr name="textinput_hint_selector" format="reference|color"/>
     <attr name="textinput_endicon_tint" format="reference|color"/>
+
+    <!-- Bottom navigation -->
     <attr name="bottomIconColor" format="color"/>
     <attr name="bottomTextColor" format="color"/>
+
+    <!-- Toolbar -->
     <attr name="toolbarIconColorCustom" format="color"/>
     <attr name="toolbarTextColorCustom" format="color"/>
-
-    <declare-styleable name="NeonTextView">
-    <attr name="neonBaseColor" format="color"/>
-    <attr name="neonBrightColor" format="color"/>
-    </declare-styleable>
-
     <attr name="toolbarBackground" format="reference|color"/>
     <attr name="toolbarTitleColor" format="reference|color"/>
     <attr name="toolbarIconColor" format="reference|color"/>
-    <attr name="dividerColor" format="reference|color"/>
+
+    <!-- Search -->
     <attr name="searchHintColor" format="reference|color"/>
     <attr name="searchTextColor" format="reference|color"/>
     <attr name="searchIconColor" format="reference|color"/>
-    <attr name="stateLayerColor" format="color" />
+
+    <!-- Misc -->
+    <attr name="dividerColor" format="reference|color"/>
+    <attr name="stateLayerColor" format="color"/>
     <attr name="chatCircleStroke" format="reference|color"/>
-    <attr name="bottomSheetOverlayColor" format="color" />
+    <attr name="bottomSheetOverlayColor" format="color"/>
+
+    <!-- NeonTextView -->
+    <declare-styleable name="NeonTextView">
+        <attr name="neonBaseColor" format="color"/>
+        <attr name="neonBrightColor" format="color"/>
+    </declare-styleable>
+
+
+    <!-- =============================== -->
+    <!--       DYNAMIC THEME SYSTEM      -->
+    <!-- =============================== -->
+
+    <!-- Основные динамические цвета -->
+    <attr name="dynamicPrimaryColor" format="reference|color"/>
+    <attr name="dynamicBackgroundColor" format="reference"/>
+    <attr name="dynamicTextColor" format="reference|color"/>
+    <attr name="dynamicSecondaryTextColor" format="reference|color"/>
+
+    <!-- Чат -->
+    <attr name="dynamicOutgoingBubbleColor" format="reference|color"/>
+    <attr name="dynamicIncomingBubbleColor" format="reference|color"/>
+    <attr name="dynamicChatBackgroundColor" format="reference|color"/>
+    <attr name="dynamicChatStrokeColor" format="reference|color"/>
+
+    <!-- Производные -->
+    <attr name="dynamicRippleColor" format="reference|color"/>
+    <attr name="dynamicStateLayerColor" format="reference|color"/>
+
 
 </resources>

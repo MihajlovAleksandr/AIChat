@@ -8,8 +8,6 @@ import java.util.UUID;
 
 public class UserData implements Serializable {
     @JsonProperty
-    private UUID id;
-    @JsonProperty
     private Gender gender;
     @JsonProperty
     private String name;
@@ -21,19 +19,9 @@ public class UserData implements Serializable {
     }
     public  UserData(String name, int age, Gender gender)
     {
-        id = UUID.randomUUID();
         this.name = name;
         this.age = age;
         this.gender = gender;
-    }
-    @JsonIgnore
-
-    public UUID getId() {
-        return id;
-    }
-    @JsonIgnore
-    public void setId(UUID id) {
-        this.id = id;
     }
     @JsonIgnore
     public Gender getGender() {

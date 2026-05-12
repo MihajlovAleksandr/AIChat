@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
@@ -15,36 +16,73 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void attachBaseContext(Context newBase) {
-        SharedPreferences prefs = newBase.getSharedPreferences("settings_prefs", MODE_PRIVATE);
-        String lang = prefs.getString("app_language", null);
 
-        if (lang != null) {
-            super.attachBaseContext(LocaleManager.setLocale(newBase, lang));
-        } else {
-            super.attachBaseContext(newBase);
-        }
+        SharedPreferences prefs =
+                newBase.getSharedPreferences(
+                        "settings_prefs",
+                        Context.MODE_PRIVATE
+                );
+
+        String language =
+                prefs.getString(
+                        "app_language",
+                        "en"
+                );
+
+        Context context =
+                LocaleManager.setLocale(
+                        newBase,
+                        language
+                );
+
+        super.attachBaseContext(context);
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
 
-        SharedPreferences prefs = getSharedPreferences("settings_prefs", MODE_PRIVATE);
-        String theme = prefs.getString("app_theme", "system");
+        SharedPreferences prefs =
+                getSharedPreferences(
+                        "settings_prefs",
+                        MODE_PRIVATE
+                );
+
+        String theme =
+                prefs.getString(
+                        "app_theme",
+                        "system"
+                );
 
         switch (theme) {
+
             case "light":
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+
+                AppCompatDelegate.setDefaultNightMode(
+                        AppCompatDelegate.MODE_NIGHT_NO
+                );
+
                 setTheme(R.style.Theme_AIChat);
+
                 break;
 
             case "dark":
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+
+                AppCompatDelegate.setDefaultNightMode(
+                        AppCompatDelegate.MODE_NIGHT_YES
+                );
+
                 setTheme(R.style.Theme_AIChat_Dark);
+
                 break;
 
             default:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+
+                AppCompatDelegate.setDefaultNightMode(
+                        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                );
+
                 setTheme(R.style.Theme_AIChat);
+
                 break;
         }
 
@@ -52,10 +90,22 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void restartAppTo(Class<?> activityClass) {
-        Intent intent = new Intent(this, activityClass);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        Intent intent =
+                new Intent(this, activityClass);
+
+        intent.addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_CLEAR_TASK
+        );
+
         startActivity(intent);
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+
         finish();
+
+        overridePendingTransition(
+                android.R.anim.fade_in,
+                android.R.anim.fade_out
+        );
     }
 }

@@ -1,14 +1,23 @@
 package com.example.aichat;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,21 +25,29 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 
-import com.example.aichat.dto.request.DeleteConnectionRequest;
-import com.example.aichat.dto.request.SetNotificationRequest;
+import com.example.aichat.dto.request.NotificationRequest;
+import com.example.aichat.dto.response.ApiError;
 import com.example.aichat.dto.response.ConnectionChangeResponse;
+import com.example.aichat.dto.response.IntegrationResponse;
 import com.example.aichat.dto.response.NotificationResponse;
 import com.example.aichat.dto.response.PreferenceResponse;
-import com.example.aichat.dto.response.SettingsInfoResponse;
 import com.example.aichat.dto.response.UserDataResponse;
+import com.example.aichat.dto.response.UserResponse;
 import com.example.aichat.model.LocaleManager;
-import com.example.aichat.model.connection.ConnectionManager;
+import com.example.aichat.model.connection.ConnectionDispatcher;
+import com.example.aichat.model.connection.EventHandler;
+import com.example.aichat.model.connection.HttpClient;
+import com.example.aichat.model.connection.LogoutHelper;
 import com.example.aichat.model.connection.ConnectionSingleton;
-import com.example.aichat.model.connection.OnConnectionEvents;
+import com.example.aichat.model.connection.SignalRCommand;
+import com.example.aichat.model.entities.ConnectionInfo;
+import com.example.aichat.model.entities.IntegrationTypes;
 import com.example.aichat.model.entities.Preference;
 import com.example.aichat.model.entities.UserData;
-import com.example.aichat.model.entities.WSSCommand;
 import com.example.aichat.model.notifications.NotificationSettingsManager;
+import com.example.aichat.model.utils.FileDownloadProgressManager;
+import com.example.aichat.model.utils.FileManager;
+import com.example.aichat.model.utils.FileManagerHolder;
 import com.example.aichat.model.utils.JsonHelper;
 import com.example.aichat.model.utils.mappers.MapperResponse;
 import com.example.aichat.model.utils.mappers.PreferenceMapper;
@@ -43,6 +60,10 @@ import com.example.aichat.view.UserDataActivity;
 import com.example.aichat.view.main.MainActivity;
 import com.google.android.material.materialswitch.MaterialSwitch;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class SettingsActivity extends BaseActivity {
 
     private MaterialSwitch showEmailNotificationsSwitch;
@@ -51,24 +72,35 @@ public class SettingsActivity extends BaseActivity {
     private MaterialSwitch inAppNotificationsSwitch;
     private MaterialSwitch vibrationSwitch;
     private MaterialSwitch fullscreenSwitch;
-
+    private boolean isProgrammaticChange;
     private TextView currentLanguageText;
     private TextView currentThemeText;
     private ScrollView scrollView;
     private int savedScrollY = 0;
-
-    private boolean isProgrammaticChange = false;
     private SharedPreferences prefs;
-
-    private ConnectionManager connectionManager;
-    private OnConnectionEvents events;
+    private final ConnectionDispatcher dispatcher;
     private UserData userData;
     private Preference preference;
     private final MapperResponse<Preference, PreferenceResponse> preferenceMapper = new PreferenceMapper();
     private final MapperResponse<UserData, UserDataResponse> userDataMapper = new UserDataMapper();
+    private ArrayList<ConnectionInfo> devices;
 
+    private FileManager fileManager;
+    private TextView storageSummary;
     private TextView emailText, devicesText, userDataText, preferenceText;
+
+    private ProgressBar storageProgress;
     private int emailClickCount = 0;
+
+    // Интеграции
+    private ImageView googleIntegration;
+    private ImageView instIntegration;
+    private ImageView facebookIntegration;
+    private ImageView telegramIntegration;
+
+    public SettingsActivity(){
+        dispatcher = ConnectionSingleton.getInstance().getConnectionDispatcher();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,28 +108,267 @@ public class SettingsActivity extends BaseActivity {
 
         prefs = getSharedPreferences("settings_prefs", MODE_PRIVATE);
         savedScrollY = prefs.getInt("settings_scroll_y", 0);
-        connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
 
         applyTheme(prefs.getString("app_theme", "system"));
 
         setContentView(R.layout.activity_settings);
 
         initializeViews();
+
+        loadUserData();
+
+        dispatcher.sendHttpRequestAsync(
+                "/api/user/devices",
+                HttpClient.HTTPMethod.GET,
+                null,
+                false
+        ).thenAccept(cmd -> {
+
+            if (cmd.isSuccess()) {
+
+                devices = new ArrayList<>(
+                        Arrays.asList(
+                                cmd.getData(ConnectionInfo[].class)
+                        )
+                );
+
+                runOnUiThread(this::updateDeviceStatus);
+
+            } else {
+
+                Log.e(
+                        "Device Request",
+                        cmd.getData(ApiError.class).toString()
+                );
+            }
+        });
+
+        dispatcher.sendHttpRequestAsync(
+                "/api/notification/settings",
+                HttpClient.HTTPMethod.GET,
+                null,
+                false
+        ).thenAccept(cmd -> {
+
+            if (cmd.isSuccess()) {
+
+                NotificationResponse response =
+                        cmd.getData(NotificationResponse.class);
+
+                runOnUiThread(() ->
+                        showEmailNotificationsSwitch.setChecked(
+                                response.emailNotificationsEnabled
+                        )
+                );
+
+            } else {
+
+                Log.e(
+                        "Settings Request",
+                        cmd.getData(ApiError.class).toString()
+                );
+            }
+        });
+
+        loadIntegrations();
+
+        dispatcher.addEventListener(
+                "ConnectionChanged",
+                ConnectionChangeResponse.class,
+                command -> {
+
+                    ConnectionChangeResponse response =
+                            command.getPayload();
+
+                    if (response != null) {
+
+                        devices =
+                                new ArrayList<>(response.connections);
+
+                        runOnUiThread(this::updateDeviceStatus);
+                    }
+                }
+        );
+
         restoreScrollPosition();
 
-        setupConnectionEvents();
         setupClickListeners();
+
         setupNotificationSection();
+
         loadNotificationSettings();
+
         loadFullscreenSetting();
+
         updateCurrentLanguageText();
+
         updateCurrentThemeText();
 
-        if (connectionManager != null) {
-            connectionManager.SendCommand(new WSSCommand("GetSettingsInfo"));
+        NotificationSettingsManager
+                .requestNotificationPermissionIfNeeded(this);
+
+        fileManager = FileManagerHolder.get(
+                getApplicationContext(),
+                new FileDownloadProgressManager()
+        );
+
+        updateStorageInfo();
+    }
+
+    // Загрузка интеграций
+    private void loadIntegrations() {
+        dispatcher.sendHttpRequestAsync("/api/user/integration", HttpClient.HTTPMethod.GET, null, false)
+                .thenAccept(cmd -> {
+                    if (cmd.isSuccess()) {
+                        IntegrationTypes[] response = cmd.getData(IntegrationTypes[].class);
+                        runOnUiThread(() -> {
+                            applyIntegrations(response);
+                            //animateIntegrations(); // Анимация появления
+                        });
+                    } else {
+                        Log.e("Integration Request", "Error: " + cmd.getData(ApiError.class).toString());
+                        // В случае ошибки можно установить значения по умолчанию
+                        runOnUiThread(() -> {
+                            setIntegrationState(googleIntegration, false);
+                            setIntegrationState(instIntegration, false);
+                            setIntegrationState(facebookIntegration, false);
+                            setIntegrationState(telegramIntegration, false);
+                        });
+                    }
+                })
+                .exceptionally(throwable -> {
+                    Log.e("Integration Request", "Exception: " + throwable.getMessage());
+                    return null;
+                });
+    }
+
+    // Применение состояния интеграций
+    private void applyIntegrations(IntegrationTypes[] response) {
+
+        var list = Arrays.asList(response);
+        //setIntegrationState(googleIntegration, list.contains(IntegrationTypes.GOOGLE));
+        ///setIntegrationState(instIntegration, list.contains(IntegrationTypes.INSTAGRAM));
+        //setIntegrationState(facebookIntegration, list.contains(IntegrationTypes.FACEBOOK));
+        //setIntegrationState(telegramIntegration, list.contains(IntegrationTypes.TELEGRAM));
+    }
+
+    // Установка визуального состояния иконки
+    private void setIntegrationState(ImageView view, boolean enabled) {
+        if (view != null) {
+            view.setAlpha(enabled ? 1f : 0.3f);
+            // Можно добавить ContentDescription для доступности
+            view.setContentDescription(enabled ?
+                    getString(R.string.integration_connected) :
+                    getString(R.string.integration_disconnected));
+        }
+    }
+
+    // Анимация появления иконок интеграций
+    private void animateIntegrations() {
+        ImageView[] integrations = {
+                googleIntegration, instIntegration,
+                facebookIntegration, telegramIntegration
+        };
+
+        for (int i = 0; i < integrations.length; i++) {
+            if (integrations[i] != null) {
+                integrations[i].setScaleX(0f);
+                integrations[i].setScaleY(0f);
+                integrations[i].setAlpha(0f);
+
+                integrations[i].animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .alpha(integrations[i].getAlpha()) // Сохраняем установленную прозрачность
+                        .setDuration(300)
+                        .setStartDelay(i * 80)
+                        .setInterpolator(new AccelerateDecelerateInterpolator())
+                        .start();
+            }
+        }
+    }
+
+    private void toggleIntegration(String service, ImageView view, boolean currentState) {
+        // Использование строк из ресурсов
+        String serviceName = "";
+        switch (service) {
+            case "Google":
+                serviceName = getString(R.string.service_google);
+                break;
+            case "Instagram":
+                serviceName = getString(R.string.service_instagram);
+                break;
+            case "Facebook":
+                serviceName = getString(R.string.service_facebook);
+                break;
+            case "Telegram":
+                toggleTelegram();
+                break;
         }
 
-        NotificationSettingsManager.requestNotificationPermissionIfNeeded(this);
+        Toast.makeText(this,
+                getString(!currentState ? R.string.integration_connected_toast :
+                        R.string.integration_disconnected_toast, serviceName),
+                Toast.LENGTH_SHORT).show();
+    }
+
+    private void toggleTelegram(){
+        dispatcher.sendHttpRequestAsync("/integration/telegram/generate", HttpClient.HTTPMethod.POST, null, false).thenAccept(cmd->{
+            openUrl(this, "https://t.me/aichatapp_bot?start="+cmd.getData(String.class));
+        });
+    }
+
+    public static void openUrl(Context context, String url) {
+        if (url == null || url.isEmpty()) return;
+
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            url = "https://" + url;
+        }
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        context.startActivity(intent);
+    }
+
+    private void updateStorageInfo() {
+        fileManager.getCacheSizeAsync(size -> {
+
+            long max = fileManager.getCacheLimit();
+
+            int percent = max > 0 ? (int) ((size * 100) / max) : 0;
+
+            long mb = size / (1024 * 1024);
+            long maxMb = max / (1024 * 1024);
+
+            storageSummary.setText("Использовано: " + mb + " MB / " + maxMb + " MB");
+            storageProgress.setProgress(Math.min(percent, 100));
+        });
+    }
+
+    private void updateDeviceStatus(){
+        int[] devicesCount = getDeviceStatus(devices);
+        devicesText.setText(getString(R.string.device_status, devicesCount[0], devicesCount[1]));
+    }
+
+    private int[] getDeviceStatus(List<ConnectionInfo> connections){
+        int[] conn = new int[]{connections.size(),0};
+        for (ConnectionInfo cr: connections) {
+            if(cr.getLastOnlineFormat()==null)
+                conn[1]++;
+        }
+        return conn;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        updateStorageInfo();
+
+        loadIntegrations();
+
+        loadUserData();
     }
 
     private void initializeViews() {
@@ -111,6 +382,9 @@ public class SettingsActivity extends BaseActivity {
         userDataText = findViewById(R.id.userData_text);
         preferenceText = findViewById(R.id.preference_text);
 
+        storageSummary = findViewById(R.id.storage_summary);
+        storageProgress = findViewById(R.id.storage_progress);
+
         TextView versionText = findViewById(R.id.version_text);
         versionText.setText(getString(R.string.version_format, "1.0.0"));
 
@@ -123,6 +397,15 @@ public class SettingsActivity extends BaseActivity {
         currentLanguageText = findViewById(R.id.current_language_text);
         currentThemeText = findViewById(R.id.current_theme_text);
 
+        // Инициализация интеграций
+        googleIntegration = findViewById(R.id.integration_google);
+        instIntegration = findViewById(R.id.integration_inst);
+        facebookIntegration = findViewById(R.id.integration_facebook);
+        telegramIntegration = findViewById(R.id.integration_telegram);
+
+        // Настройка кликов для интеграций (опционально)
+        setupIntegrationClickListeners();
+
         findViewById(R.id.language_item).setOnClickListener(v -> showLanguageSelectionDialog());
         findViewById(R.id.theme_item).setOnClickListener(v -> showThemeSelectionDialog());
 
@@ -130,6 +413,29 @@ public class SettingsActivity extends BaseActivity {
             prefs.edit().putBoolean("fullscreen_mode", isChecked).apply();
             if (isChecked) FullScreenHelper.enableFullScreen(getWindow());
             else restoreSystemUI();
+        });
+    }
+
+    // Настройка кликов по иконкам интеграций (опционально)
+    private void setupIntegrationClickListeners() {
+        googleIntegration.setOnClickListener(v -> {
+            boolean currentState = googleIntegration.getAlpha() >= 0.8f;
+            toggleIntegration("Google", googleIntegration, currentState);
+        });
+
+        instIntegration.setOnClickListener(v -> {
+            boolean currentState = instIntegration.getAlpha() >= 0.8f;
+            toggleIntegration("Instagram", instIntegration, currentState);
+        });
+
+        facebookIntegration.setOnClickListener(v -> {
+            boolean currentState = facebookIntegration.getAlpha() >= 0.8f;
+            toggleIntegration("Facebook", facebookIntegration, currentState);
+        });
+
+        telegramIntegration.setOnClickListener(v -> {
+            boolean currentState = telegramIntegration.getAlpha() >= 0.8f;
+            toggleIntegration("Telegram", telegramIntegration, currentState);
         });
     }
 
@@ -219,11 +525,6 @@ public class SettingsActivity extends BaseActivity {
                         prefs.edit().putString("app_language", selectedLang).apply();
                         LocaleManager.setLocale(this, selectedLang);
 
-                        if (connectionManager != null && events != null) {
-                            connectionManager.removeConnectionEvent(events);
-                            events = null;
-                        }
-
                         dialog.dismiss();
 
                         HoneycombRevealView honey = new HoneycombRevealView(this);
@@ -258,11 +559,6 @@ public class SettingsActivity extends BaseActivity {
                         prefs.edit().putString("app_theme", selected).apply();
                         applyTheme(selected);
 
-                        if (connectionManager != null && events != null) {
-                            connectionManager.removeConnectionEvent(events);
-                            events = null;
-                        }
-
                         dialog.dismiss();
 
                         HoneycombRevealView honey = new HoneycombRevealView(this);
@@ -277,93 +573,144 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private void loadNotificationSettings() {
-        isProgrammaticChange = true;
         showNotificationsSwitch.setChecked(NotificationSettingsManager.areNotificationsEnabled(this));
         backgroundNotificationsSwitch.setChecked(NotificationSettingsManager.areBackgroundNotificationsEnabled(this));
         inAppNotificationsSwitch.setChecked(NotificationSettingsManager.areInAppNotificationsEnabled(this));
         vibrationSwitch.setChecked(NotificationSettingsManager.isVibrationEnabled(this));
-        isProgrammaticChange = false;
     }
 
-    private void setupConnectionEvents() {
-        if (connectionManager == null) return;
-        if (events != null) connectionManager.removeConnectionEvent(events);
+    private void loadUserData() {
 
-        events = new OnConnectionEvents() {
-            @Override
-            public void OnCommandGot(WSSCommand cmd) {
+        dispatcher.sendHttpRequestAsync(
+                "/api/user",
+                HttpClient.HTTPMethod.GET,
+                null,
+                false
+        ).thenAccept(cmd -> {
+
+            if (cmd.isSuccess()) {
+
+                UserResponse userResponse =
+                        cmd.getData(UserResponse.class);
+
+                Preference newPreference =
+                        preferenceMapper.ToModel(userResponse.preference);
+
+                UserData newUserData =
+                        userDataMapper.ToModel(userResponse.userData);
+
                 runOnUiThread(() -> {
-                    switch (cmd.getOperation()) {
-                        case "GetSettingsInfo":
-                            isProgrammaticChange = true;
-                            SettingsInfoResponse info = cmd.getData(SettingsInfoResponse.class);
-                            emailText.setText(info.email);
-                            preference = preferenceMapper.ToModel(info.preference);
-                            userData = userDataMapper.ToModel(info.userData);
-                            preferenceText.setText(preference.toString());
-                            userDataText.setText(userData.toString());
-                            int[] devicesCount = info.connectionCount;
-                            devicesText.setText(getString(R.string.device_status, devicesCount[0], devicesCount[1]));
-                            showEmailNotificationsSwitch.setChecked(info.notifications.emailNotificationsEnabled);
-                            isProgrammaticChange = false;
-                            break;
-                        case "PreferenceUpdated":
-                            preference = preferenceMapper.ToModel(cmd.getData(PreferenceResponse.class));
-                            preferenceText.setText(preference.toString());
-                            break;
-                        case "UserDataUpdated":
-                            userData = userDataMapper.ToModel(cmd.getData(UserDataResponse.class));
-                            userDataText.setText(userData.toString());
-                            break;
-                        case "ConnectionsChange":
-                        case "DeleteConnection":
-                            int[] devices = cmd.getData(ConnectionChangeResponse.class).count;
-                            devicesText.setText(getString(R.string.device_status, devices[0], devices[1]));
-                            break;
-                        case "UpdateNotifications":
-                            isProgrammaticChange = true;
-                            showEmailNotificationsSwitch.setChecked(
-                                    cmd.getData(NotificationResponse.class).emailNotificationsEnabled
-                            );
-                            isProgrammaticChange = false;
-                            break;
+
+                    preference = newPreference;
+                    userData = newUserData;
+
+                    emailText.setText(userResponse.email);
+
+                    if (preference != null) {
+                        preferenceText.setText(preference.toString());
+                    }
+
+                    if (userData != null) {
+                        userDataText.setText(userData.toString());
                     }
                 });
+
+            } else {
+
+                Log.e(
+                        "User Request",
+                        cmd.getData(ApiError.class).toString()
+                );
             }
-            @Override public void OnConnectionFailed() {}
-            @Override public void OnOpen() {}
-        };
-        connectionManager.addConnectionEvent(events);
+        });
     }
 
     private void setupClickListeners() {
         findViewById(R.id.profile_email_item).setOnClickListener(v -> handleEmailClicks());
+
         findViewById(R.id.change_password_item).setOnClickListener(v -> {
             if (userData != null) startActivity(new Intent(this, ChangePasswordActivity.class));
         });
-        findViewById(R.id.devices_item).setOnClickListener(v ->
-                startActivity(new Intent(this, DevicesActivity.class)));
+
+        findViewById(R.id.devices_item).setOnClickListener(v -> {
+            Intent intent = new Intent(this, DevicesActivity.class);
+            intent.putExtra("devices", JsonHelper.Serialize(devices));
+            startActivity(intent);
+        });
+
         findViewById(R.id.userData_item).setOnClickListener(v -> {
             if (userData != null) startActivity(new Intent(this, UserDataActivity.class)
                     .putExtra("userData", JsonHelper.Serialize(userData)));
         });
+
         findViewById(R.id.preference_item).setOnClickListener(v -> {
             if (preference != null) startActivity(new Intent(this, PreferenceActivity.class)
                     .putExtra("preference", JsonHelper.Serialize(preference)));
         });
+
         findViewById(R.id.logout_item).setOnClickListener(v ->
-                connectionManager.SendCommand(new WSSCommand("DeleteConnection", new DeleteConnectionRequest(null))));
+                dispatcher.sendHttpRequestAsync("/api/session", HttpClient.HTTPMethod.DELETE, null, false)
+                        .thenAccept(cmd -> {
+                            if (cmd.isSuccess()) {
+                                LogoutHelper.logout(this);
+                            } else {
+                                Log.e("DeleteConnection Request", (ApiError.class).toString());
+                            }
+                        }));
+
+        findViewById(R.id.storage_item).setOnClickListener(v -> {
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Хранилище")
+                    .setItems(new String[]{
+                            "Очистить кэш",
+                            "Лимит: 100 MB",
+                            "Лимит: 500 MB",
+                            "Лимит: 1 GB",
+                            "Лимит: 2 GB"
+                    }, (dialog, which) -> {
+
+                        if (which == 0) {
+
+                            fileManager.clearAllDownloadedFiles(() -> {
+                                updateStorageInfo();
+                                Toast.makeText(this, "Кэш очищен", Toast.LENGTH_SHORT).show();
+                            });
+
+                        } else {
+
+                            long[] limits = {
+                                    100L * 1024 * 1024,
+                                    500L * 1024 * 1024,
+                                    1024L * 1024 * 1024,
+                                    2L * 1024 * 1024 * 1024
+                            };
+
+                            fileManager.setCacheLimit(limits[which - 1]);
+                            updateStorageInfo();
+                        }
+                    })
+                    .show();
+        });
     }
 
+
     private void setupNotificationSection() {
-        showEmailNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        showEmailNotificationsSwitch.setOnCheckedChangeListener((emailButtonView, emailIsChecked) -> {
             if (isProgrammaticChange) return;
-            connectionManager.SendCommand(new WSSCommand("UpdateNotifications", new SetNotificationRequest(isChecked)));
+            NotificationRequest request = new NotificationRequest(emailIsChecked);
+            dispatcher.sendHttpRequestAsync("/api/notification/settings", HttpClient.HTTPMethod.PUT, request, false).thenAccept((cmd) -> {
+                if (!cmd.isSuccess()) {
+                    isProgrammaticChange = true;
+                    showEmailNotificationsSwitch.setChecked(!emailIsChecked);
+                    isProgrammaticChange = false;
+                    Log.e("setupNotificationSection: ", (ApiError.class).toString());
+                }
+            });
         });
 
         showNotificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isProgrammaticChange) return;
-
             NotificationSettingsManager.setNotificationsEnabled(this, isChecked);
             isProgrammaticChange = true;
 
@@ -376,8 +723,6 @@ public class SettingsActivity extends BaseActivity {
                 NotificationSettingsManager.setBackgroundNotificationsEnabled(this, false);
                 NotificationSettingsManager.setInAppNotificationsEnabled(this, false);
                 NotificationSettingsManager.setVibrationEnabled(this, false);
-
-                connectionManager.SendCommand(new WSSCommand("UpdateNotifications", new SetNotificationRequest(false)));
             } else NotificationSettingsManager.requestNotificationPermissionIfNeeded(this);
 
             isProgrammaticChange = false;
@@ -436,10 +781,6 @@ public class SettingsActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         saveScrollPosition();
-        if (connectionManager != null && events != null) {
-            connectionManager.removeConnectionEvent(events);
-            events = null;
-        }
         super.onDestroy();
     }
 }

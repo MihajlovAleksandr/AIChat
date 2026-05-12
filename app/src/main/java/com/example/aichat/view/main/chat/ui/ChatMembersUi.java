@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,11 +15,17 @@ import com.example.aichat.R;
 import com.example.aichat.model.entities.User;
 import com.example.aichat.view.main.chat.ChatFragment;
 
+import org.checkerframework.checker.index.qual.NegativeIndexFor;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class ChatMembersUi {
+
+    // Специальный UUID для обозначения поиска новой группы
+    public static final UUID NEW_GROUP_SEARCH = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
     private final ChatFragment fragment;
     private final View root;
@@ -38,17 +45,39 @@ public class ChatMembersUi {
         adapter = new MembersAdapter(new ArrayList<>(), fragment);
         rvMembers.setAdapter(adapter);
     }
+
     public void updateMembers(List<User> users) {
         adapter.updateMembers(users);
     }
 
-    public void updateOnline(UUID userId, boolean isOnline) {
-        adapter.updateOnlineState(userId, isOnline);
+    public void updateOnline(UUID userId, @Nullable String lastOnline) {
+        adapter.updateOnlineState(userId, lastOnline);
     }
 
-    public void setSearchingChatId(UUID id) {
-        this.searchingChatId = id;
-        adapter.setSearchingChatId(id);
+    /**
+     * Единый метод для установки состояния поиска
+     * @param chatId - null (нет поиска), NEW_GROUP_SEARCH (поиск новой группы), UUID (поиск существующей группы)
+     */
+    public void setSearchState(UUID chatId) {
+        this.searchingChatId = chatId;
+        adapter.setSearchingChatId(chatId);
+    }
+
+    // Вспомогательные методы для проверки состояний
+    public boolean isNoSearch() {
+        return searchingChatId == null;
+    }
+
+    public boolean isSearchingNewGroup() {
+        return NEW_GROUP_SEARCH.equals(searchingChatId);
+    }
+
+    public boolean isSearchingExistingGroup() {
+        return searchingChatId != null && !NEW_GROUP_SEARCH.equals(searchingChatId);
+    }
+
+    public UUID getSearchingChatId() {
+        return searchingChatId;
     }
 
     public List<UUID> getUserIds() {
@@ -80,11 +109,11 @@ public class ChatMembersUi {
             notifyDataSetChanged();
         }
 
-        void updateOnlineState(UUID id, boolean isOnline) {
+        void updateOnlineState(UUID id, @Nullable String lastOnline) {
             for (int i = 0; i < members.size(); i++) {
                 User u = members.get(i);
                 if (u.getId().equals(id)) {
-                    u.setOnline(isOnline);
+                    u.setLastOnline(lastOnline);
                     notifyItemChanged(i);
                     return;
                 }
@@ -102,12 +131,15 @@ public class ChatMembersUi {
 
         @Override
         public int getItemViewType(int position) {
+            // Если идет поиск (любой) и это последний элемент перед кнопкой добавления
             if (searchingChatId != null && position == members.size()) {
                 return TYPE_SEARCH_CANCEL;
             }
+            // Если это участник
             if (position < members.size()) {
                 return TYPE_MEMBER;
             }
+            // Во всех остальных случаях - кнопка добавления
             return TYPE_ADD_BUTTON;
         }
 
@@ -115,8 +147,10 @@ public class ChatMembersUi {
         public int getItemCount() {
             int base = members.size();
             if (searchingChatId != null) {
-                return base + 1;
+                // Участники + кнопка отмены поиска + кнопка добавления
+                return base + 2;
             }
+            // Участники + кнопка добавления
             return base + 1;
         }
 
@@ -134,6 +168,7 @@ public class ChatMembersUi {
                 return new AddMemberViewHolder(view);
             }
 
+            // TYPE_SEARCH_CANCEL
             View view = inflater.inflate(R.layout.chat_search_cancel_item, parent, false);
             return new SearchCancelViewHolder(view);
         }
@@ -202,9 +237,14 @@ public class ChatMembersUi {
             }
 
             void bind(UUID searchingChatId, ChatFragment fragment) {
+                // Определяем текст в зависимости от типа поиска
                 if (searchingChatId == null) {
                     text.setText(R.string.searching_new_group);
+                } else if (searchingChatId.equals(NEW_GROUP_SEARCH)) {
+                    // Состояние 2: Поиск новой группы
+                    text.setText(R.string.searching_new_group);
                 } else {
+                    // Состояние 3: Поиск существующей группы
                     text.setText(R.string.searching_chat_user);
                 }
 

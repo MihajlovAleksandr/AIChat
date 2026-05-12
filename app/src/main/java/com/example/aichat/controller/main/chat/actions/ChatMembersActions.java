@@ -1,26 +1,34 @@
 package com.example.aichat.controller.main.chat.actions;
 
-import com.example.aichat.dto.request.AddOtherUserToChatRequest;
-import com.example.aichat.dto.request.RemoveUserFromChatRequest;
-import com.example.aichat.dto.request.UsersInChatRequest;
-import com.example.aichat.dto.response.AddUserToChatResponse;
+import android.util.Log;
+
+import com.example.aichat.dto.request.SearchUserRequest;
 import com.example.aichat.dto.response.RemoveUserFromChatResponse;
 import com.example.aichat.dto.response.UserDataResponse;
-import com.example.aichat.dto.response.UserOnlineChangesResponse;
-import com.example.aichat.dto.response.UsersInChatResponse;
+import com.example.aichat.dto.response.UserInfoResponse;
 
-import com.example.aichat.model.connection.ConnectionManager;
+import com.example.aichat.model.connection.ConnectionDispatcher;
+import com.example.aichat.model.connection.HttpClient;
 import com.example.aichat.model.connection.ConnectionSingleton;
+import com.example.aichat.model.database.AppDatabase;
+import com.example.aichat.model.database.ChatStatusSingleton;
+import com.example.aichat.model.database.DatabaseManager;
+import com.example.aichat.model.database.DatabaseSaver;
+import com.example.aichat.model.database.GroupSearchModel;
+import com.example.aichat.model.database.GroupSearchingStatusChangedListener;
+import com.example.aichat.model.database.SearchingHandler;
 import com.example.aichat.model.entities.User;
 import com.example.aichat.model.entities.UserData;
-import com.example.aichat.model.entities.WSSCommand;
 import com.example.aichat.model.utils.mappers.MapperResponse;
 import com.example.aichat.model.utils.mappers.UserDataMapper;
 import com.example.aichat.view.main.chat.ChatFragment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class ChatMembersActions {
 
@@ -29,8 +37,9 @@ public class ChatMembersActions {
     private final ChatFragment fragment;
     private final UUID chatId;
     private final UUID currentUserId;
-
-    private final ConnectionManager connectionManager;
+    private final SearchingHandler handler;
+    private final ConnectionDispatcher dispatcher;
+    private final DatabaseSaver saver;
     private final MapperResponse<UserData, UserDataResponse> userDataMapper;
 
     private final List<User> users = new ArrayList<>();
@@ -39,98 +48,97 @@ public class ChatMembersActions {
         this.fragment = fragment;
         this.chatId = chatId;
         this.currentUserId = currentUserId;
-
-        this.connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
         this.userDataMapper = new UserDataMapper();
-    }
-
-    public void loadUsers() {
-        connectionManager.SendCommand(
-                new WSSCommand("LoadUsersInChat", new UsersInChatRequest(chatId))
-        );
-    }
-
-    public void onUsersLoaded(UsersInChatResponse response) {
-        users.clear();
-
-        for (int i = 0; i < response.ids.length; i++) {
-            users.add(new User(
-                    response.ids[i],
-                    userDataMapper.ToModel(response.userData[i]),
-                    response.isOnline[i]
-            ));
-        }
-
-        if (fragment.isAdded()) {
-            fragment.showUsers(new ArrayList<>(users));
-        }
-    }
-
-    public void onUserOnlineChanged(UserOnlineChangesResponse response) {
-
-        for (int i = 0; i < users.size(); i++) {
-            User u = users.get(i);
-            if (u.getId().equals(response.userId)) {
-                users.set(i, new User(u.getId(), u.getUserData(), response.isOnline));
-                break;
+        AppDatabase db = DatabaseManager.getDatabase();
+        this.saver = new DatabaseSaver(db, currentUserId);
+        dispatcher = ConnectionSingleton.getInstance().getConnectionDispatcher();
+        handler = ChatStatusSingleton.getInstance().getHandler();
+        handler.addGroupSearchingStatusChangedListener(new GroupSearchingStatusChangedListener() {
+            @Override
+            public void handle(GroupSearchModel groupSearchModel) {
+                if (groupSearchModel.getIsSearching())
+                    fragment.setSearchingChatId(groupSearchModel.getChatId());
+                else fragment.canselSearch();
             }
-        }
-
-        if (fragment.isAdded()) {
-            fragment.updateOnline(response.userId, response.isOnline);
-        }
+        });
     }
 
     public void addUserToChat() {
-        connectionManager.SendCommand(
-                new WSSCommand("AddOtherUserToChat", new AddOtherUserToChatRequest(chatId, SEARCH_MODE))
-        );
+        dispatcher.sendHttpRequestAsync("/api/matchmaking/group/chat", HttpClient.HTTPMethod.POST, new SearchUserRequest(chatId, ChatMembersActions.SEARCH_MODE), false)
+                .thenAccept(cmd -> {
+                    if (cmd.isSuccess()) {
+                        handler.setGroupSearchModel(new GroupSearchModel(true, chatId));
+                    }
+                });
     }
 
-    public void onUserAdded(AddUserToChatResponse response) {
-        User user = new User(
-                response.userId,
-                userDataMapper.ToModel(response.userData),
-                response.isOnline
-        );
+    public void stopSearchingChat() {
+        dispatcher.sendHttpRequestAsync("/api/matchmaking/group", HttpClient.HTTPMethod.DELETE, new SearchUserRequest(chatId, ChatMembersActions.SEARCH_MODE), false)
+                .thenAccept(cmd -> {
+                    if (cmd.isSuccess()) {
+                        handler.setGroupSearchModel(new GroupSearchModel(false, null));
+                    }
+                });
+    }
 
-        users.add(user);
+    public CompletableFuture<List<User>> loadUsers(List<UUID> userIds) {
+        List<CompletableFuture<User>> futures = new ArrayList<>();
 
-        if (fragment.isAdded()) {
-            fragment.showUsers(new ArrayList<>(users));
-            fragment.setSearchingChatId(null);
+        for (UUID userId : userIds) {
+            CompletableFuture<User> future = dispatcher
+                    .sendHttpRequestAsync("/api/user/" + userId + "/userdata/", HttpClient.HTTPMethod.GET, null, true)
+                    .thenApply(cmd -> {
+                        if (cmd.isSuccess()) {
+                            UserInfoResponse response = cmd.getData(UserInfoResponse.class);
+                            return new User(userId, userDataMapper.ToModel(response.userData), response.lastOnline, response.region);
+                        } else {
+                            Log.e("loadUsers: ", "Can't load users");
+                            return null;
+                        }
+                    });
+
+            futures.add(future);
         }
+
+        return CompletableFuture
+                .allOf(futures.toArray(new CompletableFuture[0]))
+                .thenApply(v -> futures.stream()
+                        .map(CompletableFuture::join)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList()));
     }
+
 
     public void removeUserFromChat(UUID userId) {
-        connectionManager.SendCommand(
-                new WSSCommand("RemoveUserFromChat", new RemoveUserFromChatRequest(userId, chatId))
-        );
+        dispatcher.sendHttpRequestAsync("/api/chat/"+chatId+"/users/"+userId, HttpClient.HTTPMethod.DELETE, null, false)
+                .thenAccept(cmd->{
+                    if(cmd.isSuccess())
+                        removeUserFromChatUI(userId);
+
+                });
     }
 
     public void onUserRemoved(RemoveUserFromChatResponse response) {
         if (!chatId.equals(response.chatId)) return;
-        if (response.userId.equals(currentUserId)) {
+
+        // ДОБАВИТЬ СОХРАНЕНИЕ В БД
+        if (saver != null) {
+            saver.removeUserFromChat(response);
+        }
+
+        removeUserFromChat(response.userId);
+    }
+
+    private void removeUserFromChatUI(UUID userId){
+        if (userId.equals(currentUserId)) {
             if (fragment.isAdded()) fragment.close();
             return;
         }
 
-        users.removeIf(u -> u.getId().equals(response.userId));
+        users.removeIf(u -> u.getId().equals(userId));
 
         if (fragment.isAdded()) {
             fragment.showUsers(new ArrayList<>(users));
-        }
-    }
-
-    public void onUserAdding(UUID chatId) {
-        if (fragment.isAdded()) {
-            fragment.setSearchingChatId(chatId);
-        }
-    }
-
-    public void onAddChat() {
-        if (fragment.isAdded()) {
-            fragment.setSearchingChatId(null);
         }
     }
 

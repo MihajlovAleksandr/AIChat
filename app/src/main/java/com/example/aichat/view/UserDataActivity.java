@@ -30,7 +30,6 @@ public class UserDataActivity extends BaseActivity {
         Button submitButton = findViewById(R.id.submitButton);
         ImageView nameInfoIcon = findViewById(R.id.nameInfoIcon);
         ImageView ageInfoIcon = findViewById(R.id.ageInfoIcon);
-        View btnLanguage = findViewById(R.id.btnLanguage);
 
         String strUserData = getIntent().getStringExtra("userData");
         UserData userData = null;
@@ -55,11 +54,6 @@ public class UserDataActivity extends BaseActivity {
         ageInfoIcon.setOnClickListener(v ->
                 showPopup(v, getString(R.string.age_popup_info)));
 
-        LanguageHandler languageHandler = new LanguageHandler(this);
-        LanguageMenuHelper languageMenuHelper = new LanguageMenuHelper(languageHandler);
-        if (btnLanguage != null) {
-            languageMenuHelper.attachToButton(btnLanguage);
-        }
 
         FloatingActionButton btnBack = findViewById(R.id.btnBack);
         if (btnBack != null) {

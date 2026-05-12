@@ -142,6 +142,16 @@ public class SecurePreferencesManager {
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         );
     }
+    public static void clearAll(Context context) {
+        try {
+            SharedPreferences.Editor editor = getEncryptedPreferencesSafe(context).edit();
+            editor.clear();
+            editor.apply();
+            Log.d(TAG, "All preferences cleared successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to clear preferences", e);
+        }
+    }
 
     private static void clearCorruptedStorage(Context context) {
         try {

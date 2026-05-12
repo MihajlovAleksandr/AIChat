@@ -7,23 +7,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import androidx.annotation.Nullable;
-
 import com.example.aichat.R;
-import com.example.aichat.dto.request.AuthRequest;
 import com.example.aichat.dto.request.GoogleTokenRequest;
-import com.example.aichat.dto.response.LoginInResponse;
-import com.example.aichat.dto.response.TokenResponse;
-import com.example.aichat.dto.response.UseOtherLoginInServiceResponse;
+import com.example.aichat.dto.request.LoginRequest;
+import com.example.aichat.dto.response.ApiError;
+import com.example.aichat.dto.response.RegisterResponse;
 import com.example.aichat.model.SecurePreferencesManager;
-import com.example.aichat.model.connection.ConnectionManager;
+import com.example.aichat.model.connection.ConnectionDispatcher;
+import com.example.aichat.model.connection.HttpClient;
+import com.example.aichat.model.connection.JwtUtils;
 import com.example.aichat.model.connection.ConnectionSingleton;
-import com.example.aichat.model.connection.OnConnectionEvents;
-import com.example.aichat.model.entities.WSSCommand;
+import com.example.aichat.model.entities.HttpCommand;
 import com.example.aichat.util.InputValidator;
 import com.example.aichat.view.LoginActivity;
+import com.example.aichat.view.PreferenceActivity;
 import com.example.aichat.view.UserDataActivity;
+import com.example.aichat.view.VerifyEmailActivity;
+import com.example.aichat.view.main.MainActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -31,13 +32,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
-
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Objects;
 import java.util.UUID;
 
 public class LoginController {
@@ -62,20 +60,13 @@ public class LoginController {
     private final Button loginButton;
 
     private GoogleSignInClient googleSignInClient;
-    private ConnectionManager connectionManager;
+    private final ConnectionDispatcher dispatcher;
 
     private boolean isEmailValidFlag = false;
     private boolean isPasswordValidFlag = false;
     private boolean isLoginInProgress = false;
 
     private OnLoginSuccessListener onLoginSuccessListener;
-
-    private String pendingEmail;
-    private String pendingPassword;
-    private String pendingGoogleIdToken;
-
-    private final UUID[] userIdHolder = new UUID[1];
-    private final String[] tokenHolder = new String[1];
 
     public LoginController(
             LoginActivity activity,
@@ -94,8 +85,7 @@ public class LoginController {
         this.passwordEditText = passwordEditText;
         this.loginButton = loginButton;
         this.loginErrorCallback = loginErrorCallback;
-
-        initConnectionManager();
+        dispatcher = ConnectionSingleton.getInstance().getConnectionDispatcher();
         setupFieldListeners();
         setupLoginButton();
         setupGoogleSignIn(googleSignInButton);
@@ -107,138 +97,143 @@ public class LoginController {
         this.onLoginSuccessListener = listener;
     }
 
-    private void initConnectionManager() {
-        ConnectionSingleton singleton = ConnectionSingleton.getInstance();
-        ConnectionManager old = singleton.getConnectionManager();
-        if (old != null) {
-            try { old.clearConnectionEvents(); } catch (Exception ignored) {}
-            try { old.Close(); } catch (Exception ignored) {}
-            try { old.dispose(); } catch (Exception ignored) {}
-        }
-
-        connectionManager = new ConnectionManager("");
-        singleton.setConnectionManager(connectionManager);
-        singleton.setToken(null);
-
-        connectionManager.clearConnectionEvents();
-        connectionManager.addConnectionEvent(new OnConnectionEvents() {
-
-            @Override
-            public void OnOpen() {
-                if (pendingEmail != null && pendingPassword != null) {
-                    connectionManager.SendCommand(
-                            new WSSCommand("LoginIn", new AuthRequest(pendingEmail, pendingPassword))
-                    );
-                } else if (pendingGoogleIdToken != null) {
-                    connectionManager.SendCommand(
-                            new WSSCommand("SendGoogleTokenCommand", new GoogleTokenRequest(pendingGoogleIdToken))
-                    );
-                }
-            }
-
-            @Override
-            public void OnCommandGot(WSSCommand command) {
-                switch (command.getOperation()) {
-
-                    case "CreateToken": {
-                        TokenResponse tokenResponse = command.getData(TokenResponse.class);
-                        if (tokenResponse == null) break;
-
-                        tokenHolder[0] = tokenResponse.token;
-                        SecurePreferencesManager.saveAuthToken(activity, tokenResponse.token);
-                        ConnectionSingleton.getInstance().setToken(tokenResponse.token);
-                        connectionManager.setToken(tokenResponse.token);
-
-                        if (userIdHolder[0] != null) {
-                            notifyLoginSuccess(userIdHolder[0], tokenHolder[0]);
-                        }
-                        break;
-                    }
-
-                    case "LoginIn": {
-                        LoginInResponse loginInResponse = command.getData(LoginInResponse.class);
-                        if (loginInResponse == null) break;
-
-                        userIdHolder[0] = loginInResponse.userId;
-                        SecurePreferencesManager.saveUserId(activity, loginInResponse.userId);
-
-                        if (tokenHolder[0] != null) {
-                            notifyLoginSuccess(userIdHolder[0], tokenHolder[0]);
-                        }
-                        break;
-                    }
-
-                    case "GoogleRegistrationSuccess": {
-                        Intent intent = new Intent(activity, UserDataActivity.class);
-                        activity.startActivity(intent);
-                        activity.finish();
-                        break;
-                    }
-
-                    case "UseOtherLoginInService": {
-                        UseOtherLoginInServiceResponse response =
-                                command.getData(UseOtherLoginInServiceResponse.class);
-                        if (response != null && Objects.equals(response.service, "Password")) {
-                            activity.runOnUiThread(LoginController.this::validatePassword);
-                        }
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void OnConnectionFailed() {
-                isLoginInProgress = false;
-                activity.runOnUiThread(() -> {
-                    enableLoginButton();
-                    if (loginErrorCallback != null) {
-                        loginErrorCallback.onLoginError("Connection failed");
-                    }
-                });
-            }
-        });
-
-        connectionManager.connect();
-    }
-
-    private void notifyLoginSuccess(UUID userId, String token) {
-        isLoginInProgress = false;
-        pendingEmail = null;
-        pendingPassword = null;
-        pendingGoogleIdToken = null;
-
-        activity.runOnUiThread(() -> {
-            enableLoginButton();
-            if (onLoginSuccessListener != null) {
-                onLoginSuccessListener.onLoginSuccess(userId, token);
-            }
-        });
-    }
+    // -------------------------
+    // LOGIN VIA REST API
+    // -------------------------
 
     public void login(String email, String password) {
         if (isLoginInProgress) return;
         isLoginInProgress = true;
         loginButton.setEnabled(false);
 
-        pendingEmail = email;
-        pendingPassword = password;
-
-        connectionManager.SendCommand(
-                new WSSCommand("LoginIn", new AuthRequest(email, password))
-        );
+        LoginRequest request = new LoginRequest(email, password, "EMAIL_PASSWORD");
+        dispatcher.sendHttpRequestAsync("/api/auth/login", HttpClient.HTTPMethod.POST, request, false)
+                .thenAccept(this::handleResponse);
     }
+
+    private void handleResponse(HttpCommand cmd) {
+        if (cmd.isSuccess()) {
+            try {
+                RegisterResponse response = cmd.getData(RegisterResponse.class);
+
+                if (response == null) {
+                    onLoginError(activity.getString(R.string.try_again));
+                    return;
+                }
+
+                handleRegisterResponse(response);
+
+            } catch (RuntimeException e) {
+                try {
+                    String jwt = cmd.getData(String.class);
+
+                    JSONObject jsonPayload = JwtUtils.decodePayload(jwt);
+
+                    UUID userId =
+                            UUID.fromString(jsonPayload.getString("sub"));
+
+                    SecurePreferencesManager.saveUserId(activity, userId);
+                    SecurePreferencesManager.saveAuthToken(activity, jwt);
+
+                    dispatcher.setToken(jwt);
+
+                    Intent intent =
+                            new Intent(activity, MainActivity.class);
+
+                    activity.startActivity(intent);
+                    activity.finish();
+
+                } catch (Exception ex) {
+                    onLoginError(activity.getString(R.string.try_again));
+                }
+            }
+
+        } else {
+
+            ApiError error = cmd.getData(ApiError.class);
+
+            String message =
+                    activity.getString(R.string.try_again);
+
+            if (error != null && error.getCode() != null) {
+
+                switch (error.getCode()) {
+
+                    case "USER_NOT_FOUND":
+                        message =
+                                activity.getString(R.string.user_not_found);
+                        break;
+
+                    case "INVALID_CREDENTIALS":
+                        message =
+                                activity.getString(R.string.invalid_credentials);
+                        break;
+
+                    case "USER_BANNED":
+                        message =
+                                activity.getString(R.string.user_banned);
+                        break;
+                }
+            }
+
+            onLoginError(message);
+        }
+    }
+
+    private void handleRegisterResponse(RegisterResponse response) {
+        activity.runOnUiThread(() -> {
+            isLoginInProgress = false;
+            enableLoginButton();
+            Class type;
+            switch (response.state) {
+                case CREATED:
+                    type = VerifyEmailActivity.class;
+                    break;
+                case EMAIL_VERIFIED:
+                    type = UserDataActivity.class;
+                    break;
+                case USER_DATA_COMPLETED:
+                    type = PreferenceActivity.class;
+                    break;
+                default:
+                    throw new IllegalArgumentException();
+            }
+            SecurePreferencesManager.saveAuthToken(activity, response.token);
+            dispatcher.setToken(response.token);
+            Intent intent = new Intent(activity, type);
+            activity.startActivity(intent);
+            activity.finish();
+        });
+    }
+
+    private void onLoginError(String message) {
+        activity.runOnUiThread(() -> {
+            isLoginInProgress = false;
+            enableLoginButton();
+            if (loginErrorCallback != null) {
+                loginErrorCallback.onLoginError(message);
+            }
+        });
+    }
+
+    // -------------------------
+    // GOOGLE LOGIN
+    // -------------------------
 
     private void sendGoogleTokenToServer(String idToken) {
         if (isLoginInProgress) return;
         isLoginInProgress = true;
         loginButton.setEnabled(false);
 
-        pendingGoogleIdToken = idToken;
+        GoogleTokenRequest req = new GoogleTokenRequest(idToken);
 
-        connectionManager.SendCommand(
-                new WSSCommand("SendGoogleTokenCommand", new GoogleTokenRequest(idToken))
-        );
+        dispatcher.sendHttpRequestAsync("/api/auth/oauth/google", HttpClient.HTTPMethod.POST, req, false)
+                .thenAccept(this::handleResponse);
     }
+
+    // -------------------------
+    // UI VALIDATION
+    // -------------------------
 
     private void setupFieldListeners() {
         emailEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -294,12 +289,12 @@ public class LoginController {
     }
 
     private void enableLoginButton() {
-        if (isLoginInProgress) {
-            loginButton.setEnabled(false);
-        } else {
-            loginButton.setEnabled(isEmailValidFlag && isPasswordValidFlag);
-        }
+        loginButton.setEnabled(!isLoginInProgress && isEmailValidFlag && isPasswordValidFlag);
     }
+
+    // -------------------------
+    // GOOGLE SIGN-IN
+    // -------------------------
 
     private void setupGoogleSignIn(ImageView googleSignInButton) {
         String clientId = loadWebClientId();
@@ -343,6 +338,41 @@ public class LoginController {
             return root.getJSONObject("web").getString("client_id");
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public void qrLogin(String token) {
+
+        if (token == null || token.trim().isEmpty()) {
+            onLoginError(activity.getString(R.string.try_again));
+            return;
+        }
+
+        try {
+
+            if (JwtUtils.decodePayload(token) == null) {
+                onLoginError(activity.getString(R.string.invalid_qr_code));
+                return;
+            }
+
+            dispatcher.setToken(token);
+
+            dispatcher.sendHttpRequestAsync(
+                            "/api/auth/code/verify",
+                            HttpClient.HTTPMethod.POST,
+                            null,
+                            false
+                    ).thenAccept(this::handleResponse)
+                    .exceptionally(ex -> {
+
+                        onLoginError(activity.getString(R.string.invalid_qr_code));
+
+                        return null;
+                    });
+
+        } catch (Exception ex) {
+
+            onLoginError(activity.getString(R.string.invalid_qr_code));
         }
     }
 }

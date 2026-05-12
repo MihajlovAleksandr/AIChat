@@ -1,0 +1,77 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="36dp"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+
+    <group
+        android:pivotX="512"
+        android:pivotY="512"
+        android:scaleX="1.15"
+        android:scaleY="1.15">
+
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="?attr/colorOnSurface"
+            android:strokeWidth="34"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="
+            M516,146
+            C344,146 206,270 206,430
+            C206,560 300,666 430,694
+            C456,700 470,716 470,738
+            C470,762 486,778 510,778
+            L592,778
+            C704,778 818,676 818,530
+            C818,312 692,146 516,146
+            Z" />
+
+        <path
+            android:fillColor="?attr/colorSecondary"
+            android:fillAlpha="0.22"
+            android:pathData="
+            M516,196
+            C376,196 260,298 260,430
+            C260,538 338,624 446,648
+            C486,656 520,694 520,738
+            L592,738
+            C680,738 764,650 764,530
+            C764,338 658,196 516,196
+            Z" />
+
+        <path
+            android:fillColor="?attr/colorPrimary"
+            android:pathData="
+            M364,362
+            m-42,0
+            a42,42 0,1 1,84 0
+            a42,42 0,1 1,-84 0" />
+
+        <path
+            android:fillColor="?attr/colorPrimary"
+            android:pathData="
+            M500,298
+            m-42,0
+            a42,42 0,1 1,84 0
+            a42,42 0,1 1,-84 0" />
+
+        <path
+            android:fillColor="?attr/colorPrimary"
+            android:pathData="
+            M618,390
+            m-42,0
+            a42,42 0,1 1,84 0
+            a42,42 0,1 1,-84 0" />
+
+        <path
+            android:fillColor="?attr/colorPrimary"
+            android:pathData="
+            M384,522
+            m-42,0
+            a42,42 0,1 1,84 0
+            a42,42 0,1 1,-84 0" />
+
+    </group>
+
+</vector>

@@ -48,5 +48,6 @@
     <color name="textinput_endicon_dark">#CCFFFFFF</color>
     <color name="state_layer_light">@android:color/transparent</color>
     <color name="state_layer_dark">@android:color/transparent</color>
+    <color name="black_translucent_50">#80000000</color>
 
 </resources>

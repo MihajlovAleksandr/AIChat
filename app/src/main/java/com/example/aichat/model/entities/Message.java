@@ -9,9 +9,12 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
+import com.example.aichat.model.utils.FileMimeMapConverter;
+import com.example.aichat.model.utils.FileTypeMapConverter;
 import com.example.aichat.model.utils.HashMapConverter;
 import com.example.aichat.model.utils.ListMessageReplyConverter;
 import com.example.aichat.model.utils.TimeConverter;
+import com.example.aichat.model.utils.UuidListConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -32,7 +35,13 @@ import java.util.UUID;
         ),
         indices = {@Index(value = "chat")}
 )
-@TypeConverters({HashMapConverter.class, ListMessageReplyConverter.class})
+@TypeConverters({
+        HashMapConverter.class,
+        ListMessageReplyConverter.class,
+        UuidListConverter.class,
+        FileMimeMapConverter.class,
+        FileTypeMapConverter.class
+})
 public class Message {
 
     @PrimaryKey
@@ -61,9 +70,21 @@ public class Message {
     @JsonProperty
     private HashMap<UUID, MessageStatus> statuses;
 
+    @JsonProperty
+    private List<UUID> files;
+
+    @JsonProperty
+    private HashMap<UUID, String> fileMimeTypes;
+
+    @JsonProperty
+    private HashMap<UUID, FileType> fileTypes;
+
     public Message() {
         this.replyMessages = new ArrayList<>();
         this.statuses = new HashMap<>();
+        this.files = new ArrayList<>();
+        this.fileMimeTypes = new HashMap<>();
+        this.fileTypes = new HashMap<>();
     }
 
     @Ignore
@@ -83,7 +104,10 @@ public class Message {
             String time,
             String lastUpdate,
             @Nullable List<MessageReply> replyMessages,
-            @Nullable HashMap<UUID, MessageStatus> statuses
+            @Nullable HashMap<UUID, MessageStatus> statuses,
+            @Nullable List<UUID> files,
+            @Nullable HashMap<UUID, String> fileMimeTypes,
+            @Nullable HashMap<UUID, FileType> fileTypes
     ) {
         this.id = id;
         this.text = text;
@@ -93,6 +117,9 @@ public class Message {
         this.lastUpdate = lastUpdate;
         this.replyMessages = replyMessages != null ? replyMessages : new ArrayList<>();
         this.statuses = statuses != null ? statuses : new HashMap<>();
+        this.files = files != null ? files : new ArrayList<>();
+        this.fileMimeTypes = fileMimeTypes != null ? fileMimeTypes : new HashMap<>();
+        this.fileTypes = fileTypes != null ? fileTypes : new HashMap<>();
     }
 
     @JsonIgnore
@@ -176,11 +203,38 @@ public class Message {
         this.statuses = statuses != null ? statuses : new HashMap<>();
     }
 
+    public List<UUID> getFiles() {
+        return files;
+    }
+
+    public void addFile(UUID fileId) {
+        files.add(fileId);
+    }
+
+    public void setFiles(List<UUID> files) {
+        this.files = files != null ? files : new ArrayList<>();
+    }
+
+    public HashMap<UUID, String> getFileMimeTypes() {
+        return fileMimeTypes;
+    }
+
+    public void setFileMimeTypes(HashMap<UUID, String> fileMimeTypes) {
+        this.fileMimeTypes = fileMimeTypes != null ? fileMimeTypes : new HashMap<>();
+    }
+
+    public HashMap<UUID, FileType> getFileTypes() {
+        return fileTypes;
+    }
+
+    public void setFileTypes(HashMap<UUID, FileType> fileTypes) {
+        this.fileTypes = fileTypes != null ? fileTypes : new HashMap<>();
+    }
+
     @JsonIgnore
     public boolean isMyMessage(UUID userId) {
         return userId != null && userId.equals(sender);
     }
-
 
     @Override
     public boolean equals(@Nullable Object obj) {

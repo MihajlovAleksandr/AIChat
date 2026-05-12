@@ -9,27 +9,27 @@ import java.util.UUID;
 
 public class MessageRequest {
     public final UUID id;
-    public final UUID chat;
-    public final UUID sender;
+    public final UUID chatId;
     public final String text;
-    public final List<MessageReply> replyMessages;
+    public final List<MessageReply> replies;
+    public final UUID uploadSessionId;
 
     @JsonCreator
     public MessageRequest(
             @JsonProperty("id") UUID id,
-            @JsonProperty("chat") UUID chat,
-            @JsonProperty("sender") UUID sender,
+            @JsonProperty("chatId") UUID chatId,
             @JsonProperty("text") String text,
-            @JsonProperty("replyMessages") List<MessageReply> replyMessages) {
+            @JsonProperty("replies") List<MessageReply> replies,
+            @JsonProperty("uploadSessionId") UUID uploadSessionId) {
         this.id = id;
-        this.chat = chat;
-        this.sender = sender;
+        this.chatId = chatId;
         this.text = text;
-        this.replyMessages = replyMessages;
+        this.replies = replies;
+        this.uploadSessionId = uploadSessionId;
     }
 
     @Override
     public String toString() {
-        return "MessageRequest { chat=" + chat + ", sender=" + sender + ", text='" + text + "' }";
+        return "MessageRequest { chat=" + chatId + ", text='" + text + "' }";
     }
 }

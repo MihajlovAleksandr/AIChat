@@ -1,8 +1,10 @@
 package com.example.aichat.view.main.chatlist;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
@@ -11,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,6 +43,7 @@ public class ChatSearchManager {
     private boolean isSearchActive = false;
     private boolean isVisibleFromScroll = true;
     private int searchHeight = 0;
+    private View itemDecorationView;
 
     private static final float HIDE_THRESHOLD_FACTOR = 0.2f;
 
@@ -90,23 +94,20 @@ public class ChatSearchManager {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String query = s.toString().trim();
-
-                if (query.isEmpty()) {
-                    listener.onSearch("");
-                } else {
-                    listener.onSearch(query);
-                }
+                listener.onSearch(query.isEmpty() ? "" : query);
             }
 
             @Override public void afterTextChanged(Editable s) {}
         });
+
+        // Отключаем перехват touch events у searchLayout когда он скрыт
+        setupSearchLayoutTouchInterceptor();
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView rv, int dx, int dy) {
 
                 if (isSearchActive) return;
-
                 if (btnSearch.getVisibility() != View.VISIBLE) return;
 
                 LinearLayoutManager lm = (LinearLayoutManager) rv.getLayoutManager();
@@ -145,15 +146,19 @@ public class ChatSearchManager {
 
                         searchHeight = searchLayout.getHeight();
 
+                        // Используем ItemDecoration для отступа первого элемента
+                        recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+                            @Override
+                            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                                if (parent.getChildAdapterPosition(view) == 0) {
+                                    outRect.top = searchHeight;
+                                }
+                            }
+                        });
+
                         searchLayout.setTranslationY(0);
                         searchLayout.setAlpha(1f);
-
-                        recyclerView.setPadding(
-                                recyclerView.getPaddingLeft(),
-                                searchHeight,
-                                recyclerView.getPaddingRight(),
-                                recyclerView.getPaddingBottom()
-                        );
+                        searchLayout.setVisibility(View.VISIBLE);
 
                         btnSearch.setVisibility(View.VISIBLE);
                         btnSearch.setAlpha(0f);
@@ -165,6 +170,38 @@ public class ChatSearchManager {
         );
     }
 
+    private void setupSearchLayoutTouchInterceptor() {
+        searchLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // Если searchbar скрыт или не виден из-за скролла - пропускаем все события
+                if (!isVisibleFromScroll && !isSearchActive) {
+                    return true; // Потребляем событие, но не передаем дальше
+                }
+
+                // Если searchbar виден и активен - обрабатываем нормально
+                if (isSearchActive) {
+                    return false; // Передаем события дальше для обработки внутренними view
+                }
+
+                // Если searchbar частично виден при скролле - тоже пропускаем клики
+                if (searchLayout.getTranslationY() < 0 && !isSearchActive) {
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
+        // Также отключаем кликабельность для контейнера
+        searchLayout.setClickable(false);
+        searchLayout.setFocusable(false);
+
+        // Убеждаемся, что внутренние элементы не блокируют клики когда не нужно
+        btnBack.setClickable(true);
+        etSearch.setClickable(true);
+    }
+
     public void showFromScroll(boolean show) {
         if (show == isVisibleFromScroll) return;
 
@@ -174,18 +211,24 @@ public class ChatSearchManager {
         float targetAlpha = show ? 1f : 0f;
 
         searchLayout.animate().cancel();
+
         searchLayout.animate()
                 .translationY(targetY)
                 .alpha(targetAlpha)
                 .setDuration(200)
+                .withStartAction(() -> {
+                    if (show) {
+                        searchLayout.setVisibility(View.VISIBLE);
+                    }
+                })
+                .withEndAction(() -> {
+                    if (!show) {
+                        searchLayout.setVisibility(View.GONE);
+                        // Важно: после скрытия убеждаемся, что searchLayout не перехватывает клики
+                        searchLayout.setTranslationY(-searchHeight);
+                    }
+                })
                 .start();
-
-        recyclerView.setPadding(
-                recyclerView.getPaddingLeft(),
-                show ? searchHeight : 0,
-                recyclerView.getPaddingRight(),
-                recyclerView.getPaddingBottom()
-        );
 
         btnSearch.animate().cancel();
         btnSearch.setVisibility(View.VISIBLE);
@@ -197,7 +240,6 @@ public class ChatSearchManager {
     }
 
     public void openSearch() {
-
 
         btnSearch.setVisibility(View.GONE);
         btnSearch.setEnabled(false);
@@ -211,6 +253,9 @@ public class ChatSearchManager {
 
         searchLayout.setAlpha(1f);
         searchLayout.setTranslationY(0);
+        searchLayout.setVisibility(View.VISIBLE);
+        // При открытии поиска включаем нормальную обработку кликов
+        searchLayout.setClickable(true);
 
         btnBack.setVisibility(View.VISIBLE);
 
@@ -221,7 +266,6 @@ public class ChatSearchManager {
         if (imm != null)
             imm.showSoftInput(etSearch, InputMethodManager.SHOW_IMPLICIT);
     }
-
 
     public void closeSearch() {
 
@@ -242,6 +286,9 @@ public class ChatSearchManager {
         listener.onSearch("");
 
         showFromScroll(false);
+
+        // После закрытия поиска снова отключаем кликабельность searchLayout
+        searchLayout.setClickable(false);
 
         InputMethodManager imm = (InputMethodManager)
                 etSearch.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);

@@ -16,8 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.aichat.MyApp;
 import com.example.aichat.R;
 import com.example.aichat.controller.main.chatlist.CreateChatController;
-import com.example.aichat.model.connection.ConnectionManager;
-import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.entities.ChatType;
 
 import java.util.UUID;
@@ -68,11 +66,11 @@ public class CreateChatActivity extends AppCompatActivity {
     private void setupListeners() {
         findViewById(R.id.btn_back).setOnClickListener(v -> onBackPressed());
 
-        setupGestureClick(circleJoinGroup, ChatType.GROUP);
+        setupGestureClick(circleJoinGroup, ChatType.Group);
         setupGestureClick(circleAI, ChatType.AI);
-        setupGestureClick(circleSingle, ChatType.HUMAN);
-        setupGestureClick(circleGroup, ChatType.GROUP);
-        setupGestureClick(circleJoinExisting, ChatType.GROUP);
+        setupGestureClick(circleSingle, ChatType.Human);
+        setupGestureClick(circleGroup, ChatType.Group);
+        setupGestureClick(circleJoinExisting, ChatType.Group);
 
         btnCancelLoading.setOnClickListener(v -> {
             hideLoadingOverlay();
@@ -82,7 +80,7 @@ public class CreateChatActivity extends AppCompatActivity {
         GestureDetector mainCircleGesture = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
-                startChatOperation(ChatType.HUMAN);
+                startChatOperation(ChatType.Human);
                 return true;
             }
 
@@ -118,11 +116,9 @@ public class CreateChatActivity extends AppCompatActivity {
         startConnectionTimeout();
 
         UUID userId = MyApp.getInstance().getCurrentUserId();
-        ConnectionManager connManager = ConnectionSingleton.getInstance().getConnectionManager();
-
-        if (userId != null && connManager != null) {
+       if (userId != null) {
             if (createChatController == null)
-                createChatController = new CreateChatController(connManager, userId);
+                createChatController = new CreateChatController(userId);
 
             createChatController.addChat(type);
         }

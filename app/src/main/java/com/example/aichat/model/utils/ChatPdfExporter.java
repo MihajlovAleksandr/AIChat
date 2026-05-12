@@ -122,10 +122,20 @@ public class ChatPdfExporter {
 
         pdfDocument.finishPage(page);
 
-        File downloads = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS
+        File downloads = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+
+        if (downloads == null) {
+            throw new IOException("Не удалось получить папку Documents");
+        }
+
+        if (!downloads.exists()) {
+            downloads.mkdirs();
+        }
+
+        File pdfFile = new File(
+                downloads,
+                "chat_export_" + System.currentTimeMillis() + ".pdf"
         );
-        File pdfFile = new File(downloads, "chat_export.pdf");
 
         try (FileOutputStream fos = new FileOutputStream(pdfFile)) {
             pdfDocument.writeTo(fos);
@@ -225,7 +235,7 @@ public class ChatPdfExporter {
     private void sharePdf(File pdfFile) {
         Uri uri = FileProvider.getUriForFile(
                 activity,
-                activity.getPackageName() + ".provider",
+                activity.getPackageName() + ".fileprovider",
                 pdfFile
         );
 
@@ -233,6 +243,7 @@ public class ChatPdfExporter {
         intent.setType("application/pdf");
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         activity.startActivity(
                 Intent.createChooser(intent, "Поделиться чатом (PDF)")

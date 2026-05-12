@@ -6,19 +6,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.UUID;
 
 public class UpdateChatNameRequest {
-    public final UUID chatId;
     public final String name;
 
     @JsonCreator
     public UpdateChatNameRequest(
-            @JsonProperty("chatId") UUID chatId,
             @JsonProperty("name") String name) {
-        this.chatId = chatId;
         this.name = name;
     }
 
     @Override
     public String toString() {
-        return "UpdateChatNameRequest { chatId=" + chatId + ", name='" + name + "' }";
+        return "UpdateChatNameRequest { name='" + name + "' }";
     }
 }

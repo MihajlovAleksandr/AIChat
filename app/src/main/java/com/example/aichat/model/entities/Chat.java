@@ -1,8 +1,9 @@
 package com.example.aichat.model.entities;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
-import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
@@ -31,25 +32,36 @@ public class Chat implements Comparable<Chat> {
     private List<UUID> users;
 
     private boolean pinned = false;
-
     private boolean group = false;
 
-    // -------------------- CONSTRUCTORS --------------------
+    private String chatTypeHint = "Ч";
 
     public Chat() {
         this.creationTime = TimeConverter.getString(LocalDateTime.now());
         this.users = new ArrayList<>();
+        this.chatTypeHint = "Ч";
     }
 
-    @Ignore
     public Chat(@NotNull UUID id, String name, String creationTime, String endTime, List<UUID> users) {
         this.id = id;
         this.name = name;
         this.creationTime = creationTime;
         this.endTime = endTime;
         this.users = (users != null ? users : new ArrayList<>());
-        this.group = (this.users != null && this.users.size() > 2);
+        this.group = this.users.size() > 2;
+        this.chatTypeHint = "Ч";
     }
+
+    public Chat(@NotNull UUID id, String name, String creationTime, String endTime, List<UUID> users, String chatTypeHint) {
+        this.id = id;
+        this.name = name;
+        this.creationTime = creationTime;
+        this.endTime = endTime;
+        this.users = (users != null ? users : new ArrayList<>());
+        this.group = this.users.size() > 2;
+        this.chatTypeHint = chatTypeHint;
+    }
+
     @NonNull
     public UUID getId() {
         return id;
@@ -100,7 +112,6 @@ public class Chat implements Comparable<Chat> {
     public void removeUser(UUID userId) {
         if (users == null) return;
         users.remove(userId);
-
         this.group = users.size() > 2;
     }
 
@@ -118,7 +129,9 @@ public class Chat implements Comparable<Chat> {
     }
 
     public boolean isActive() {
-        return endTime == null;
+        if (endTime == null) return true;
+        Log.e("isActive: ", getEndTimeFormat() + "\t\t" + LocalDateTime.now());
+        return !getEndTimeFormat().isBefore(LocalDateTime.now());
     }
 
     public boolean isPinned() {
@@ -129,14 +142,20 @@ public class Chat implements Comparable<Chat> {
         this.pinned = pinned;
     }
 
-    // -------------------- GROUP --------------------
-
     public boolean isGroup() {
         return group;
     }
 
     public void setGroup(boolean group) {
         this.group = group;
+    }
+
+    public String getChatTypeHint() {
+        return chatTypeHint;
+    }
+
+    public void setChatTypeHint(String chatTypeHint) {
+        this.chatTypeHint = chatTypeHint;
     }
 
     @Override

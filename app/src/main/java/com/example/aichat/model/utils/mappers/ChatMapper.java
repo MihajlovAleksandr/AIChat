@@ -7,6 +7,6 @@ public class ChatMapper implements MapperResponse<Chat, ChatResponse> {
 
     @Override
     public Chat ToModel(ChatResponse chatResponse) {
-        return new Chat(chatResponse.id, chatResponse.name, chatResponse.creationTime, chatResponse.endTime, chatResponse.users);
+        return new Chat(chatResponse.id, chatResponse.name, chatResponse.joinTime, chatResponse.endTime, chatResponse.users);
     }
 }

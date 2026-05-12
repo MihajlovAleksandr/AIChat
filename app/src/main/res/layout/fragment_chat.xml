@@ -292,11 +292,24 @@
             android:contentDescription="@string/cancel" />
     </LinearLayout>
 
+    <ImageButton
+        android:id="@+id/btn_attach_file"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/ic_attach_file"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/attach_file"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:tint="?attr/colorControlNormal"/>
+
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/ti_message"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:hint="@string/message_hint"
@@ -308,19 +321,42 @@
         android:scrollbars="vertical"
         android:inputType="textMultiLine"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/b_send_message"/>
+        app:layout_constraintStart_toEndOf="@id/btn_attach_file"
+        app:layout_constraintEnd_toStartOf="@id/file_counter_layout"/>
 
-    <Button
-        android:id="@+id/b_send_message"
+    <!-- КОНТЕЙНЕР ДЛЯ СЧЕТЧИКА И КНОПКИ ОТПРАВКИ -->
+    <LinearLayout
+        android:id="@+id/file_counter_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
-        android:text="@string/send_button"
-        android:enabled="false"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- СЧЕТЧИК ФАЙЛОВ -->
+        <TextView
+            android:id="@+id/file_counter"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:text="0"
+            android:textSize="12sp"
+            android:textColor="@android:color/white"
+            android:background="@drawable/badge_circle"
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- КНОПКА ОТПРАВКИ -->
+        <Button
+            android:id="@+id/b_send_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/send_button"
+            android:enabled="false"/>
+    </LinearLayout>
 
     <View
         android:id="@+id/divider_chat_ended"

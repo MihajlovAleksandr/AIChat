@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
@@ -37,7 +39,12 @@
             </intent-filter>
         </activity>
 
-        <!-- LOGIN / REGISTRATION -->
+        <activity
+            android:name=".view.main.marketplace.AiMarketplaceActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat"
+            android:configChanges="locale|layoutDirection|uiMode|screenSize|orientation" />
+
         <activity
             android:name=".view.LoginActivity"
             android:exported="true"
@@ -58,6 +65,7 @@
             android:exported="false"
             android:theme="@style/Theme.AIChat"
             android:configChanges="locale|layoutDirection|uiMode|screenSize|orientation" />
+
         <activity
             android:name=".QRCodeActivity"
             android:exported="false"
@@ -95,6 +103,11 @@
             android:theme="@style/Theme.AIChat"
             android:configChanges="locale|layoutDirection|uiMode|screenSize|orientation" />
 
+        <activity
+            android:name=".ImagePreviewActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat" />
+
         <service
             android:name=".model.notifications.MyFirebaseMessagingService"
             android:exported="false"
@@ -104,12 +117,12 @@
             </intent-filter>
         </service>
 
-        <!-- FILE PROVIDER -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.provider"
+            android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
+
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />

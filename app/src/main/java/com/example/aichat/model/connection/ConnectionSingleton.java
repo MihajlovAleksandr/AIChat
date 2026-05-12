@@ -1,115 +1,31 @@
 package com.example.aichat.model.connection;
 
-import android.util.Log;
+import android.app.Activity;
 
-import com.example.aichat.model.database.DatabaseManager;
+import com.example.aichat.view.main.MainActivity;
 
 public class ConnectionSingleton {
-
     private static final ConnectionSingleton instance = new ConnectionSingleton();
 
-    private ConnectionManager connectionManager;
-    private InAppConnection inAppConnection;
-    private String savedToken;
+    private static boolean isInitialized = false;
+    private static ConnectionDispatcher dispatcher;
 
-    private final HttpClient httpClient = new HttpClient();
+    public static void init(Activity activity){
+        if(activity.getClass() != MainActivity.class)
+            throw new IllegalArgumentException("Only Main Activity can initialize Connection Singleton");
+        dispatcher = new ConnectionDispatcher(new TokenStorage(activity));
+        isInitialized = true;
+    }
 
-    private boolean availableToClose = true;
-
-    private ConnectionSingleton() {}
-
-    public static ConnectionSingleton getInstance() {
+    public static ConnectionSingleton getInstance(){
         return instance;
     }
 
-
-    public synchronized ConnectionManager getConnectionManager() {
-        return connectionManager;
+    public ConnectionDispatcher getConnectionDispatcher(){
+        if(!isInitialized)
+            throw new RuntimeException("Connection dispatcher is not initialized");
+        return dispatcher;
     }
 
-    public synchronized void setConnectionManager(ConnectionManager manager) {
-
-        if (this.connectionManager == manager) return;
-
-        destroyInAppConnectionInternal();
-        destroyConnectionManagerInternal();
-
-        this.connectionManager = manager;
-    }
-    public synchronized void setInAppConnection(InAppConnection conn) {
-        destroyInAppConnectionInternal();
-        this.inAppConnection = conn;
-    }
-
-    public synchronized InAppConnection getInAppConnection() {
-        return inAppConnection;
-    }
-
-    public synchronized void destroyInAppConnection() {
-        destroyInAppConnectionInternal();
-    }
-
-    private void destroyInAppConnectionInternal() {
-        if (inAppConnection != null) {
-            try { inAppConnection.destroy(); } catch (Exception ignored) {}
-            inAppConnection = null;
-        }
-    }
-
-    public synchronized void setToken(String token) {
-        this.savedToken = token;
-    }
-
-    public synchronized String getToken() {
-        return savedToken;
-    }
-    public HttpClient getHttpClient() {
-        return httpClient;
-    }
-
-    public synchronized boolean isAvailableToClose() {
-        return availableToClose;
-    }
-
-    public synchronized void setAvailableToClose(boolean availableToClose) {
-        this.availableToClose = availableToClose;
-    }
-
-    public synchronized void resetConnectionOnly() {
-
-        Log.d("ConnectionSingleton", "resetConnectionOnly()");
-
-        destroyInAppConnectionInternal();
-        destroyConnectionManagerInternal();
-
-        connectionManager = null;
-        savedToken = null;
-
-        availableToClose = true;
-
-        try {
-            DatabaseManager.getDatabase().pendingCommandDao().clearTable();
-        } catch (Exception ignored) {}
-    }
-
-    public synchronized void resetFull() {
-
-        Log.d("ConnectionSingleton", "resetFull()");
-
-        resetConnectionOnly();
-
-        try {
-            DatabaseManager.getDatabase().clearAllTables();
-            Log.d("DB", "Logout complete. Database cleared.");
-        } catch (Exception ignored) {}
-    }
-
-    private void destroyConnectionManagerInternal() {
-        if (connectionManager != null) {
-            try { connectionManager.clearConnectionEvents(); } catch (Exception ignored) {}
-            try { connectionManager.Close(); } catch (Exception ignored) {}
-            try { connectionManager.dispose(); } catch (Exception ignored) {}
-        }
-        connectionManager = null;
-    }
+    private ConnectionSingleton(){}
 }

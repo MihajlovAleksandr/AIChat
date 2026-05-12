@@ -1,5 +1,6 @@
 package com.example.aichat.view.main.chatlist;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.aichat.R;
@@ -21,6 +23,7 @@ import com.example.aichat.view.main.chat.ui.UiAnimations;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +31,7 @@ import io.noties.markwon.Markwon;
 
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private static final String TAG = "ChatAdapter";
     private static final int TYPE_CHAT = 0;
     private static final int TYPE_PLACEHOLDER = 1;
 
@@ -37,16 +41,26 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final MessageController messageController;
     private final OnChatClickListener listener;
 
+    private final Comparator<MessageChat> comparator = new MessageChatComparator();
     private RecyclerView recyclerView;
 
     private ChatOpenedChecker openedChecker;
+    private OnEmptyStateListener emptyStateListener;
 
     public interface ChatOpenedChecker {
         boolean isChatOpened(UUID chatId);
     }
 
+    public interface OnEmptyStateListener {
+        void onEmptyState(boolean isEmpty);
+    }
+
     public void setChatOpenedChecker(ChatOpenedChecker checker) {
         this.openedChecker = checker;
+    }
+
+    public void setOnEmptyStateListener(OnEmptyStateListener listener) {
+        this.emptyStateListener = listener;
     }
 
     public ChatAdapter(OnChatClickListener listener, MessageController messageController) {
@@ -64,70 +78,98 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         allChats.clear();
         allChats.addAll(chats);
 
-        visibleChats.clear();
-        visibleChats.addAll(chats);
+        List<MessageChat> sorted = new ArrayList<>(chats);
+        Collections.sort(sorted, comparator);
 
-        notifyDataSetChanged();
+        applyDiff(sorted);
+        notifyEmptyState();
+    }
+
+    private void applyDiff(List<MessageChat> newList) {
+        DiffUtil.DiffResult diff = DiffUtil.calculateDiff(
+                new MessageChatDiffCallback(visibleChats, newList)
+        );
+        visibleChats.clear();
+        visibleChats.addAll(newList);
+        diff.dispatchUpdatesTo(this);
+    }
+
+    private void notifyEmptyState() {
+        if (emptyStateListener != null) {
+            emptyStateListener.onEmptyState(visibleChats.isEmpty());
+        }
     }
 
     public void setVisibleChats(List<MessageChat> chats) {
-        visibleChats.clear();
-        visibleChats.addAll(chats);
-        notifyDataSetChanged();
+        List<MessageChat> sorted = new ArrayList<>(chats);
+        Collections.sort(sorted, comparator);
+
+        applyDiff(sorted);
+        notifyEmptyState();
     }
 
     public void setAllChatsVisible() {
-        visibleChats.clear();
-        visibleChats.addAll(allChats);
-        notifyDataSetChanged();
+        List<MessageChat> sorted = new ArrayList<>(allChats);
+        Collections.sort(sorted, comparator);
+
+        applyDiff(sorted);
+        notifyEmptyState();
     }
 
     public void addChat(MessageChat chat) {
-        allChats.add(0, chat);
-        visibleChats.add(0, chat);
-        notifyItemInserted(0);
+        allChats.add(chat);
 
-        if (recyclerView != null && recyclerView.getLayoutManager() != null) {
-            View v = recyclerView.getLayoutManager().findViewByPosition(0);
-            if (v != null) UiAnimations.animateNewMessage(v);
-        }
+        List<MessageChat> sorted = new ArrayList<>(allChats);
+        Collections.sort(sorted, comparator);
+
+        applyDiff(sorted);
+        notifyEmptyState();
+
+        recyclerView.post(() -> {
+            int pos = visibleChats.indexOf(chat);
+            if (pos != -1) {
+                RecyclerView.ViewHolder vh = recyclerView.findViewHolderForAdapterPosition(pos);
+                if (vh != null) {
+                    UiAnimations.animateNewChat(vh.itemView);
+                }
+            }
+        });
     }
 
     public void removeChat(UUID chatId) {
-        for (int i = 0; i < allChats.size(); i++) {
-            if (allChats.get(i).getChat().getId().equals(chatId)) {
-                allChats.remove(i);
-                break;
-            }
-        }
-
+        Log.d(TAG, "removeChat called for chatId: " + chatId);
+        int pos = -1;
         for (int i = 0; i < visibleChats.size(); i++) {
             if (visibleChats.get(i).getChat().getId().equals(chatId)) {
-
-                final int index = i;
-
-                if (recyclerView != null && recyclerView.getLayoutManager() != null) {
-                    View v = recyclerView.getLayoutManager().findViewByPosition(index);
-                    if (v != null) {
-                        UiAnimations.animateChatRemove(v, () -> {
-                            visibleChats.remove(index);
-                            notifyItemRemoved(index);
-                        });
-                    } else {
-                        visibleChats.remove(index);
-                        notifyItemRemoved(index);
-                    }
-                } else {
-                    visibleChats.remove(i);
-                    notifyItemRemoved(i);
-                }
-
+                pos = i;
                 break;
             }
         }
+
+        if (pos != -1 && recyclerView != null) {
+            RecyclerView.ViewHolder vh = recyclerView.findViewHolderForAdapterPosition(pos);
+            if (vh != null) {
+                UiAnimations.animateRemoveChat(vh.itemView, () -> {
+                    allChats.removeIf(mc -> mc.getChat().getId().equals(chatId));
+                    List<MessageChat> sorted = new ArrayList<>(allChats);
+                    Collections.sort(sorted, comparator);
+                    applyDiff(sorted);
+                    notifyEmptyState();
+                    Log.d(TAG, "Chat removed with animation");
+                });
+                return;
+            }
+        }
+        allChats.removeIf(mc -> mc.getChat().getId().equals(chatId));
+        List<MessageChat> sorted = new ArrayList<>(allChats);
+        Collections.sort(sorted, comparator);
+        applyDiff(sorted);
+        notifyEmptyState();
+        Log.d(TAG, "Chat removed without animation");
     }
 
     public void renameChat(UUID chatId, String newName) {
+        Log.d(TAG, "renameChat called for chatId: " + chatId + ", newName: " + newName);
         for (MessageChat mc : allChats) {
             if (mc.getChat().getId().equals(chatId)) {
                 mc.getChat().setName(newName);
@@ -137,11 +179,27 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (visibleChats.get(i).getChat().getId().equals(chatId)) {
                 visibleChats.get(i).getChat().setName(newName);
                 notifyItemChanged(i);
+                Log.d(TAG, "Chat renamed at position: " + i);
                 break;
             }
         }
     }
 
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewRecycled(holder);
+
+        View v = holder.itemView;
+
+        v.animate().cancel();
+
+        v.setAlpha(1f);
+        v.setTranslationX(0f);
+        v.setTranslationY(0f);
+        v.setScaleX(1f);
+        v.setScaleY(1f);
+        v.setRotation(0f);
+    }
 
     public void updateLastMessage(Message message) {
         UUID chatId = message.getChat();
@@ -150,11 +208,14 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         for (int i = 0; i < visibleChats.size(); i++) {
             MessageChat mc = visibleChats.get(i);
+
             if (mc.getChat().getId().equals(chatId)) {
 
                 mc.setMessage(message);
 
-                if (openedChecker != null && !openedChecker.isChatOpened(chatId)) {
+                if (openedChecker != null
+                        && !openedChecker.isChatOpened(chatId)
+                        && !messageController.isMyMessage(message)) {
                     mc.addUnreadMessage(message);
                 }
 
@@ -163,10 +224,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         }
 
-        Collections.sort(allChats);
-        Collections.sort(visibleChats);
+        if (oldPos == -1) return;
+
+        allChats.sort(comparator);
+        visibleChats.sort(comparator);
 
         int newPos = -1;
+
         for (int i = 0; i < visibleChats.size(); i++) {
             if (visibleChats.get(i).getChat().getId().equals(chatId)) {
                 newPos = i;
@@ -174,14 +238,14 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         }
 
-        if (oldPos != -1 && newPos != -1 && oldPos != newPos) {
-            notifyItemMoved(oldPos, newPos);
-            notifyItemChanged(newPos);
-        } else {
-            notifyDataSetChanged();
-        }
-    }
+        if (newPos == -1) return;
 
+        if (oldPos != newPos) {
+            notifyItemMoved(oldPos, newPos);
+        }
+
+        notifyItemChanged(newPos);
+    }
 
     public void updateMessageStatus(MessageChat msg) {
         for (int i = 0; i < allChats.size(); i++) {
@@ -199,19 +263,32 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public void endChat(Chat chat) {
+    public void endChat(UUID chatId) {
+        Log.d(TAG, "endChat called for chatId: " + chatId);
+
         for (MessageChat mc : allChats) {
-            if (mc.getChat().getId().equals(chat.getId())) {
+            if (mc.getChat().getId().equals(chatId)) {
                 mc.setEnded(true);
-            }
-        }
-        for (int i = 0; i < visibleChats.size(); i++) {
-            if (visibleChats.get(i).getChat().getId().equals(chat.getId())) {
-                visibleChats.get(i).setEnded(true);
-                notifyItemChanged(i);
+                Log.d(TAG, "Chat marked as ended in allChats: " + chatId);
                 break;
             }
         }
+
+        for (int i = 0; i < visibleChats.size(); i++) {
+            if (visibleChats.get(i).getChat().getId().equals(chatId)) {
+                visibleChats.get(i).setEnded(true);
+                notifyItemChanged(i);
+                Log.d(TAG, "Chat marked as ended at position: " + i);
+                break;
+            }
+        }
+
+        notifyEmptyState();
+    }
+
+    public boolean isChatEnded(UUID chatId) {
+        MessageChat mc = getMessageChat(chatId);
+        return mc != null && mc.isEnded();
     }
 
     @Nullable
@@ -222,6 +299,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return null;
     }
 
+    public int getChatsCount() {
+        return visibleChats.size();
+    }
+
     public void setPlaceholders(int count) {
         visibleChats.clear();
         for (int i = 0; i < count; i++) {
@@ -229,7 +310,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
         notifyDataSetChanged();
     }
-
 
     @Override
     public int getItemViewType(int position) {
@@ -266,11 +346,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return visibleChats.size();
     }
 
-
     static class ChatViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView tvChatName, tvLastMessage, tvTime, tvUnreadCount;
-        private final ImageView ivChatStatus, ivMessageStatus, ivPin;
+        private final TextView tvChatName, tvLastMessage, tvTime, tvUnreadCount, tvChatTypeLetter;
+        private final ImageView ivChatStatus;
         private final MessageController messageController;
         private final Markwon markwon;
 
@@ -281,8 +360,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             tvTime = itemView.findViewById(R.id.tv_time);
             tvUnreadCount = itemView.findViewById(R.id.tv_unread_count);
             ivChatStatus = itemView.findViewById(R.id.iv_chat_status);
-            ivMessageStatus = itemView.findViewById(R.id.iv_message_status);
-            ivPin = itemView.findViewById(R.id.iv_pin);
+            tvChatTypeLetter = itemView.findViewById(R.id.tv_chat_type_letter);
 
             this.messageController = messageController;
             this.markwon = markwon;
@@ -292,7 +370,61 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             tvChatName.setText(messageChat.getChat().getName());
             tvTime.setText(ChatController.getFormattedTime(messageChat.getTime()));
 
-            ivChatStatus.setSelected(messageChat.getChat().isActive());
+            boolean isActive = messageChat.getChat().isActive();
+            boolean isEnded = messageChat.getChat().getEndTime() != null;
+
+            if (!isActive || isEnded) {
+                ivChatStatus.setAlpha(0.5f);
+            } else {
+                ivChatStatus.setAlpha(1f);
+            }
+
+            String chatTypeHint = messageChat.getChat().getChatTypeHint();
+
+            if (chatTypeHint != null && !chatTypeHint.isEmpty()) {
+                tvChatTypeLetter.setVisibility(View.VISIBLE);
+                tvChatTypeLetter.setText(chatTypeHint);
+
+                int color;
+                String tooltip;
+
+                if (chatTypeHint.equals(itemView.getContext().getString(R.string.chat_type_letter_group))) {
+                    color = 0xFF4A90E2;
+                    tooltip = itemView.getContext().getString(R.string.chat_type_group);
+                } else if (chatTypeHint.equals(itemView.getContext().getString(R.string.chat_type_letter_ai))) {
+                    color = 0xFF9B59B6;
+                    tooltip = itemView.getContext().getString(R.string.chat_type_ai);
+                } else if (chatTypeHint.equals(itemView.getContext().getString(R.string.chat_type_letter_human))) {
+                    color = 0xFF2ECC71;
+                    tooltip = itemView.getContext().getString(R.string.chat_type_human);
+                } else if (chatTypeHint.equals(itemView.getContext().getString(R.string.chat_type_letter_random))) {
+                    color = 0xFF7F8C8D;
+                    tooltip = itemView.getContext().getString(R.string.chat_type_random);
+                } else {
+                    color = 0xFFAAAAAA;
+                    tooltip = "";
+                }
+
+                tvChatTypeLetter.setBackgroundTintList(
+                        android.content.res.ColorStateList.valueOf(color)
+                );
+
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    tvChatTypeLetter.setTooltipText(tooltip);
+                } else {
+                    tvChatTypeLetter.setOnLongClickListener(v -> {
+                        android.widget.Toast.makeText(
+                                v.getContext(),
+                                tooltip,
+                                android.widget.Toast.LENGTH_SHORT
+                        ).show();
+                        return true;
+                    });
+                }
+
+            } else {
+                tvChatTypeLetter.setVisibility(View.GONE);
+            }
 
             String text = messageChat.getText(itemView.getResources());
             markwon.setMarkdown(tvLastMessage, text);
@@ -302,18 +434,15 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             if (unread > 0) {
                 tvUnreadCount.setText(String.valueOf(unread));
+                UiAnimations.animateUnreadBadge(tvUnreadCount);
             }
 
             tvLastMessage.setTypeface(
                     null,
                     unread > 0 ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL
             );
-
-            ivPin.setVisibility(messageChat.getChat().isPinned() ? View.VISIBLE : View.GONE);
         }
-
         public void setClickHandlers(MessageChat messageChat, OnChatClickListener listener) {
-
             itemView.setOnTouchListener((v, e) -> {
                 switch (e.getAction()) {
                     case MotionEvent.ACTION_DOWN:

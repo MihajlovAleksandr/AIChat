@@ -2,101 +2,80 @@ package com.example.aichat.view.main;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Toast;
-
+import com.example.aichat.model.entities.Message;
 import androidx.activity.OnBackPressedCallback;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.aichat.R;
 import com.example.aichat.model.SecurePreferencesManager;
-import com.example.aichat.model.connection.ConnectionManager;
+import com.example.aichat.model.connection.ConnectionDispatcher;
+import com.example.aichat.model.connection.ConnectionStateListener;
+import com.example.aichat.model.connection.LogoutHelper;
 import com.example.aichat.model.connection.ConnectionSingleton;
-import com.example.aichat.model.connection.HttpClient;
-import com.example.aichat.model.connection.InAppConnection;
 import com.example.aichat.model.database.DatabaseManager;
-import com.example.aichat.model.entities.CommandOperation;
-import com.example.aichat.model.entities.WSSCommand;
+import com.example.aichat.model.exceptions.UnauthorizedException;
 import com.example.aichat.model.notifications.MyFirebaseMessagingService;
 import com.example.aichat.model.notifications.NotificationSettingsManager;
 import com.example.aichat.model.notifications.NotificationSettingsManager.NotificationCallback;
 import com.example.aichat.model.notifications.NotificationSingleton;
+import com.example.aichat.model.notifications.NotificationTokenManager;
 import com.example.aichat.view.BaseActivity;
 import com.example.aichat.view.LoginActivity;
+import com.example.aichat.view.main.chatlist.ChatsListFragment;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.UUID;
 
 public class MainActivity extends BaseActivity {
 
+    private static final String TAG = "MainActivity";
+
     private ViewPager2 viewPager;
     private MainActivityAdapter pagerAdapter;
-    private InAppConnection inAppConnection;
     private UUID userId;
-    private boolean isNewActivity;
-
+    private ChatsListFragment chatsListFragment;
     private View chatContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         DatabaseManager.init(this);
+        ConnectionSingleton.init(this);
         super.onCreate(savedInstanceState);
         NotificationSingleton.init();
         setContentView(R.layout.activity_main);
-
-        HttpClient http = new HttpClient();
-
-        http.fetchAsync("api/chat/08dd271f-c435-485f-a59d-078eb25f00bb", HttpClient.HTTPMethod.GET, null)
-                .thenAccept(cmd -> {
-                    if (cmd.isSuccess()) {
-                        Log.e("OK:", cmd.getOperation()+"");
-                    } else {
-                        Log.e("ERROR: ", cmd.getCode()+"");
-                    }
-                });
-
-
         chatContainer = findViewById(R.id.view_pager_fragment_container);
+        setupViewPager();
+
+        if (pagerAdapter != null && pagerAdapter.getController() != null) {
+            ChatsListFragment fragment = pagerAdapter.getChatsListFragment();
+            if (fragment != null) {
+                pagerAdapter.getController().setChatsListFragment(fragment);
+                Log.d(TAG, "✅ ChatsListFragment set to controller BEFORE connection");
+            }
+        }
 
         if (!setupConnection()) return;
 
-        setupViewPager();
         setupBackPressHandler();
+        setupConnectionStateListener();
         checkAndRequestNotificationPermission();
+
+        FirebaseMessaging.getInstance().getToken()
+                .addOnSuccessListener(token ->
+                        NotificationTokenManager.onNewToken(this, token)
+                );
 
         String chatId = getIntent().getStringExtra("chatId");
         if (chatId != null) openChat(UUID.fromString(chatId));
     }
 
     private boolean setupConnection() {
-
         String token = SecurePreferencesManager.getAuthToken(this);
-
-        if (token == null) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-            return false;
-        }
-
-        ConnectionSingleton singleton = ConnectionSingleton.getInstance();
-        ConnectionManager connectionManager = singleton.getConnectionManager();
-
-        isNewActivity = false;
-
-        if (connectionManager == null) {
-            connectionManager = new ConnectionManager(token);
-            singleton.setConnectionManager(connectionManager);
-            singleton.setToken(token);
-            isNewActivity = true;
-        } else {
-            String storedToken = singleton.getToken();
-            if (storedToken == null || !storedToken.equals(token)) {
-                singleton.setToken(token);
-                connectionManager.setToken(token);
-            }
-        }
 
         userId = SecurePreferencesManager.getUserId(this);
         if (userId == null) {
@@ -105,26 +84,78 @@ public class MainActivity extends BaseActivity {
             return false;
         }
 
-        pagerAdapter = new MainActivityAdapter(this, userId, isNewActivity);
-        inAppConnection = new InAppConnection(connectionManager, this, userId);
-
-        if (!isNewActivity) {
-            connectionManager.SendCommand(new WSSCommand("SyncDB"));
-        }
-
-        MyFirebaseMessagingService.sendRegistrationTokenToServer(
-                SecurePreferencesManager.getNotificationToken(this)
-        );
+        pagerAdapter.connect();
 
         return true;
+    }
+
+    public void updateChatLastMessage(Message message) {
+        if (chatsListFragment != null) {
+            chatsListFragment.updateLastMessage(message);
+        }
+    }
+    private void setupConnectionStateListener() {
+        ConnectionDispatcher dispatcher = ConnectionSingleton.getInstance().getConnectionDispatcher();
+
+        if (dispatcher == null) {
+            Log.e(TAG, "ConnectionDispatcher is null, cannot setup listener");
+            return;
+        }
+
+        dispatcher.addStateListener(new ConnectionStateListener() {
+            @Override
+            public void onConnected() {
+                Log.d(TAG, "Connected to server");
+
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "Соединение установлено", Toast.LENGTH_SHORT).show();
+                });
+
+                NotificationTokenManager.onConnected(MainActivity.this);
+            }
+
+            @Override
+            public void onDisconnected() {
+                Log.d(TAG, "Disconnected from server");
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "Соединение потеряно", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onReconnecting() {
+                Log.d(TAG, "Reconnecting to server...");
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "Переподключение...", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onFatalError(Throwable t) {
+                if (t instanceof UnauthorizedException) {
+                    Log.e(TAG, "Unauthorized! Logging out...");
+                    runOnUiThread(() -> logout());
+                } else {
+                    Log.e(TAG, "Fatal error: ", t);
+                    runOnUiThread(() -> {
+                        Toast.makeText(MainActivity.this, "Критическая ошибка: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                    });
+                }
+            }
+        });
     }
 
     private void setupViewPager() {
         viewPager = findViewById(R.id.view_pager);
 
+        // Создаём адаптер (внутри него создастся фрагмент)
+        pagerAdapter = new MainActivityAdapter(this, null, true);
+
         viewPager.setSaveEnabled(false);
         viewPager.setAdapter(pagerAdapter);
         viewPager.setUserInputEnabled(false);
+
+        Log.d(TAG, "ViewPager and adapter initialized");
     }
 
     private void setupBackPressHandler() {
@@ -176,7 +207,6 @@ public class MainActivity extends BaseActivity {
         String chatId = intent.getStringExtra("chatId");
         if (chatId != null) openChat(UUID.fromString(chatId));
     }
-
 
     private void animateOpenChat() {
         chatContainer.setVisibility(View.VISIBLE);
@@ -251,35 +281,30 @@ public class MainActivity extends BaseActivity {
         return pagerAdapter.getCurrentChatId();
     }
 
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (inAppConnection != null) {
-            inAppConnection.pause();
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (inAppConnection != null) {
-            inAppConnection.resume();
-        }
+    public MainActivityAdapter getPagerAdapter() {
+        return pagerAdapter;
     }
 
     @Override
     protected void onDestroy() {
         if (pagerAdapter != null) {
             boolean isLogout = pagerAdapter.destroy();
-
-            if (!isLogout && ConnectionSingleton.getInstance().isAvailableToClose()) {
-                if (inAppConnection != null) inAppConnection.destroy();
-            }
-
-            ConnectionSingleton.getInstance().setAvailableToClose(true);
         }
 
         super.onDestroy();
+    }
+
+    private UUID currentChatId = null;
+
+    public void setCurrentChatId(UUID chatId) {
+        this.currentChatId = chatId;
+    }
+
+    public UUID getCurrentChatId() {
+        return currentChatId;
+    }
+    private void logout() {
+        Log.d(TAG, "Logging out due to unauthorized access");
+        LogoutHelper.logout(this);
     }
 }

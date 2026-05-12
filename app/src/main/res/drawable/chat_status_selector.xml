@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Неактивный чат (завершенный) -->
+    <item android:state_enabled="false" android:drawable="@drawable/circle_gray" />
 
-    <solid android:color="@color/teal_primary"/>
-
-    <stroke
-        android:width="2dp"
-        android:color="?attr/chatCircleStroke"/>
-</shape>
+    <!-- Активный чат (по умолчанию) -->
+    <item android:drawable="@drawable/circle_teal" />
+</selector>

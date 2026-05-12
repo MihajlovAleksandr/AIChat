@@ -43,17 +43,13 @@ public class ToolbarSearchManager {
     }
 
     private void init() {
-
-        // Отключаем long‑press полностью
-        btnToolbarSearch.setLongClickable(false);
-        btnToolbarSearch.setOnLongClickListener(v -> true);
+        // Убираем блокировку long click
+        btnToolbarSearch.setLongClickable(true);
+        btnToolbarSearch.setOnLongClickListener(null);
 
         btnToolbarSearch.setOnClickListener(v -> {
             if (!isSearchActive) {
                 openSearch();
-            } else {
-                if (listener != null)
-                    listener.onSearch(etToolbarSearch.getText().toString().trim());
             }
         });
 
@@ -61,22 +57,29 @@ public class ToolbarSearchManager {
 
         etToolbarSearch.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH && listener != null) {
-                listener.onSearch(etToolbarSearch.getText().toString().trim());
+                String query = etToolbarSearch.getText().toString().trim();
+                if (!query.isEmpty()) {
+                    listener.onSearch(query);
+                }
                 return true;
             }
             return false;
         });
 
         etToolbarSearch.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (isSearchActive && listener != null)
-                    listener.onSearch(s.toString().trim());
+                if (isSearchActive && listener != null) {
+                    String query = s.toString().trim();
+                    listener.onSearch(query);
+                }
             }
 
-            @Override public void afterTextChanged(Editable s) {}
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
     }
 
@@ -85,6 +88,7 @@ public class ToolbarSearchManager {
         isSearchActive = true;
 
         tvAppName.setVisibility(View.GONE);
+        tvAppName.setAlpha(1f);
 
         etToolbarSearch.setText("");
         etToolbarSearch.setVisibility(View.VISIBLE);
@@ -95,7 +99,9 @@ public class ToolbarSearchManager {
 
         InputMethodManager imm = (InputMethodManager)
                 etToolbarSearch.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) imm.showSoftInput(etToolbarSearch, InputMethodManager.SHOW_IMPLICIT);
+        if (imm != null) {
+            imm.showSoftInput(etToolbarSearch, InputMethodManager.SHOW_IMPLICIT);
+        }
     }
 
     public void closeSearch() {
@@ -112,12 +118,20 @@ public class ToolbarSearchManager {
 
         InputMethodManager imm = (InputMethodManager)
                 etToolbarSearch.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) imm.hideSoftInputFromWindow(etToolbarSearch.getWindowToken(), 0);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(etToolbarSearch.getWindowToken(), 0);
+        }
 
-        if (listener != null) listener.onCloseSearch();
+        if (listener != null) {
+            listener.onCloseSearch();
+        }
     }
 
     public boolean isSearchActive() {
+        return isSearchActive;
+    }
+
+    public boolean isSearchMode() {
         return isSearchActive;
     }
 }

@@ -3,26 +3,29 @@ package com.example.aichat.controller;
 import android.content.Intent;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.example.aichat.R;
 import com.example.aichat.dto.request.PreferenceRequest;
-import com.example.aichat.dto.response.LoginInResponse;
-import com.example.aichat.dto.response.TokenResponse;
+import com.example.aichat.dto.response.ApiError;
+import com.example.aichat.model.connection.ConnectionDispatcher;
+import com.example.aichat.model.connection.HttpClient;
+import com.example.aichat.model.connection.JwtUtils;
+import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.entities.PreferenceGender;
 import com.example.aichat.view.main.MainActivity;
 import com.example.aichat.view.PreferenceActivity;
-import com.example.aichat.model.entities.WSSCommand;
-import com.example.aichat.model.connection.ConnectionManager;
-import com.example.aichat.model.connection.ConnectionSingleton;
-import com.example.aichat.model.connection.OnConnectionEvents;
 import com.example.aichat.model.entities.Preference;
 import com.example.aichat.model.SecurePreferencesManager;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.util.Objects;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.UUID;
 
 public class PreferenceController {
 
@@ -31,15 +34,15 @@ public class PreferenceController {
     private final TextInputLayout maxAgeInputLayout;
     private final RadioGroup genderGroup;
     private final Button submitButton;
-    private final Button skipButton;
     private final Preference preferenceToEdit;
+    private final PreferenceRequest defaultPreference = new PreferenceRequest(18, 120, PreferenceGender.ANY);
 
-    private ConnectionManager connectionManager;
     private boolean isEditMode = false;
 
     private int originalMinAge = -1;
     private int originalMaxAge = -1;
     private PreferenceGender originalGender = null;
+    private final ConnectionDispatcher dispatcher;
 
     public PreferenceController(PreferenceActivity activity,
                                 TextInputLayout minAgeInputLayout,
@@ -63,7 +66,6 @@ public class PreferenceController {
         this.maxAgeInputLayout = maxAgeInputLayout;
         this.genderGroup = genderGroup;
         this.submitButton = submitButton;
-        this.skipButton = skipButton;
         this.preferenceToEdit = preferenceToEdit;
 
         if (preferenceToEdit != null) {
@@ -71,14 +73,7 @@ public class PreferenceController {
             populateFormWithPreference();
             skipButton.setVisibility(Button.GONE);
         }
-
-        connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
-        if (connectionManager == null) {
-            connectionManager = new ConnectionManager("");
-            ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
-        }
-
-        setupConnectionCallbacks();
+        dispatcher = ConnectionSingleton.getInstance().getConnectionDispatcher();
         setupButtons();
         setupValidation();
         updateSubmitButtonState();
@@ -117,55 +112,6 @@ public class PreferenceController {
         updateSubmitButtonState();
     }
 
-    private void setupConnectionCallbacks() {
-
-        if (isEditMode) {
-            connectionManager.addConnectionEvent(new OnConnectionEvents() {
-                @Override
-                public void OnCommandGot(WSSCommand WSSCommand) {
-                    if (Objects.equals(WSSCommand.getOperation(), "PreferenceUpdated")) {
-                        connectionManager.removeConnectionEvent(this);
-                        activity.finish();
-                    }
-                }
-
-                @Override public void OnConnectionFailed() {}
-                @Override public void OnOpen() {}
-            });
-
-        } else {
-            connectionManager.clearConnectionEvents();
-            connectionManager.addConnectionEvent(new OnConnectionEvents() {
-
-                @Override
-                public void OnCommandGot(WSSCommand WSSCommand) {
-
-                    switch (WSSCommand.getOperation()) {
-
-                        case "CreateToken":
-                            TokenResponse tokenResponse = WSSCommand.getData(TokenResponse.class);
-                            SecurePreferencesManager.saveAuthToken(activity, tokenResponse.token);
-                            connectionManager.setToken(tokenResponse.token);
-                            break;
-
-                        case "LoginIn":
-                            ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
-                            Intent intent = new Intent(activity, MainActivity.class);
-                            LoginInResponse loginInResponse = WSSCommand.getData(LoginInResponse.class);
-                            SecurePreferencesManager.saveUserId(activity, loginInResponse.userId);
-                            intent.putExtra("userId", loginInResponse.userId);
-                            activity.startActivity(intent);
-                            activity.finish();
-                            break;
-                    }
-                }
-
-                @Override public void OnConnectionFailed() {}
-                @Override public void OnOpen() {}
-            });
-        }
-    }
-
     private void setupButtons() {
         submitButton.setOnClickListener(v -> {
             int maxAge = validateAge(maxAgeInputLayout);
@@ -177,21 +123,41 @@ public class PreferenceController {
                     ? PreferenceGender.valueOf(selectedGender.getTag().toString())
                     : null;
 
-            WSSCommand WSSCommand = new WSSCommand(
-                    isEditMode ? "UpdatePreference" : "AddPreference",
-                    new PreferenceRequest(minAge, maxAge, gender)
-            );
-
-            connectionManager.SendCommand(WSSCommand);
+            fetch(new PreferenceRequest(minAge, maxAge, gender));
         });
-
-        skipButton.setOnClickListener(v ->
-                connectionManager.SendCommand(new WSSCommand("AddPreference"))
-        );
     }
 
-    public void sendSkipCommand() {
-        connectionManager.SendCommand(new WSSCommand("AddPreference"));
+    private void fetch(PreferenceRequest request){
+        String url = isEditMode ? "/api/user/preference" : "/api/auth/register/preference";
+        HttpClient.HTTPMethod method = isEditMode ? HttpClient.HTTPMethod.PUT : HttpClient.HTTPMethod.POST;
+
+        dispatcher.sendHttpRequestAsync(url, method, request, false)
+                .thenAccept((cmd)->{
+                    if(cmd.isSuccess()){
+                        if(isEditMode){
+                            activity.finish();
+                        }
+                        else{
+                            String jwt = cmd.getData(String.class);
+                            JSONObject jsonPayload = JwtUtils.decodePayload(jwt);
+                            try{
+                                UUID userId = UUID.fromString(jsonPayload.getString("sub"));
+                                SecurePreferencesManager.saveUserId(activity, userId);
+                                SecurePreferencesManager.saveAuthToken(activity, jwt);
+                                dispatcher.setToken(jwt);
+                                Intent intent = new Intent(activity, MainActivity.class);
+                                activity.startActivity(intent);
+                                activity.finish();
+
+                            } catch (JSONException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
+                    }
+                    else{
+                        Log.e("UserDataChange", cmd.getData(ApiError.class).toString());
+                    }
+                });
     }
 
     public void setupValidation() {
@@ -287,5 +253,9 @@ public class PreferenceController {
         boolean isGenderValid = validateGender();
 
         submitButton.setEnabled(isAgeValid && isGenderValid && isDataChanged());
+    }
+
+    public void sendSkipCommand() {
+        fetch(defaultPreference);
     }
 }

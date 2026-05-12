@@ -1,5 +1,7 @@
 package com.example.aichat.view.main;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
@@ -38,21 +40,33 @@ public class MainActivityAdapter extends FragmentStateAdapter {
         controller = new MainActivityController(
                 activity,
                 this,
-                currentUserId,
-                isNewActivity
+                currentUserId
         );
+
+        // ==================== ПРИНУДИТЕЛЬНОЕ СОЗДАНИЕ ФРАГМЕНТА ====================
+        createChatsListFragment();
     }
+
+    private void createChatsListFragment() {
+        UUID currentUserId = SecurePreferencesManager.getUserId(activity);
+        if (currentUserId == null) {
+            return;
+        }
+
+        chatsListFragment = ChatsListFragment.newInstance(false, currentUserId);
+        chatsListFragment.loadChatsFromDatabase(currentUserId);
+
+        if (controller != null) {
+            controller.setChatsListFragment(chatsListFragment);
+        }
+    }
+
     @NonNull
     @Override
     public androidx.fragment.app.Fragment createFragment(int position) {
         if (position == 1) {
             UUID chatId = controller.getCurrentChatId();
             return ChatFragment.newInstance(chatId, currentUserId);
-        }
-
-        if (chatsListFragment == null) {
-            chatsListFragment = ChatsListFragment.newInstance(false, currentUserId);
-            chatsListFragment.loadChatsFromDatabase(currentUserId);
         }
 
         return chatsListFragment;
@@ -101,11 +115,22 @@ public class MainActivityAdapter extends FragmentStateAdapter {
         }
     }
 
+    public void connect(){
+        controller.connect();
+    }
+
+    public MainActivityController getController() {
+        return controller;
+    }
+
+    public ChatsListFragment getChatsListFragment() {
+        return chatsListFragment;
+    }
 
     public boolean destroy() {
         boolean isLogout = controller.destroy();
         if (!isLogout) {
-            com.example.aichat.model.connection.ConnectionSingleton.getInstance().setAvailableToClose(false);
+
         }
         chatsListFragment = null;
         return isLogout;

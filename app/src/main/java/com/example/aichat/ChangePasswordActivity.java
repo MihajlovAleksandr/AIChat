@@ -1,6 +1,7 @@
 package com.example.aichat;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -9,11 +10,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.aichat.controller.PasswordController;
-import com.example.aichat.dto.request.ChangePasswordRequest;
-import com.example.aichat.model.connection.ConnectionManager;
-import com.example.aichat.model.connection.ConnectionSingleton;
-import com.example.aichat.model.connection.OnConnectionEvents;
-import com.example.aichat.model.entities.WSSCommand;
 import com.example.aichat.view.FullScreenHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
@@ -26,8 +22,6 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private EditText currentPasswordEditText, newPasswordEditText, confirmPasswordEditText;
     private Button changePasswordButton;
     private PasswordController passwordController;
-    private ConnectionManager connectionManager;
-    private OnConnectionEvents events;
     private FloatingActionButton btnBack;
 
     @Override
@@ -38,12 +32,9 @@ public class ChangePasswordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_change_password);
         FullScreenHelper.enableFullScreen(getWindow());
 
-        connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
-
         initViews();
         setupBackButton();
         setupListeners();
-        setupConnectionEvents();
 
         if (savedInstanceState != null) {
             currentPasswordEditText.setText(savedInstanceState.getString("currentPassword", ""));
@@ -94,29 +85,6 @@ public class ChangePasswordActivity extends AppCompatActivity {
         updateChangePasswordButtonState();
     }
 
-    private void setupConnectionEvents() {
-        events = new OnConnectionEvents() {
-            @Override
-            public void OnCommandGot(WSSCommand WSSCommand) {
-                runOnUiThread(() -> {
-                    if (Objects.equals(WSSCommand.getOperation(), "PasswordChanged")) {
-                        Toast.makeText(ChangePasswordActivity.this, "Password changed successfully", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                });
-            }
-
-            @Override
-            public void OnConnectionFailed() {
-                runOnUiThread(() -> Toast.makeText(ChangePasswordActivity.this, "Connection failed", Toast.LENGTH_SHORT).show());
-            }
-
-            @Override
-            public void OnOpen() {}
-        };
-        connectionManager.addConnectionEvent(events);
-    }
-
     private void validateCurrentPassword() {
         String pwd = currentPasswordEditText.getText().toString().trim();
         currentPasswordInputLayout.setError(pwd.isEmpty() ? "Enter current password" : null);
@@ -134,8 +102,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         String current = currentPasswordEditText.getText().toString().trim();
         String next = passwordController.getPassword();
         if(!current.equals(next)) {
-            WSSCommand cmd = new WSSCommand("ChangePassword", new ChangePasswordRequest(current, next));
-            connectionManager.SendCommand(cmd);
+            Log.e("changePassword: ", "Я вам ЗАПРЕЩАЮ менять пароль");
         } else {
             currentPasswordInputLayout.setError("The new password must be different from the old one.");
         }
@@ -144,8 +111,5 @@ public class ChangePasswordActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (connectionManager != null && events != null) {
-            connectionManager.removeConnectionEvent(events);
-        }
     }
 }

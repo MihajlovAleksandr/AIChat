@@ -10,10 +10,13 @@ import android.widget.Button;
 
 import com.example.aichat.R;
 import com.example.aichat.dto.request.UserDataRequest;
-import com.example.aichat.model.entities.WSSCommand;
-import com.example.aichat.model.connection.ConnectionManager;
+import com.example.aichat.dto.response.ApiError;
+import com.example.aichat.dto.response.RegisterResponse;
+import com.example.aichat.model.SecurePreferencesManager;
+import com.example.aichat.model.connection.ConnectionDispatcher;
+import com.example.aichat.model.connection.HttpClient;
 import com.example.aichat.model.connection.ConnectionSingleton;
-import com.example.aichat.model.connection.OnConnectionEvents;
+import com.example.aichat.model.entities.RegistrationState;
 import com.example.aichat.model.entities.Gender;
 import com.example.aichat.model.entities.UserData;
 import com.example.aichat.view.PreferenceActivity;
@@ -29,12 +32,12 @@ public class UserDataController {
     private final TextInputLayout ageInputLayout;
     private final RadioGroup genderGroup;
     private final Button submitButton;
-    private final ConnectionManager connectionManager;
     private boolean isEditMode = false;
     private final UserData userDataToEdit;
     private String originalName = null;
     private int originalAge = -1;
     private Gender originalGender = null;
+    private final ConnectionDispatcher dispatcher;
 
     public UserDataController(UserDataActivity activity,
                               TextInputLayout nameInputLayout,
@@ -62,41 +65,7 @@ public class UserDataController {
             this.isEditMode = true;
             populateFormWithUserData();
         }
-
-        ConnectionManager manager = ConnectionSingleton.getInstance().getConnectionManager();
-        if (manager == null) {
-            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(""));
-            manager = ConnectionSingleton.getInstance().getConnectionManager();
-        }
-        connectionManager = manager;
-
-        if (connectionManager != null) {
-            connectionManager.addConnectionEvent(new OnConnectionEvents() {
-                @Override
-                public void OnCommandGot(WSSCommand WSSCommand) {
-                    if (Objects.equals(WSSCommand.getOperation(), "UserDataAdded")) {
-                        ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
-                        Intent intent = new Intent(activity, PreferenceActivity.class);
-                        activity.startActivity(intent);
-                        activity.finish();
-                    } else if (Objects.equals(WSSCommand.getOperation(), "UserDataUpdated")) {
-                        connectionManager.removeConnectionEvent(this);
-                        activity.finish();
-                    }
-                }
-
-                @Override
-                public void OnConnectionFailed() {
-                    Log.e("UserDataController", "Connection failed");
-                }
-
-                @Override
-                public void OnOpen() {
-                    Log.d("UserDataController", "Connection opened");
-                }
-            });
-        }
-
+        dispatcher = ConnectionSingleton.getInstance().getConnectionDispatcher();
         setupValidation();
         setupSubmitButton();
         updateSubmitButtonState();
@@ -185,13 +154,31 @@ public class UserDataController {
 
         String gender = selectedGender.getTag().toString();
 
-        WSSCommand command = new WSSCommand(
-                isEditMode ? "UpdateUserData" : "AddUserData",
-                new UserDataRequest(name, age, Gender.valueOf(gender))
-        );
-
-        if (connectionManager != null)
-            connectionManager.SendCommand(command);
+        String url = isEditMode ? "/api/user/userdata" : "/api/auth/register/userdata";
+        HttpClient.HTTPMethod method = isEditMode ? HttpClient.HTTPMethod.PUT : HttpClient.HTTPMethod.POST;
+        UserDataRequest userData = new UserDataRequest(name, age, Gender.valueOf(gender));
+        dispatcher.sendHttpRequestAsync(url, method, userData, false).thenAccept((cmd)->{
+            if(cmd.isSuccess()){
+                if(isEditMode){
+                    activity.finish();
+                }
+                else{
+                    RegisterResponse response = cmd.getData(RegisterResponse.class);
+                    if (Objects.requireNonNull(response.state) == RegistrationState.USER_DATA_COMPLETED) {
+                        SecurePreferencesManager.saveAuthToken(activity, response.token);
+                        dispatcher.setToken(response.token);
+                        Intent intent = new Intent(activity, PreferenceActivity.class);
+                        activity.startActivity(intent);
+                        activity.finish();
+                    } else {
+                        throw new IllegalArgumentException();
+                    }
+                }
+            }
+            else{
+                Log.e("UserDataChange", cmd.getData(ApiError.class).toString());
+            }
+        });
     }
 
     private void validateAndUpdateName() {

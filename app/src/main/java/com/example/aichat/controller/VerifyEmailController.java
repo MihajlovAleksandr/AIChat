@@ -1,71 +1,59 @@
 package com.example.aichat.controller;
 
 import android.content.Intent;
+import android.util.Log;
 import android.widget.EditText;
 
 import com.example.aichat.dto.request.VerificationCodeRequest;
-import com.example.aichat.dto.response.VerificationCodeResponse;
-import com.example.aichat.model.entities.WSSCommand;
-import com.example.aichat.model.connection.ConnectionManager;
+import com.example.aichat.dto.response.ApiError;
+import com.example.aichat.dto.response.RegisterResponse;
+import com.example.aichat.model.SecurePreferencesManager;
+import com.example.aichat.model.connection.ConnectionDispatcher;
+import com.example.aichat.model.connection.HttpClient;
 import com.example.aichat.model.connection.ConnectionSingleton;
-import com.example.aichat.model.connection.OnConnectionEvents;
+import com.example.aichat.model.entities.RegistrationState;
 import com.example.aichat.view.UserDataActivity;
 import com.example.aichat.view.VerifyEmailActivity;
+
+import java.util.Objects;
 
 public class VerifyEmailController {
 
     private final EditText[] codeFields;
-    private final ConnectionManager connectionManager;
     private final VerifyEmailActivity activity;
     private boolean lastValidationResult = false;
-
-    private boolean isInitialized = false;
+    private final ConnectionDispatcher dispatcher;
 
     public VerifyEmailController(VerifyEmailActivity activity, EditText[] codeFields) {
         this.activity = activity;
         this.codeFields = codeFields;
-
-        connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
-        if (connectionManager == null) {
-            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(""));
-        }
-        connectionManager.clearConnectionEvents();
-        connectionManager.addConnectionEvent(new OnConnectionEvents() {
-
-            @Override
-            public void OnCommandGot(WSSCommand command) {
-                if ("VerificationCodeAnswer".equals(command.getOperation())) {
-                    handleVerificationResponse(command);
-                }
-            }
-
-            @Override public void OnConnectionFailed() {}
-            @Override public void OnOpen() {}
-        });
+        dispatcher = ConnectionSingleton.getInstance().getConnectionDispatcher();
     }
-
-    private void handleVerificationResponse(WSSCommand command) {
-        VerificationCodeResponse response = command.getData(VerificationCodeResponse.class);
-        if (response.answer == 1) {
-            lastValidationResult = true;
-            Intent intent = new Intent(activity, UserDataActivity.class);
-            activity.startActivity(intent);
-            activity.finish();
-        } else {
-            lastValidationResult = false;
-            activity.runOnUiThread(activity::showCodeErrorAnimation);
-        }
-    }
-
     public boolean handleAfterTextChanged(CharSequence s, int currentIndex) {
-        if (!isInitialized) return false;
-
         if (s.length() == 1 && currentIndex == codeFields.length - 1) {
             String fullCode = getFullCode();
             try {
-                int code = Integer.parseInt(fullCode);
-                WSSCommand command = new WSSCommand("VerificationCode", new VerificationCodeRequest(code));
-                connectionManager.SendCommand(command);
+                Integer.parseInt(fullCode);
+                VerificationCodeRequest request = new VerificationCodeRequest(fullCode);
+                dispatcher.sendHttpRequestAsync("/api/auth/register/verify", HttpClient.HTTPMethod.POST, request, false)
+                        .thenAccept((cmd)->{
+                    if(cmd.isSuccess()) {
+                        RegisterResponse response = cmd.getData(RegisterResponse.class);
+                        if (Objects.requireNonNull(response.state) == RegistrationState.EMAIL_VERIFIED) {
+                            SecurePreferencesManager.saveAuthToken(activity, response.token);
+                            dispatcher.setToken(response.token);
+                            Intent intent = new Intent(activity, UserDataActivity.class);
+                            activity.startActivity(intent);
+                            activity.finish();
+                        } else {
+                            throw new IllegalArgumentException();
+                        }
+                    }
+                    else {
+                        Log.e("EmailVerification", cmd.getData(ApiError.class).toString());
+                    }
+                });
+                lastValidationResult = true;
             } catch (NumberFormatException e) {
                 lastValidationResult = false;
             }
@@ -74,7 +62,6 @@ public class VerifyEmailController {
     }
 
     public boolean handleKeyEvent(int keyCode, int currentIndex) {
-        if (!isInitialized) return false;
         if (keyCode == 67 && codeFields[currentIndex].getText().length() == 0 && currentIndex > 0) {
             codeFields[currentIndex - 1].requestFocus();
         }
@@ -82,8 +69,6 @@ public class VerifyEmailController {
     }
 
     public void handlePaste() {
-        if (!isInitialized) return;
-
         String clipboardText = getClipboardText();
         if (clipboardText != null) {
             int curIndex = 0;
@@ -113,9 +98,5 @@ public class VerifyEmailController {
             return item.getText().toString();
         }
         return null;
-    }
-
-    public void markInitialized() {
-        this.isInitialized = true;
     }
 }

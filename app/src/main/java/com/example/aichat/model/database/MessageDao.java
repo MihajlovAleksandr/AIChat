@@ -29,7 +29,14 @@ public interface MessageDao {
     @Query("SELECT * FROM messages WHERE Chat = :chatId ORDER BY Time DESC LIMIT 1")
     Message getLastMessageInChat(UUID chatId);
 
-    @Query("SELECT * FROM Messages WHERE Time IN (SELECT MAX(Time) FROM Messages WHERE chat IN (:chats) GROUP BY chat) ORDER BY chat")
+    @Query("SELECT m.* FROM Messages m " +
+            "INNER JOIN (" +
+            "   SELECT chat, MAX(Time) as max_time " +
+            "   FROM Messages " +
+            "   WHERE chat IN (:chats) " +
+            "   GROUP BY chat" +
+            ") grouped " +
+            "ON m.chat = grouped.chat AND m.Time = grouped.max_time")
     List<Message> getLastMessages(List<UUID> chats);
 
     @Query("SELECT * FROM Messages")
@@ -62,9 +69,20 @@ public interface MessageDao {
     default HashMap<UUID, List<Message>> getUnreadMessages(List<UUID> chatIds, UUID userId) {
         HashMap<UUID, List<Message>> unreadMessages = new HashMap<>();
 
+        // ✅ Защита от null
+        if (chatIds == null || userId == null) {
+            return unreadMessages;
+        }
+
         for (UUID chatId : chatIds) {
-            unreadMessages.put(chatId,
-                    ChatController.getUnreadMessages(getMessagesByChatId(chatId), userId));
+            // ✅ Защита от null chatId
+            if (chatId == null) continue;
+
+            List<Message> messages = getMessagesByChatId(chatId);
+            if (messages != null) {
+                unreadMessages.put(chatId,
+                        ChatController.getUnreadMessages(messages, userId));
+            }
         }
 
         return unreadMessages;

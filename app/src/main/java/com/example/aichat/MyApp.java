@@ -3,8 +3,6 @@ package com.example.aichat;
 import android.app.Application;
 import com.example.aichat.controller.main.chatlist.ChatsListController;
 import com.example.aichat.model.database.DatabaseManager;
-import com.example.aichat.model.connection.ConnectionManager;
-import com.example.aichat.model.connection.ConnectionSingleton;
 
 import java.util.UUID;
 

@@ -4,9 +4,9 @@ import android.util.Log;
 
 import com.example.aichat.dto.request.UpdateNotificationTokenRequest;
 import com.example.aichat.model.SecurePreferencesManager;
-import com.example.aichat.model.connection.ConnectionManager;
+import com.example.aichat.model.connection.ConnectionDispatcher;
+import com.example.aichat.model.connection.HttpClient;
 import com.example.aichat.model.connection.ConnectionSingleton;
-import com.example.aichat.model.entities.WSSCommand;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -58,23 +58,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onNewToken(String token) {
         Log.d(TAG, "Refreshed token: " + token);
-        SecurePreferencesManager.saveNotificationToken(this, token);
+        NotificationTokenManager.onNewToken(this, token);
     }
 
     public static void sendRegistrationTokenToServer(String token) {
         if (token == null) return;
 
-        ConnectionManager cm = ConnectionSingleton.getInstance().getConnectionManager();
-        if (cm == null) {
-            Log.w(TAG, "ConnectionManager is null — delaying FCM token send");
+        ConnectionDispatcher dispatcher = ConnectionSingleton.getInstance().getConnectionDispatcher();
+        if (dispatcher == null) {
+            Log.w(TAG, "ConnectionDispatcher is null — delaying FCM token send");
             return;
         }
 
-        WSSCommand command = new WSSCommand(
-                "UpdateNotificationToken",
-                new UpdateNotificationTokenRequest(token)
-        );
+        dispatcher.sendHttpRequestAsync("/api/session/token", HttpClient.HTTPMethod.PUT, new UpdateNotificationTokenRequest(token), false).thenAccept(cmd->{
+            if(!cmd.isSuccess())
+                Log.e(TAG, "notificationToken error/ Error code: "+ cmd.getCode());
+        });
 
-        cm.SendCommand(command);
     }
 }

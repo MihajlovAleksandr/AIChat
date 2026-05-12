@@ -6,15 +6,15 @@ import android.util.Log;
 import com.example.aichat.dto.request.MessageRequest;
 import com.example.aichat.dto.response.AddUserToChatResponse;
 import com.example.aichat.dto.response.ChatResponse;
+import com.example.aichat.dto.response.ChatUserActionResponse;
 import com.example.aichat.dto.response.DeleteChatResponse;
 import com.example.aichat.dto.response.MessageResponse;
 import com.example.aichat.dto.response.RemoveUserFromChatResponse;
-import com.example.aichat.dto.response.SyncDBResponse;
+import com.example.aichat.dto.response.SyncResponse;
 import com.example.aichat.dto.response.UpdateMessageStatusResponse;
 
 import com.example.aichat.model.entities.Chat;
 import com.example.aichat.model.entities.Message;
-import com.example.aichat.model.entities.WSSCommand;
 import com.example.aichat.model.utils.mappers.ChatMapper;
 import com.example.aichat.model.utils.mappers.Mapper;
 import com.example.aichat.model.utils.mappers.MapperResponse;
@@ -26,168 +26,187 @@ import java.util.concurrent.Executors;
 
 public class DatabaseSaver {
 
+    private static final String TAG = "DatabaseSaver";
     private final AppDatabase appDatabase;
     private final Mapper<MessageRequest, Message, MessageResponse> messageMapper;
     private final MapperResponse<Chat, ChatResponse> chatMapper = new ChatMapper();
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
-    public DatabaseSaver(AppDatabase appDatabase, UUID userId){
+    public DatabaseSaver(AppDatabase appDatabase, UUID userId) {
         this.appDatabase = appDatabase;
         this.messageMapper = new MessageMapper(userId);
     }
 
-    // ---------------- INTERNAL SAVE METHODS ----------------
+    // ---------------- PUBLIC SAVE METHODS ----------------
 
-    private void sendMessage(Message message){
+    public void sendMessage(Message message) {
         appDatabase.messageDao().upsertMessage(message);
-        Log.d("DB", "Message saved: " + message.getId());
     }
 
-    private void createChat(Chat chat){
+    public void createChat(Chat chat) {
         appDatabase.chatDao().upsertChat(chat);
     }
 
-    private void removeChat(UUID chatId){
+    public void updateMessage(Message message) {
+        appDatabase.messageDao().updateMessage(message);
+    }
+
+    public void deleteMessage(UUID messageId) {
+        appDatabase.messageDao().deleteMessages(messageId);
+    }
+
+    public void updateChatName(UUID chatId, String name){
+        appDatabase.chatDao().updateChatName(chatId, name);
+    }
+
+    public void removeChat(UUID chatId) {
+        Log.d(TAG, "removeChat called: chatId=" + chatId);
         appDatabase.chatDao().deleteChat(chatId);
     }
 
-    private void endChat(Chat endedChat){
+    public void endChat(Chat endedChat) {
+        Log.d(TAG, "endChat called: chatId=" + endedChat.getId() + ", endTime=" + endedChat.getEndTime());
+        if (endedChat == null || endedChat.getId() == null) {
+            Log.e(TAG, "endChat: invalid chat");
+            return;
+        }
         appDatabase.chatDao().endChat(endedChat.getId(), endedChat.getEndTime());
+        Log.d(TAG, "endChat: completed");
     }
 
-    // ---------------- PUBLIC ENTRY POINT ----------------
+    public void syncDatabase(SyncResponse sync) {
+        // --- CHATS ---
+        // --- CHATS ---
+        for (ChatResponse cr : sync.chats.newChats) {
+            Chat chat = chatMapper.ToModel(cr);
 
-    public void commandGot(WSSCommand command, Context context){
-        executor.execute(() -> handleCommandSafe(command, context));
+            Chat existing = appDatabase.chatDao().getChatById(chat.getId());
+            if (existing != null && existing.getChatTypeHint() != null) {
+                chat.setChatTypeHint(existing.getChatTypeHint());
+            }
+
+            appDatabase.chatDao().upsertChat(chat);
+        }
+
+        for (ChatResponse cr : sync.chats.updatedChats) {
+            Chat chat = chatMapper.ToModel(cr);
+
+            Chat existing = appDatabase.chatDao().getChatById(chat.getId());
+            if (existing != null && existing.getChatTypeHint() != null) {
+                chat.setChatTypeHint(existing.getChatTypeHint());
+            }
+
+            appDatabase.chatDao().upsertChat(chat);
+        }
+
+        for (ChatResponse cr : sync.chats.updatedChats) {
+            Chat chat = chatMapper.ToModel(cr);
+            appDatabase.chatDao().upsertChat(chat);
+        }
+
+        for (UUID cr : sync.chats.deletedChats) {
+            appDatabase.chatDao().deleteChat(cr);
+        }
+
+        // --- MESSAGES ---
+        for (MessageResponse mr : sync.messages.newMessages) {
+            Message msg = messageMapper.ToModel(mr);
+            appDatabase.messageDao().upsertMessage(msg);
+        }
+
+        for (MessageResponse mr : sync.messages.updatedMessages) {
+            Message msg = messageMapper.ToModel(mr);
+            appDatabase.messageDao().upsertMessage(msg);
+        }
+
+        for (UUID mr : sync.messages.deletedMessages) {
+            appDatabase.messageDao().deleteMessages(mr);
+        }
+
+        SearchingHandler handler = ChatStatusSingleton.getInstance().getHandler();
+        handler.setChatSearching(sync.matchmaking.chatMatchmaking.isSearching);
+        handler.setGroupSearchModel(
+                new GroupSearchModel(
+                        sync.matchmaking.groupMatchmaking.isSearching,
+                        sync.matchmaking.groupMatchmaking.chatId));
+
+        Log.d("DB", "SyncDB applied successfully");
     }
 
-    // ---------------- SAFE WRAPPER ----------------
+    public void saveMessageFromResponse(MessageResponse response) {
+        Message newMessage = messageMapper.ToModel(response);
 
-    private void handleCommandSafe(WSSCommand command, Context context) {
-        try {
-            handleCommand(command, context);
-        } catch (Exception e) {
-            Log.e("DB", "Error handling command: " + command.getOperation(), e);
+        Message existing = appDatabase.messageDao().getMessageById(response.id);
+
+        if (existing != null) {
+            newMessage.setFileTypes(existing.getFileTypes());
+            newMessage.setFileMimeTypes(existing.getFileMimeTypes());
+        }
+
+        appDatabase.messageDao().upsertMessage(newMessage);
+    }
+
+    public void saveChatFromResponse(ChatResponse chatResponse) {
+        Chat createdChat = chatMapper.ToModel(chatResponse);
+
+        Chat existing = appDatabase.chatDao().getChatById(createdChat.getId());
+        if (existing != null && existing.getChatTypeHint() != null) {
+            createdChat.setChatTypeHint(existing.getChatTypeHint());
+        }
+
+        createChat(createdChat);
+    }
+
+    public void saveChat(Chat chat) {
+        if (chat == null) return;
+        appDatabase.chatDao().upsertPreservingType(chat);
+    }
+
+    public void endChatFromResponse(ChatResponse chatResponse) {
+        Chat endedChat = chatMapper.ToModel(chatResponse);
+        endChat(endedChat);
+    }
+
+    public void deleteChatFromResponse(DeleteChatResponse deleteChatResponse) {
+        Log.d(TAG, "deleteChatFromResponse: chatId=" + deleteChatResponse.chatId);
+        removeChat(deleteChatResponse.chatId);
+    }
+
+    public void updateMessageStatus(UpdateMessageStatusResponse update) {
+        // ✅ Добавить защиту от null
+        if (update == null || update.messageIds == null || update.userId == null) {
+            Log.e(TAG, "updateMessageStatus: invalid parameters");
+            return;
+        }
+
+        for (UUID messageId : update.messageIds) {
+            if (messageId == null) continue;
+
+            appDatabase.messageDao().updateMessageStatusForUser(
+                    messageId,
+                    update.userId,
+                    update.status  // может быть null, но это обработает DAO
+            );
         }
     }
 
-    // ---------------- COMMAND HANDLER ----------------
-
-    private void handleCommand(WSSCommand command, Context context) {
-
-        switch (command.getOperation()) {
-
-            case "SyncDB": {
-                SyncDBResponse sync = command.getData(SyncDBResponse.class);
-
-                // --- CHATS ---
-                for (ChatResponse cr : sync.newChats) {
-                    Chat chat = chatMapper.ToModel(cr);
-                    appDatabase.chatDao().upsertChat(chat);
-                }
-
-                for (ChatResponse cr : sync.oldChats) {
-                    Chat chat = chatMapper.ToModel(cr);
-                    appDatabase.chatDao().upsertChat(chat);
-                }
-
-                for (ChatResponse cr : sync.deletedChats) {
-                    appDatabase.chatDao().deleteChat(cr.id);
-                }
-
-                // --- MESSAGES ---
-                for (MessageResponse mr : sync.newMessages) {
-                    Message msg = messageMapper.ToModel(mr);
-                    appDatabase.messageDao().upsertMessage(msg);
-                }
-
-                for (MessageResponse mr : sync.oldMessages) {
-                    Message msg = messageMapper.ToModel(mr);
-                    appDatabase.messageDao().upsertMessage(msg);
-                }
-
-                for (MessageResponse mr : sync.deletedMessages) {
-                    appDatabase.messageDao().deleteMessages(mr.id);
-                }
-
-                Log.d("DB", "SyncDB applied successfully");
-                break;
-            }
-
-            case "SendMessage": {
-                Message message = messageMapper.ToModel(command.getData(MessageResponse.class));
-                sendMessage(message);
-                break;
-            }
-
-            case "AddChat":
-            case "CreateChat": {
-                Chat createdChat = chatMapper.ToModel(command.getData(ChatResponse.class));
-                createChat(createdChat);
-                break;
-            }
-
-            case "EndChat": {
-                Chat endedChat = chatMapper.ToModel(command.getData(ChatResponse.class));
-                endChat(endedChat);
-                break;
-            }
-
-            case "DeleteChat": {
-                DeleteChatResponse deleteChatResponse = command.getData(DeleteChatResponse.class);
-                removeChat(deleteChatResponse.chatId);
-                break;
-            }
-
-            case "UpdateMessageStatus": {
-                UpdateMessageStatusResponse update = command.getData(UpdateMessageStatusResponse.class);
-                for (UUID messageId : update.messageIds) {
-                    appDatabase.messageDao().updateMessageStatusForUser(
-                            messageId,
-                            update.userId,
-                            update.status
-                    );
-                }
-                break;
-            }
-
-            case "AddUserToChat": {
-                AddUserToChatResponse add = command.getData(AddUserToChatResponse.class);
-                appDatabase.chatDao().addUserToChat(add.userId, add.chatId);
-                break;
-            }
-
-            case "RemoveUserFromChat": {
-                RemoveUserFromChatResponse remove = command.getData(RemoveUserFromChatResponse.class);
-                appDatabase.chatDao().removeUserFromChat(remove.userId, remove.chatId);
-                break;
-            }
-
-            case "Logout": {
-                handleLogout(context);
-                break;
-            }
-
-            default:
-                // ❗ Просто игнорируем команды, не относящиеся к БД
-                return;
-        }
+    public void addUserToChat(AddUserToChatResponse add) {
+        Log.d(TAG, "addUserToChat: userId=" + add.userId + ", chatId=" + add.chatId);
+        appDatabase.chatDao().addUserToChat(add.userId, add.chatId);
     }
 
-    // ---------------- LOGOUT HANDLING ----------------
+    public void removeUserFromChat(RemoveUserFromChatResponse remove) {
+        Log.d(TAG, "removeUserFromChat (RemoveUserFromChatResponse): userId=" + remove.userId + ", chatId=" + remove.chatId);
+        appDatabase.chatDao().removeUserFromChat(remove.userId, remove.chatId);
+    }
 
-    private void handleLogout(Context context) {
+    public void removeUserFromChat(ChatUserActionResponse response) {
+        Log.d(TAG, "removeUserFromChat (ChatUserActionResponse): userId=" + response.userId + ", chatId=" + response.chatId);
+        appDatabase.chatDao().removeUserFromChat(response.userId, response.chatId);
+    }
 
-        // ❗ НЕ трогаем pendingCommandDao — это делает ConnectionSingleton.reset()
-
-        // ❗ НЕ трогаем executor — он должен жить весь жизненный цикл DatabaseSaver
-
-        // ❗ НЕ трогаем токен — это делает ConnectionManager + SecurePreferencesManager
-
+    public void logout(Context context) {
         appDatabase.chatDao().clearTable();
         appDatabase.messageDao().clearTable();
-
-        Log.d("DB", "Logout complete. Database cleared.");
+        Log.d(TAG, "Logout complete. Database cleared.");
     }
 }

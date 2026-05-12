@@ -34,10 +34,6 @@ public class RegistrationActivity extends BaseActivity {
             });
         }
 
-        LanguageHandler languageHandler = new LanguageHandler(this);
-        LanguageMenuHelper languageMenuHelper = new LanguageMenuHelper(languageHandler);
-        TextView btnLanguage = findViewById(R.id.btnLanguage);
-        languageMenuHelper.attachToButton(btnLanguage);
 
         applyThemeColors(emailInputLayout, passwordInputLayout, confirmPasswordInputLayout);
 

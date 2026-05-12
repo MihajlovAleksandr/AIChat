@@ -3,6 +3,9 @@ package com.example.aichat.view.main.chatlist;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -26,8 +29,6 @@ import androidx.appcompat.app.AlertDialog;
 import com.example.aichat.R;
 import com.example.aichat.controller.main.chat.MessageController;
 import com.example.aichat.controller.main.chatlist.ChatsListController;
-import com.example.aichat.model.connection.ConnectionManager;
-import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.database.AppDatabase;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.entities.Chat;
@@ -35,13 +36,14 @@ import com.example.aichat.model.entities.ChatType;
 import com.example.aichat.model.entities.Message;
 import com.example.aichat.model.entities.MessageChat;
 import com.example.aichat.model.entities.MessageStatus;
+import com.example.aichat.model.utils.ChatExportService;
 import com.example.aichat.view.main.MainActivity;
+import com.example.aichat.view.main.chat.ui.UiAnimations;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,17 +61,24 @@ public class ChatsListFragment extends Fragment {
 
     private TextView appNameView;
     private FloatingActionButton fab;
+    private FabScrollManager fabScrollManager;
 
+    private final Map<UUID, Long> recentlyUpdatedChatNames = new HashMap<>();
+    private static final long RECENT_UPDATE_THRESHOLD_MS = 2000;
+    private ChatExportService chatExportService;
     private MenuItem createChatItem;
     private MenuItem cancelChatSearchItem;
     private MenuItem addUserItem;
     private MenuItem cancelUserAddItem;
 
+    private View emptyContainer;
     private UUID userId;
     private boolean isUserAdding;
 
-    private static final int MENU_PIN_CHAT = 20001;
-    private static final int MENU_UNPIN_CHAT = 20002;
+    private static final String TAG = "ChatsListFragment";
+    private volatile boolean isReloading = false;
+
+    private int originalTopPadding = 0;
 
     public ChatsListFragment() {}
 
@@ -90,17 +99,14 @@ public class ChatsListFragment extends Fragment {
             isUserAdding = getArguments().getBoolean("isUserAdding");
             userId = UUID.fromString(getArguments().getString("userId"));
         }
-
-        ConnectionManager connectionManager =
-                ConnectionSingleton.getInstance().getConnectionManager();
-
-        controller = new ChatsListController(this, connectionManager, isUserAdding, userId);
+        controller = new ChatsListController(this, isUserAdding, userId);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chats_list, container, false);
 
+        emptyContainer = view.findViewById(R.id.empty_chats_container);
         initRecyclerView(view);
         initToolbar(view);
         initSearch(view);
@@ -125,11 +131,16 @@ public class ChatsListFragment extends Fragment {
                 activity.startActivity(intent);
             });
         }
+        if (chatExportService == null && getActivity() != null) {
+            chatExportService = new ChatExportService(requireActivity(), userId);
+        }
     }
 
     private void initRecyclerView(View view) {
         recyclerView = view.findViewById(R.id.rv_chats);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        originalTopPadding = recyclerView.getPaddingTop();
 
         chatAdapter = new ChatAdapter(
                 new ChatAdapter.OnChatClickListener() {
@@ -153,6 +164,12 @@ public class ChatsListFragment extends Fragment {
                 getActivity() instanceof MainActivity &&
                         ((MainActivity) getActivity()).isChatOpened(chatId)
         );
+
+        chatAdapter.setOnEmptyStateListener(isEmpty -> {
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(this::updateEmptyContainerVisibility);
+            }
+        });
 
         recyclerView.setAdapter(chatAdapter);
     }
@@ -178,7 +195,10 @@ public class ChatsListFragment extends Fragment {
                 etOverlaySearch,
                 recyclerView,
                 (ConstraintLayout) view,
-                query -> controller.searchChat(query)
+                query -> {
+                    Log.d(TAG, "Search query: " + query);
+                    controller.searchChat(query);
+                }
         );
 
         ToolbarSearchManager toolbarSearchManager = new ToolbarSearchManager(
@@ -189,31 +209,45 @@ public class ChatsListFragment extends Fragment {
                 new ToolbarSearchManager.ToolbarSearchListener() {
                     @Override
                     public void onSearch(String query) {
+                        Log.d(TAG, "Toolbar search query: " + query);
+                        removeTopPaddingForSearch();
+                        if (fabScrollManager != null) {
+                            fabScrollManager.setSearchActive(true);
+                        }
                         controller.searchChat(query);
                     }
 
                     @Override
                     public void onCloseSearch() {
+                        restoreTopPadding();
+                        if (fabScrollManager != null) {
+                            fabScrollManager.setSearchActive(false);
+                        }
                         controller.cancelSearch();
                     }
                 }
         );
 
-        btnToolbarSearch.setOnClickListener(v -> {
-            if (searchManager.isSearchActive()) return;
-            toolbarSearchManager.openSearch();
-        });
-
-        btnToolbarSearch.setOnLongClickListener(v -> {
-            if (searchManager.isSearchActive()) return true;
-            searchManager.openSearch();
-            return true;
-        });
-
         searchManager.setOnSearchStateChangedListener(active -> {
-            btnToolbarSearch.setVisibility(active ? View.GONE : View.VISIBLE);
+            if (!toolbarSearchManager.isSearchActive()) {
+                btnToolbarSearch.setVisibility(active ? View.GONE : View.VISIBLE);
+            }
             btnToolbarSearch.setEnabled(!active);
             btnToolbarSearch.setClickable(!active);
+
+            if (active) {
+                removeTopPaddingForSearch();
+                if (fabScrollManager != null) {
+                    fabScrollManager.setSearchActive(true);
+                }
+            } else {
+                if (!toolbarSearchManager.isSearchActive()) {
+                    restoreTopPadding();
+                    if (fabScrollManager != null) {
+                        fabScrollManager.setSearchActive(false);
+                    }
+                }
+            }
         });
 
         overlayPanel.setOnTouchListener((v, event) -> {
@@ -222,10 +256,41 @@ public class ChatsListFragment extends Fragment {
         });
     }
 
+    private void removeTopPaddingForSearch() {
+        if (recyclerView != null) {
+            recyclerView.setPadding(
+                    recyclerView.getPaddingLeft(),
+                    0,
+                    recyclerView.getPaddingRight(),
+                    recyclerView.getPaddingBottom()
+            );
+        }
+    }
+
+    private void restoreTopPadding() {
+        if (recyclerView != null) {
+            recyclerView.setPadding(
+                    recyclerView.getPaddingLeft(),
+                    originalTopPadding,
+                    recyclerView.getPaddingRight(),
+                    recyclerView.getPaddingBottom()
+            );
+        }
+    }
+
     private void initBottomPanel(View view) {
         ConstraintLayout bottomPanel = view.findViewById(R.id.bottom_panel);
-        ImageButton btnBottomRightSettings = bottomPanel.findViewById(R.id.btn_settings_bottom_4);
-        btnBottomRightSettings.setOnClickListener(v -> controller.openSettings(requireActivity()));
+
+        ImageButton btnBottomRightSettings = bottomPanel.findViewById(R.id.btn_settings);
+        ImageButton btnMarketplace = bottomPanel.findViewById(R.id.btn_marketplace);
+
+        btnBottomRightSettings.setOnClickListener(v ->
+                controller.openSettings(requireActivity())
+        );
+
+        btnMarketplace.setOnClickListener(v ->
+                controller.openMarketplace(requireActivity())
+        );
 
         bottomPanel.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) v.performClick();
@@ -235,9 +300,8 @@ public class ChatsListFragment extends Fragment {
 
     private void initFab(View view) {
         fab = view.findViewById(R.id.fab_add_chat);
+        fabScrollManager = new FabScrollManager(fab, recyclerView);
         fab.setOnClickListener(this::showFabMenu);
-
-        new FabScrollManager(fab, recyclerView);
     }
 
     private void showFabMenu(View anchor) {
@@ -286,10 +350,10 @@ public class ChatsListFragment extends Fragment {
         int id = item.getItemId();
         if (id == R.id.menu_cancel_chat_search) { controller.stopSearchingChat(); return true; }
         if (id == R.id.menu_cancel_user_add) { controller.stopAddingUserToChat(); return true; }
-        if (id == R.id.menu_human) { controller.addChat(ChatType.HUMAN); return true; }
+        if (id == R.id.menu_human) { controller.addChat(ChatType.Human); return true; }
         if (id == R.id.menu_ai) { controller.addChat(ChatType.AI); return true; }
-        if (id == R.id.menu_random) { controller.addChat(ChatType.RANDOM); return true; }
-        if (id == R.id.menu_group) { controller.addChat(ChatType.GROUP); return true; }
+        if (id == R.id.menu_random) { controller.addChat(ChatType.Random); return true; }
+        if (id == R.id.menu_group) { controller.addChat(ChatType.Group); return true; }
         if (id == R.id.join_a_group) { controller.addUserToChat(); return true; }
         return false;
     }
@@ -313,13 +377,6 @@ public class ChatsListFragment extends Fragment {
         View anchor = requireView().findViewById(R.id.main_toolbar);
         PopupMenu popupMenu = new PopupMenu(activity, anchor, Gravity.END);
         popupMenu.inflate(R.menu.chat_context_menu);
-
-        if (!chat.isPinned()) {
-            popupMenu.getMenu().add(0, MENU_PIN_CHAT, 100, getString(R.string.pin_chat));
-        } else {
-            popupMenu.getMenu().add(0, MENU_UNPIN_CHAT, 100, getString(R.string.unpin_chat));
-        }
-
         popupMenu.setOnMenuItemClickListener(item -> handleChatMenuItem(item, chat));
         popupMenu.show();
     }
@@ -336,55 +393,29 @@ public class ChatsListFragment extends Fragment {
             return true;
         }
         if (id == R.id.menu_export_chat) {
-            controller.exportChat(chat);
+            if (chatExportService == null && getActivity() != null) {
+                chatExportService = new ChatExportService(requireActivity(), userId);
+            }
+            if (chatExportService != null) {
+                chatExportService.exportChat(chat.getId(), chat.getName());
+            }
             return true;
         }
-
-        if (id == MENU_PIN_CHAT) {
-            databaseExecutor.execute(() -> {
-                chat.setPinned(true);
-                DatabaseManager.getDatabase().chatDao().updateChat(chat);
-
-                List<MessageChat> chats = loadChatsSync();
-                Collections.sort(chats);
-
-                Activity activity = getActivity();
-                if (activity != null) {
-                    activity.runOnUiThread(() ->
-                            chatAdapter.setChats(chats)
-                    );
-                }
-            });
-            return true;
-        }
-
-        if (id == MENU_UNPIN_CHAT) {
-            databaseExecutor.execute(() -> {
-                chat.setPinned(false);
-                DatabaseManager.getDatabase().chatDao().updateChat(chat);
-
-                List<MessageChat> chats = loadChatsSync();
-                Collections.sort(chats);
-
-                Activity activity = getActivity();
-                if (activity != null) {
-                    activity.runOnUiThread(() ->
-                            chatAdapter.setChats(chats)
-                    );
-                }
-            });
-            return true;
-        }
-
         return false;
     }
 
     private List<MessageChat> loadChatsSync() {
         AppDatabase database = DatabaseManager.getDatabase();
         List<Chat> chats = database.chatDao().getAllChats();
+
+        if (chats == null || chats.isEmpty()) {
+            return new ArrayList<>();
+        }
+
         List<UUID> chatIds = chats.stream().map(Chat::getId).collect(Collectors.toList());
         List<Message> lastMessages = database.messageDao().getLastMessages(chatIds);
         HashMap<UUID, List<Message>> unreadMessagesByChatId = database.messageDao().getUnreadMessages(chatIds, userId);
+
         return getMessageChats(lastMessages, chats, unreadMessagesByChatId);
     }
 
@@ -405,6 +436,136 @@ public class ChatsListFragment extends Fragment {
         builder.show();
     }
 
+    private void updateEmptyContainerVisibility() {
+        if (emptyContainer == null || chatAdapter == null) return;
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (!isAdded()) return;
+
+            boolean isEmpty = chatAdapter.getItemCount() == 0;
+
+            if (isEmpty) {
+                if (emptyContainer.getVisibility() != View.VISIBLE) {
+                    UiAnimations.fadeIn(emptyContainer);
+                }
+            } else {
+                if (emptyContainer.getVisibility() == View.VISIBLE) {
+                    UiAnimations.fadeOut(emptyContainer);
+                }
+            }
+        }, 50);
+    }
+
+    public void reloadChatsFromDatabaseSafe() {
+        if (isReloading) {
+            return;
+        }
+
+        isReloading = true;
+
+        databaseExecutor.execute(() -> {
+            Activity activity = getActivity();
+
+            if (activity == null || !isAdded()) {
+                isReloading = false;
+                return;
+            }
+
+            try {
+                List<MessageChat> freshChats = loadChatsSync();
+
+                for (MessageChat mc : freshChats) {
+                    if (mc.getChat().getEndTime() != null) {
+                        mc.setEnded(true);
+                    }
+                }
+
+                List<MessageChat> filteredChats = filterRecentlyUpdatedChats(freshChats);
+                if (controller != null) {
+                    controller.setAllChats(filteredChats);
+                    activity.runOnUiThread(() -> {
+                        if (controller != null) {
+                            controller.setAllChats(filteredChats);
+                        }
+                    });
+                }
+
+                activity.runOnUiThread(() -> {
+                    if (!isAdded()) {
+                        isReloading = false;
+                        return;
+                    }
+
+                    chatAdapter.setChats(filteredChats);
+                    updateEmptyContainerVisibility();
+                    isReloading = false;
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                activity.runOnUiThread(() -> isReloading = false);
+            }
+        });
+    }
+
+    public void reloadChatsFromDatabaseSafe(Runnable onComplete) {
+        if (isReloading) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
+
+        isReloading = true;
+
+        databaseExecutor.execute(() -> {
+            Activity activity = getActivity();
+
+            if (activity == null || !isAdded()) {
+                isReloading = false;
+                if (onComplete != null) onComplete.run();
+                return;
+            }
+
+            try {
+                List<MessageChat> freshChats = loadChatsSync();
+
+                for (MessageChat mc : freshChats) {
+                    if (mc.getChat().getEndTime() != null) {
+                        mc.setEnded(true);
+                    }
+                }
+                List<MessageChat> filteredChats = filterRecentlyUpdatedChats(freshChats);
+
+                if (controller != null) {
+                    activity.runOnUiThread(() -> {
+                        if (controller != null) {
+                            controller.setAllChats(filteredChats);
+                        }
+                    });
+                }
+
+                activity.runOnUiThread(() -> {
+                    if (!isAdded()) {
+                        isReloading = false;
+                        if (onComplete != null) onComplete.run();
+                        return;
+                    }
+
+                    chatAdapter.setChats(filteredChats);
+                    updateEmptyContainerVisibility();
+                    isReloading = false;
+                    if (onComplete != null) onComplete.run();
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                activity.runOnUiThread(() -> {
+                    isReloading = false;
+                    if (onComplete != null) onComplete.run();
+                });
+            }
+        });
+    }
+
     public void loadChatsFromDatabase(UUID userId) {
         databaseExecutor.execute(() -> {
             Activity activity = getActivity();
@@ -412,28 +573,34 @@ public class ChatsListFragment extends Fragment {
 
             List<MessageChat> messageChats = loadChatsSync();
 
-            // ★ ВАЖНО: выставляем ended вручную, если чат завершён
             for (MessageChat mc : messageChats) {
                 if (mc.getChat().getEndTime() != null) {
                     mc.setEnded(true);
                 }
             }
 
-            Collections.sort(messageChats);
-
             activity.runOnUiThread(() -> {
                 if (!isAdded()) return;
-                controller.setAllChats(messageChats);
+
+                if (controller != null) {
+                    controller.setAllChats(messageChats);
+                }
                 chatAdapter.setChats(messageChats);
+                updateEmptyContainerVisibility();
             });
         });
     }
 
-
     private List<MessageChat> getMessageChats(List<Message> msgs, List<Chat> chats, HashMap<UUID, List<Message>> unreadMessages) {
-        if (chats == null || chats.isEmpty()) return Collections.emptyList();
-        Map<UUID, Message> messageByChatId = (msgs == null) ? Collections.emptyMap() :
-                msgs.stream().collect(Collectors.toMap(Message::getChat, msg -> msg));
+        if (chats == null || chats.isEmpty()) return new ArrayList<>();
+
+        Map<UUID, Message> messageByChatId = (msgs == null) ? new HashMap<>() :
+                msgs.stream().collect(Collectors.toMap(
+                        Message::getChat,
+                        msg -> msg,
+                        (existing, replacement) -> existing
+                ));
+
         List<MessageChat> result = new ArrayList<>(chats.size());
         for (Chat chat : chats) {
             Message msg = messageByChatId.get(chat.getId());
@@ -444,24 +611,31 @@ public class ChatsListFragment extends Fragment {
         return result;
     }
 
-
     public void updateChatList(List<MessageChat> messageChats) {
         Activity activity = getActivity();
         if (activity == null || !isAdded()) return;
 
-        activity.runOnUiThread(() -> chatAdapter.setVisibleChats(messageChats));
+        activity.runOnUiThread(() -> {
+            chatAdapter.setVisibleChats(messageChats);
+            updateEmptyContainerVisibility();
+        });
     }
 
     public void rollbackChats() {
         Activity activity = getActivity();
         if (activity == null || !isAdded()) return;
 
-        activity.runOnUiThread(chatAdapter::setAllChatsVisible);
+        activity.runOnUiThread(() -> {
+            chatAdapter.setAllChatsVisible();
+            updateEmptyContainerVisibility();
+            restoreTopPadding();
+        });
     }
 
     public void updateLastMessage(Message message) {
         Activity activity = getActivity();
         if (activity == null || !isAdded()) return;
+
         activity.runOnUiThread(() -> chatAdapter.updateLastMessage(message));
     }
 
@@ -494,39 +668,134 @@ public class ChatsListFragment extends Fragment {
 
         activity.runOnUiThread(() -> {
             chatAdapter.addChat(new MessageChat(null, chat, new ArrayList<>()));
-            recyclerView.scrollToPosition(0);
+            if (recyclerView != null) {
+                recyclerView.scrollToPosition(0);
+            }
+
+            if (controller != null) {
+                controller.setIsChatSearching(false);
+                controller.setIsUserAdding(false);
+            }
+
+            updateMenuVisibility();
+            updateEmptyContainerVisibility();
         });
-    }
-
-    public void removeChat(UUID chatId) {
-        Activity activity = getActivity();
-        if (activity == null || !isAdded()) return;
-
-        activity.runOnUiThread(() -> chatAdapter.removeChat(chatId));
-    }
-
-    public void setCreateChatState() {
-        updateMenuVisibility();
     }
 
     public void setAddUserState() {
         updateMenuVisibility();
     }
 
-    public void endChat(Chat chat) {
+    public void removeChat(UUID chatId) {
         Activity activity = getActivity();
         if (activity == null || !isAdded()) return;
 
-        activity.runOnUiThread(() -> chatAdapter.endChat(chat));
+        activity.runOnUiThread(() -> {
+            chatAdapter.removeChat(chatId);
+            updateEmptyContainerVisibility();
+        });
+    }
+
+    public void setChatSearchingStatus() {
+        updateMenuVisibility();
+    }
+
+    public void setGroupSearchingStatus() {
+        updateMenuVisibility();
+    }
+
+    public void endChat(UUID chat) {
+        Activity activity = getActivity();
+        if (activity == null || !isAdded()) return;
+
+        activity.runOnUiThread(() -> {
+            chatAdapter.endChat(chat);
+            updateEmptyContainerVisibility();
+        });
     }
 
     public void setConnectionSuccess(boolean isConnected) {
         Activity activity = getActivity();
         if (activity == null || !isAdded()) return;
 
-        activity.runOnUiThread(() ->
-                appNameView.setText(isConnected ? getString(R.string.app_name) : getString(R.string.connecting))
-        );
+        activity.runOnUiThread(() -> {
+            if (appNameView != null) {
+                appNameView.setText(isConnected ? getString(R.string.app_name) : getString(R.string.connecting));
+            }
+        });
+    }
+
+    public void updateChatName(UUID chatId, String newName) {
+        Activity activity = getActivity();
+        if (activity == null || !isAdded()) return;
+
+        recentlyUpdatedChatNames.put(chatId, System.currentTimeMillis());
+
+        activity.runOnUiThread(() -> chatAdapter.renameChat(chatId, newName));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (isAdded() && getActivity() != null) {
+            reloadChatsFromDatabaseSafe();
+        }
+    }
+
+    public boolean isReloading() {
+        return isReloading;
+    }
+
+    public void removeUserFromChat(UUID chatId, UUID userId) {
+        reloadChatsFromDatabaseSafe();
+    }
+
+    public void updateChatEndedStatus(UUID chatId) {
+        if (chatAdapter != null) {
+            chatAdapter.endChat(chatId);
+            updateEmptyContainerVisibility();
+            Log.d(TAG, "Chat ended status updated in adapter for chat: " + chatId);
+        }
+    }
+
+    private List<MessageChat> filterRecentlyUpdatedChats(List<MessageChat> freshChats) {
+        List<MessageChat> filtered = new ArrayList<>();
+        long now = System.currentTimeMillis();
+
+        for (MessageChat mc : freshChats) {
+            UUID chatId = mc.getChat().getId();
+            Long lastUpdateTime = recentlyUpdatedChatNames.get(chatId);
+
+            if (lastUpdateTime != null && (now - lastUpdateTime) < RECENT_UPDATE_THRESHOLD_MS) {
+                MessageChat currentChat = chatAdapter.getMessageChat(chatId);
+                if (currentChat != null) {
+                    String currentName = currentChat.getChat().getName();
+                    if (currentName != null && !currentName.equals(mc.getChat().getName())) {
+                        Log.d(TAG, "filterRecentlyUpdatedChats: protecting name '" + currentName +
+                                "' for chat " + chatId + " (was '" + mc.getChat().getName() + "' from DB)");
+                        mc.getChat().setName(currentName);
+                    }
+                }
+            }
+
+            filtered.add(mc);
+
+            if (lastUpdateTime != null && (now - lastUpdateTime) >= RECENT_UPDATE_THRESHOLD_MS) {
+                recentlyUpdatedChatNames.remove(chatId);
+            }
+        }
+
+        return filtered;
+    }
+
+    private UUID getUserId() {
+        if (userId == null && getArguments() != null) {
+            String userIdStr = getArguments().getString("userId");
+            if (userIdStr != null && !userIdStr.isEmpty()) {
+                userId = UUID.fromString(userIdStr);
+            }
+        }
+        return userId;
     }
 
     @Override

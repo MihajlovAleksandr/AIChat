@@ -6,8 +6,6 @@ import com.example.aichat.model.entities.MessageStatus;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.UUID;
 
@@ -30,13 +28,29 @@ public class MessageController {
     }
 
     public static MessageStatus getMaxStatus(Map<UUID, MessageStatus> statuses) {
+        // Защита от null
         if (statuses == null || statuses.isEmpty()) {
-            return MessageStatus.SENT; // корректное поведение
+            return MessageStatus.SENT;
         }
-        return Collections.max(statuses.values(), Comparator.comparingInt(MessageStatus::getPriority));
+
+        // Фильтруем null значения и находим максимальный
+        MessageStatus maxStatus = null;
+        for (MessageStatus status : statuses.values()) {
+            if (status == null) continue;
+            if (maxStatus == null || status.getPriority() > maxStatus.getPriority()) {
+                maxStatus = status;
+            }
+        }
+
+        return maxStatus != null ? maxStatus : MessageStatus.SENT;
     }
 
     public static int getStatusIconRes(MessageStatus status) {
+        // Защита от null
+        if (status == null) {
+            return R.drawable.ic_time;
+        }
+
         switch (status) {
             case READ:
                 return R.drawable.ic_done_all;

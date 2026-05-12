@@ -14,7 +14,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "SERVER_URL", "\"wss://192.168.0.105:8888/\"")
+        buildConfigField("String", "SERVER_URL", "\"http://10.169.113.193:5000\"")
     }
 
     buildTypes {
@@ -58,6 +58,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp-sse:4.9.3")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.3")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("com.fasterxml.jackson.core:jackson-core:2.13.3")
     implementation("androidx.security:security-crypto:1.1.0-alpha03")
     implementation("com.google.zxing:core:3.5.2")
@@ -75,6 +76,10 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
     annotationProcessor ("androidx.room:room-compiler:2.5.0")
+    implementation("androidx.media3:media3-exoplayer:1.2.1")
     implementation ("io.noties.markwon:core:4.6.2")
+    implementation("com.github.chrisbanes:PhotoView:2.3.0")
+    implementation("com.microsoft.signalr:signalr:7.0.0")
+    implementation("io.reactivex.rxjava2:rxjava:2.2.21")
     implementation("com.google.android.material:material:1.12.0")
 }

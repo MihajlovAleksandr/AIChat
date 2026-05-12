@@ -3,6 +3,24 @@
 
     <style name="Theme.AIChat.Dark" parent="Theme.Material3.Dark.NoActionBar">
 
+
+
+        <!-- ChatListFragment -->
+        <item name="dynamicPrimaryColor">@color/teal_primary</item>
+        <item name="dynamicBackgroundColor">@drawable/bg_dynamic_background</item>
+        <item name="dynamicTextColor">@color/primaryTextDark</item>
+        <item name="dynamicSecondaryTextColor">@color/secondaryTextDark</item>
+
+        <item name="dynamicOutgoingBubbleColor">@color/teal_primary</item>
+        <item name="dynamicIncomingBubbleColor">@color/buttonBackgroundDark</item>
+        <item name="dynamicChatBackgroundColor">@color/buttonBackgroundDark</item>
+        <item name="dynamicChatStrokeColor">@color/secondaryTextDark</item>
+
+        <item name="dynamicRippleColor">@color/rippleDark</item>
+        <item name="dynamicStateLayerColor">@android:color/transparent</item>
+        <!-- ChatListFragment -->
+
+
         <item name="colorPrimary">@color/teal_primary</item>
         <item name="colorOnPrimary">@color/buttonTextDark</item>
         <item name="chatCircleStroke">@color/chat_circle_stroke_dark</item>

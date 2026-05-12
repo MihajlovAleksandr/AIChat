@@ -1,7 +1,6 @@
 package com.example.aichat.model.database;
 
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
@@ -14,8 +13,12 @@ import java.util.UUID;
 
 @Dao
 public interface ChatDao {
+
     @Upsert
     void upsertChat(Chat chat);
+
+    @Update
+    void updateChat(Chat chat);
 
     @Query("SELECT * FROM Chats")
     List<Chat> getAllChats();
@@ -23,10 +26,16 @@ public interface ChatDao {
     @Query("SELECT * FROM Chats WHERE id = :chatId LIMIT 1")
     Chat getChatById(UUID chatId);
 
-    @Query("UPDATE Chats SET endTime = :endTime WHERE id=:id")
+    @Query("DELETE FROM Chats WHERE id = :chatId")
+    void deleteChat(UUID chatId);
+
+    @Query("DELETE FROM Chats")
+    void clearTable();
+
+    @Query("UPDATE Chats SET endTime = :endTime WHERE id = :id")
     void endChat(UUID id, String endTime);
 
-    @Query("UPDATE Chats SET name = :name WHERE id=:id")
+    @Query("UPDATE Chats SET name = :name WHERE id = :id")
     void updateChatName(UUID id, String name);
 
     @Transaction
@@ -47,12 +56,15 @@ public interface ChatDao {
         }
     }
 
-    @Update
-    void updateChat(Chat chat);
+    @Transaction
+    default void upsertPreservingType(Chat chat) {
+        if (chat == null || chat.getId() == null) return;
 
-    @Query("DELETE FROM Chats WHERE Id = :chatId")
-    void deleteChat(UUID chatId);
+        Chat existing = getChatById(chat.getId());
+        if (existing != null && existing.getChatTypeHint() != null) {
+            chat.setChatTypeHint(existing.getChatTypeHint());
+        }
 
-    @Query("DELETE FROM Chats")
-    void clearTable();
+        upsertChat(chat);
+    }
 }

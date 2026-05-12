@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- базовый свет -->
+    <item>
+        <shape>
+            <solid android:color="#66FFFFFF"/>
+            <corners android:radius="20dp"/>
+        </shape>
+    </item>
+
+    <!-- градиент глубины -->
+    <item>
+        <shape>
+            <gradient
+                android:startColor="#80FFFFFF"
+                android:endColor="#20FFFFFF"
+                android:angle="90"/>
+            <corners android:radius="20dp"/>
+        </shape>
+    </item>
+
+    <!-- лёгкая рамка -->
+    <item>
+        <shape>
+            <stroke
+                android:width="1dp"
+                android:color="#40FFFFFF"/>
+            <corners android:radius="20dp"/>
+        </shape>
+    </item>
+
+</layer-list>

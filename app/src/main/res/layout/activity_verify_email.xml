@@ -24,31 +24,6 @@
             android:layout_gravity="center_horizontal"
             android:maxWidth="480dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="end"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:id="@+id/btnLanguage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minWidth="48dp"
-                    android:minHeight="48dp"
-                    android:gravity="center"
-                    android:text="@string/language_mark"
-                    android:contentDescription="@string/change_language_desc"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="#42969E"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="8dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"/>
-            </LinearLayout>
-
             <TextView
                 android:id="@+id/verifyTitle"
                 android:layout_width="wrap_content"
@@ -57,6 +32,7 @@
                 android:textSize="26sp"
                 android:textStyle="bold"
                 android:textColor="#42969E"
+                android:layout_marginTop="36dp"
                 android:layout_marginBottom="12dp"/>
 
             <TextView

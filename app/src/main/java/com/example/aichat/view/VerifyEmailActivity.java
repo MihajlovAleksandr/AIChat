@@ -37,9 +37,6 @@ public class VerifyEmailActivity extends BaseActivity {
         setContentView(binding.getRoot());
         FullScreenHelper.enableFullScreen(getWindow());
 
-        LanguageHandler languageHandler = new LanguageHandler(this);
-        LanguageMenuHelper languageMenuHelper = new LanguageMenuHelper(languageHandler);
-        languageMenuHelper.attachToButton(binding.btnLanguage);
 
         initFields(binding);
         initColors();

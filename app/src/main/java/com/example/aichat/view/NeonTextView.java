@@ -4,6 +4,7 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.LinearGradient;
 import android.graphics.Matrix;
@@ -13,6 +14,7 @@ import android.util.AttributeSet;
 import android.view.animation.LinearInterpolator;
 
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.content.ContextCompat;
 
 import com.example.aichat.R;
 
@@ -48,7 +50,6 @@ public class NeonTextView extends AppCompatTextView {
         initPaints();
     }
 
-
     @SuppressLint("Recycle")
     private void initColors(AttributeSet attrs) {
         TypedArray a = getContext().getTheme().obtainStyledAttributes(
@@ -57,22 +58,71 @@ public class NeonTextView extends AppCompatTextView {
                 0, 0
         );
         try {
-            baseColor = a.getColor(R.styleable.NeonTextView_neonBaseColor, 0xFF42969E);
-            brightColor = a.getColor(R.styleable.NeonTextView_neonBrightColor, 0xFF6ED5DE);
+            baseColor = getColorSafely(a, R.styleable.NeonTextView_neonBaseColor, 0xFF42969E);
+            brightColor = getColorSafely(a, R.styleable.NeonTextView_neonBrightColor, 0xFF6ED5DE);
         } finally {
             a.recycle();
         }
     }
 
+    /**
+     * Безопасно получает цвет из TypedArray, поддерживая атрибуты (?attr/...)
+     */
+    private int getColorSafely(TypedArray typedArray, int index, int defaultValue) {
+        if (!typedArray.hasValue(index)) {
+            return defaultValue;
+        }
+
+        // Способ 1: Пробуем получить через resourceId
+        int resourceId = typedArray.getResourceId(index, -1);
+        if (resourceId != -1) {
+            try {
+                return ContextCompat.getColor(getContext(), resourceId);
+            } catch (Exception e) {
+                // Not a color resource, continue to next method
+            }
+        }
+
+        // Способ 2: Пробуем получить как ColorStateList (лучше работает с атрибутами)
+        try {
+            ColorStateList csl = typedArray.getColorStateList(index);
+            if (csl != null) {
+                return csl.getDefaultColor();
+            }
+        } catch (Exception e) {
+            // Fall through
+        }
+
+        // Способ 3: Пробуем получить как обычный цвет
+        try {
+            return typedArray.getColor(index, defaultValue);
+        } catch (Exception e) {
+            // Fall through
+        }
+
+        // Способ 4: Пробуем получить как строку и распарсить (на случай HEX)
+        try {
+            String colorString = typedArray.getString(index);
+            if (colorString != null && colorString.startsWith("#")) {
+                return android.graphics.Color.parseColor(colorString);
+            }
+        } catch (Exception e) {
+            // Fall through
+        }
+
+        return defaultValue;
+    }
+
     private void initPaints() {
         basePaint = new Paint(getPaint());
         basePaint.setColor(baseColor);
+        basePaint.setAntiAlias(true);
 
         shimmerPaint = new Paint(getPaint());
         shimmerPaint.setColor(brightColor);
+        shimmerPaint.setAntiAlias(true);
         updateGlowLayer();
     }
-
 
     @SuppressWarnings("unused")
     public void setNeonColors(int baseColor, int brightColor) {
@@ -108,10 +158,12 @@ public class NeonTextView extends AppCompatTextView {
     @SuppressWarnings("unused")
     public void setShimmerEnabled(boolean enabled) {
         this.shimmerEnabled = enabled;
-        if (!enabled && shimmerAnimator != null) shimmerAnimator.cancel();
-        else if (enabled) restartShimmer();
+        if (!enabled && shimmerAnimator != null) {
+            shimmerAnimator.cancel();
+        } else if (enabled) {
+            restartShimmer();
+        }
     }
-
 
     private void updateGlowLayer() {
         int glowColor = adjustAlpha(brightColor, glowIntensity);
@@ -144,9 +196,14 @@ public class NeonTextView extends AppCompatTextView {
 
     private void restartShimmer() {
         if (!shimmerEnabled) return;
-        if (shimmerAnimator != null) shimmerAnimator.cancel();
+        if (shimmerAnimator != null) {
+            shimmerAnimator.cancel();
+        }
 
-        shimmerAnimator = ValueAnimator.ofFloat(-getWidth(), getWidth() * 2f);
+        int width = getWidth();
+        if (width <= 0) return;
+
+        shimmerAnimator = ValueAnimator.ofFloat(-width, width * 2f);
         shimmerAnimator.setDuration(shimmerDuration);
         shimmerAnimator.setRepeatCount(ValueAnimator.INFINITE);
         shimmerAnimator.setInterpolator(new LinearInterpolator());
@@ -161,7 +218,9 @@ public class NeonTextView extends AppCompatTextView {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         updateGradient(w);
-        if (shimmerEnabled) restartShimmer();
+        if (shimmerEnabled) {
+            restartShimmer();
+        }
     }
 
     @Override

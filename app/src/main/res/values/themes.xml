@@ -3,6 +3,25 @@
 
     <style name="Theme.AIChat" parent="Theme.Material3.DayNight.NoActionBar" >
 
+        <!-- ChatListFragment -->
+        <!-- Fallback значения динамических атрибутов -->
+        <item name="dynamicPrimaryColor">@color/teal_primary</item>
+        <item name="dynamicBackgroundColor">@drawable/bg_dynamic_background</item>
+        <item name="dynamicTextColor">@color/primaryTextLight</item>
+        <item name="dynamicSecondaryTextColor">@color/secondaryTextLight</item>
+
+        <!-- Чат -->
+        <item name="dynamicOutgoingBubbleColor">@color/teal_primary</item>
+        <item name="dynamicIncomingBubbleColor">@color/light_gray</item>
+        <item name="dynamicChatBackgroundColor">@color/buttonBackgroundLight</item>
+        <item name="dynamicChatStrokeColor">@color/secondaryTextLight</item>
+
+        <!-- Производные -->
+        <item name="dynamicRippleColor">@color/rippleLight</item>
+        <item name="dynamicStateLayerColor">@android:color/transparent</item>
+        <!-- ChatListFragment -->
+
+
         <item name="colorPrimary">@color/teal_primary</item>
         <item name="colorOnPrimary">@color/buttonTextLight</item>
         <item name="colorSurface">@color/buttonBackgroundLight</item>
@@ -66,6 +85,10 @@
         <item name="android:maxLength">1</item>
         <item name="android:textSize">18sp</item>
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+
     </style>
+
+
+
 
 </resources>

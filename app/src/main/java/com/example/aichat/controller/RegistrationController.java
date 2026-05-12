@@ -3,18 +3,23 @@ package com.example.aichat.controller;
 import android.content.Intent;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.aichat.R;
 import com.example.aichat.dto.request.RegistrationRequest;
-import com.example.aichat.model.LocaleManager;
-import com.example.aichat.model.entities.WSSCommand;
-import com.example.aichat.util.InputValidator;
-import com.example.aichat.view.RegistrationActivity;
-import com.example.aichat.model.connection.ConnectionManager;
+import com.example.aichat.dto.response.ApiError;
+import com.example.aichat.dto.response.RegisterResponse;
+import com.example.aichat.model.SecurePreferencesManager;
+import com.example.aichat.model.connection.ConnectionDispatcher;
+import com.example.aichat.model.connection.HttpClient;
 import com.example.aichat.model.connection.ConnectionSingleton;
-import com.example.aichat.model.connection.OnConnectionEvents;
+import com.example.aichat.util.InputValidator;
+import com.example.aichat.view.PreferenceActivity;
+import com.example.aichat.view.RegistrationActivity;
+import com.example.aichat.view.UserDataActivity;
+import com.example.aichat.view.VerifyEmailActivity;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class RegistrationController {
@@ -27,7 +32,7 @@ public class RegistrationController {
     private final Button registrationButton;
 
     private boolean isEmailValidFlag = false;
-    private final ConnectionManager connectionManager;
+    private final ConnectionDispatcher dispatcher;
 
     public RegistrationController(RegistrationActivity activity,
                                   TextInputLayout emailInputLayout,
@@ -51,49 +56,13 @@ public class RegistrationController {
                 this::enableRegistrationButton
         );
 
-        this.connectionManager = new ConnectionManager("");
+        dispatcher = ConnectionSingleton.getInstance().getConnectionDispatcher();
+        dispatcher.setToken(null);
 
-        setupConnectionCallbacks();
         setupEmailListener();
         setupRegistrationButton();
 
         registrationButton.setEnabled(false);
-    }
-
-    private void setupConnectionCallbacks() {
-
-        connectionManager.clearConnectionEvents();
-        connectionManager.addConnectionEvent(new OnConnectionEvents() {
-
-            @Override
-            public void OnCommandGot(WSSCommand command) {
-                switch (command.getOperation()) {
-
-                    case "EmailIsBusy":
-                        activity.runOnUiThread(() ->
-                                emailInputLayout.setError(activity.getString(R.string.email_in_use_error))
-                        );
-                        break;
-
-                    case "VerificationCodeSend":
-                        ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
-
-                        Intent intent = new Intent(activity, com.example.aichat.view.VerifyEmailActivity.class);
-                        activity.startActivity(intent);
-                        activity.finish();
-                        break;
-                }
-            }
-
-            @Override
-            public void OnConnectionFailed() {
-            }
-
-            @Override
-            public void OnOpen() {}
-        });
-
-        connectionManager.connect();
     }
 
     private void setupEmailListener() {
@@ -116,20 +85,40 @@ public class RegistrationController {
         });
     }
 
+
     private void setupRegistrationButton() {
         registrationButton.setOnClickListener(v -> {
             String email = emailEditText.getText().toString().trim();
+            RegistrationRequest request = new RegistrationRequest(email, passwordController.getPassword(), "EMAIL_PASSWORD");
 
-            WSSCommand command = new WSSCommand(
-                    "Registration",
-                    new RegistrationRequest(
-                            email,
-                            passwordController.getPassword(),
-                            LocaleManager.getLocale(activity).toString()
-                    )
-            );
-
-            connectionManager.SendCommand(command);
+            dispatcher.sendHttpRequestAsync("/api/auth/register", HttpClient.HTTPMethod.POST, request,false).thenAccept((cmd)->
+            {
+                if(cmd.isSuccess()){
+                    RegisterResponse response = cmd.getData(RegisterResponse.class);
+                    Class type;
+                    switch (response.state) {
+                        case CREATED:
+                            type = VerifyEmailActivity.class;
+                            break;
+                        case EMAIL_VERIFIED:
+                            type = UserDataActivity.class;
+                            break;
+                        case USER_DATA_COMPLETED:
+                            type = PreferenceActivity.class;
+                            break;
+                        default:
+                            throw new IllegalArgumentException();
+                    }
+                    SecurePreferencesManager.saveAuthToken(activity, response.token);
+                    dispatcher.setToken(response.token);
+                    Intent intent = new Intent(activity, type);
+                    activity.startActivity(intent);
+                    activity.finish();
+                }
+                else{
+                    Log.e("Registration", cmd.getData(ApiError.class).toString());
+                }
+            });
         });
     }
 

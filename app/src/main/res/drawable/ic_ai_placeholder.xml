@@ -1,0 +1,44 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+
+    <!-- Шестигранная «петля» (ассоциация с узлом/нейросетью) -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="?attr/colorPrimary"
+        android:strokeWidth="34"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="
+            M512,220
+            L660,290
+            L720,440
+            L640,590
+            L484,650
+            L340,560
+            L300,410
+            L380,270
+            Z" />
+
+    <!-- Внутренняя «спираль» (интеллект/генерация) -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="?attr/colorOnSurface"
+        android:strokeWidth="26"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="
+            M512,280
+            C590,290 640,340 650,410
+            C660,480 625,540 565,565
+            C505,590 445,575 410,540
+            C375,505 365,455 380,420
+            C395,385 425,360 460,350
+            C495,340 540,345 570,370
+            C600,395 610,430 600,460
+            C590,490 565,510 535,515
+            C505,520 475,510 455,495" />
+
+</vector>
