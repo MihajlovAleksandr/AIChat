@@ -7,25 +7,22 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-
-import com.example.aichat.R;
 import com.example.aichat.dto.request.PreferenceRequest;
 import com.example.aichat.dto.response.ApiError;
 import com.example.aichat.model.connection.ConnectionDispatcher;
+import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.HttpClient;
 import com.example.aichat.model.connection.JwtUtils;
-import com.example.aichat.model.connection.ConnectionSingleton;
+import com.example.aichat.model.entities.Preference;
 import com.example.aichat.model.entities.PreferenceGender;
+import com.example.aichat.model.SecurePreferencesManager;
+import com.example.aichat.R;
 import com.example.aichat.view.main.MainActivity;
 import com.example.aichat.view.PreferenceActivity;
-import com.example.aichat.model.entities.Preference;
-import com.example.aichat.model.SecurePreferencesManager;
 import com.google.android.material.textfield.TextInputLayout;
-
+import java.util.UUID;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.UUID;
 
 public class PreferenceController {
 

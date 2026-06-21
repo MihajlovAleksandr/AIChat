@@ -1,9 +1,8 @@
 package com.example.aichat.controller.main.chatlist;
 
 import android.util.Log;
-import com.example.aichat.model.entities.ChatType;
 import com.example.aichat.dto.request.AddUserToChatRequest;
-
+import com.example.aichat.model.entities.ChatType;
 import java.util.UUID;
 
 public class CreateChatController {

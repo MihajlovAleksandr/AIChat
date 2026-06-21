@@ -9,17 +9,21 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-
-import com.example.aichat.R;
 import com.example.aichat.controller.PreferenceController;
 import com.example.aichat.model.entities.Preference;
 import com.example.aichat.model.utils.JsonHelper;
+import com.example.aichat.R;
+import com.example.aichat.view.main.BaseActivity;
+import com.example.aichat.view.helpers.DialogHelper;
+import com.example.aichat.view.helpers.FullScreenHelper;
+import com.example.aichat.view.theme.binders.PreferenceActivityThemeBinder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class PreferenceActivity extends BaseActivity {
 
     private PreferenceController controller;
+    private boolean customThemeAllowed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +79,9 @@ public class PreferenceActivity extends BaseActivity {
                     Preference.class
             );
         }
+
+        customThemeAllowed =
+                preference != null;
 
         if (preference != null) {
 
@@ -135,6 +142,23 @@ public class PreferenceActivity extends BaseActivity {
 
         if (controller != null) {
             controller.setupValidation();
+        }
+
+        if (customThemeAllowed) {
+            PreferenceActivityThemeBinder.applyForAccountEditOnly(
+                    this
+            );
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (customThemeAllowed) {
+            PreferenceActivityThemeBinder.applyForAccountEditOnly(
+                    this
+            );
         }
     }
 

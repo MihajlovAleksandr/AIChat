@@ -7,14 +7,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Vibrator;
-import android.util.Log;
-
 import androidx.core.app.NotificationCompat;
 import com.example.aichat.R;
 import com.example.aichat.view.main.MainActivity;
-import com.fasterxml.jackson.databind.deser.std.UUIDDeserializer;
-
 import java.util.Random;
 import java.util.UUID;
 
@@ -28,21 +23,11 @@ public class NotificationHelper {
         currentChatId = null;
     }
 
-    public void vibrate(Context context) {
-        if (!NotificationSettingsManager.isVibrationEnabled(context)) {
-            return;
-        }
-        Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-        if (vibrator != null && vibrator.hasVibrator()) {
-            vibrator.vibrate(DEFAULT_VIBRATION_PATTERN, -1);
-        }
-    }
-
     public void sendNotification(Context context, String title, String message, UUID chatId) {
         if (!NotificationSettingsManager.canSendNotifications(context)) {
             return;
         }
-        if(chatId.equals(currentChatId)) return;
+        if (chatId != null && chatId.equals(currentChatId)) return;
         createNotificationChannel(context);
 
         NotificationManager manager =
@@ -51,9 +36,6 @@ public class NotificationHelper {
         Notification notification = buildNotification(context, title, message, chatId);
         manager.notify(new Random().nextInt(), notification);
 
-        if(NotificationSettingsManager.isVibrationEnabled(context)){
-            vibrate(context);
-        }
     }
 
     private void createNotificationChannel(Context context) {
@@ -97,7 +79,8 @@ public class NotificationHelper {
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
 
-        if (NotificationSettingsManager.isVibrationEnabled(context)) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O
+                && NotificationSettingsManager.isVibrationEnabled(context)) {
             builder.setVibrate(DEFAULT_VIBRATION_PATTERN);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

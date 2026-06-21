@@ -1,12 +1,10 @@
 package com.example.aichat.dto.response;
 
 import androidx.annotation.Nullable;
-
 import com.example.aichat.model.entities.MessageReply;
 import com.example.aichat.model.entities.MessageStatus;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;

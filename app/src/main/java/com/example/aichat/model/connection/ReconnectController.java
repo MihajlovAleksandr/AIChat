@@ -2,9 +2,8 @@ package com.example.aichat.model.connection;
 
 import android.os.Handler;
 import android.os.Looper;
-
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CompletableFuture;
 
 public class ReconnectController {
 

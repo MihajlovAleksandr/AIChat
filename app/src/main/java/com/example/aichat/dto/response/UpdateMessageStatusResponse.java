@@ -3,7 +3,6 @@ package com.example.aichat.dto.response;
 import com.example.aichat.model.entities.MessageStatus;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 import java.util.UUID;
 

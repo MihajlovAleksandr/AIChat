@@ -1,7 +1,6 @@
 package com.example.aichat.dto.response;
 
 import androidx.annotation.NonNull;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

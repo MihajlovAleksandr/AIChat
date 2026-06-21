@@ -1,25 +1,25 @@
 package com.example.aichat.view.main;
 
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
-
-import com.example.aichat.R;
 import com.example.aichat.controller.main.MainActivityController;
-import com.example.aichat.model.SecurePreferencesManager;
 import com.example.aichat.model.entities.Chat;
+import com.example.aichat.model.SecurePreferencesManager;
+import com.example.aichat.R;
 import com.example.aichat.view.main.chat.ChatFragment;
 import com.example.aichat.view.main.chatlist.ChatsListFragment;
-
 import java.util.UUID;
 
-
 public class MainActivityAdapter extends FragmentStateAdapter {
+
+    private static final String TAG = "MainActivityAdapter";
+    private static final String CHAT_FRAGMENT_TAG = "CHAT_FRAGMENT";
 
     private final MainActivityController controller;
     private final UUID currentUserId;
@@ -27,76 +27,70 @@ public class MainActivityAdapter extends FragmentStateAdapter {
 
     private ChatsListFragment chatsListFragment;
 
-    public MainActivityAdapter(
-            @NonNull FragmentActivity activity,
-            UUID ignoredUserId,
-            boolean isNewActivity
-    ) {
+    public MainActivityAdapter(@NonNull FragmentActivity activity, UUID ignoredUserId, boolean isNewActivity) {
         super(activity);
-
         this.activity = activity;
         this.currentUserId = SecurePreferencesManager.getUserId(activity);
-
-        controller = new MainActivityController(
-                activity,
-                this,
-                currentUserId
-        );
-
-        // ==================== ПРИНУДИТЕЛЬНОЕ СОЗДАНИЕ ФРАГМЕНТА ====================
+        controller = new MainActivityController(activity, this, currentUserId);
         createChatsListFragment();
     }
 
     private void createChatsListFragment() {
-        UUID currentUserId = SecurePreferencesManager.getUserId(activity);
-        if (currentUserId == null) {
-            return;
-        }
+        if (currentUserId == null) return;
 
         chatsListFragment = ChatsListFragment.newInstance(false, currentUserId);
         chatsListFragment.loadChatsFromDatabase(currentUserId);
-
-        if (controller != null) {
-            controller.setChatsListFragment(chatsListFragment);
-        }
+        controller.setChatsListFragment(chatsListFragment);
     }
 
     @NonNull
     @Override
-    public androidx.fragment.app.Fragment createFragment(int position) {
-        if (position == 1) {
-            UUID chatId = controller.getCurrentChatId();
-            return ChatFragment.newInstance(chatId, currentUserId);
-        }
-
-        return chatsListFragment;
+    public Fragment createFragment(int position) {
+        if (chatsListFragment == null) createChatsListFragment();
+        return chatsListFragment != null ? chatsListFragment : new Fragment();
     }
 
     @Override
     public int getItemCount() {
-        return 2;
+        return 1;
     }
 
     public void setChatId(@Nullable UUID chatId) {
-        controller.setCurrentChatId(chatId);
-
         if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
 
-        FragmentManager fm = activity.getSupportFragmentManager();
-        String tag = "CHAT_FRAGMENT";
-        ChatFragment existing = (ChatFragment) fm.findFragmentByTag(tag);
-        if (existing != null) {
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.remove(existing);
-            ft.commitNowAllowingStateLoss();
+        FragmentManager fragmentManager = activity.getSupportFragmentManager();
+        Fragment existing = fragmentManager.findFragmentByTag(CHAT_FRAGMENT_TAG);
+        UUID previousChatId = controller.getCurrentChatId();
+
+        if (chatId != null && existing instanceof ChatFragment && previousChatId != null && previousChatId.equals(chatId)) {
+            Log.d(TAG, "Same chat already opened, skip replace: " + chatId);
+            return;
         }
 
-        if (chatId != null) {
-            ChatFragment newFragment = ChatFragment.newInstance(chatId, currentUserId);
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.add(R.id.view_pager_fragment_container, newFragment, tag);
-            ft.commitNowAllowingStateLoss();
+        controller.setCurrentChatId(chatId);
+
+        if (existing != null) {
+            FragmentTransaction removeTransaction = fragmentManager.beginTransaction();
+            removeTransaction.remove(existing);
+            removeTransaction.commitNowAllowingStateLoss();
         }
+
+        if (chatId == null) {
+            Log.d(TAG, "Chat fragment removed");
+            return;
+        }
+
+        if (currentUserId == null) {
+            Log.e(TAG, "Cannot open chat: currentUserId is null");
+            return;
+        }
+
+        ChatFragment newFragment = ChatFragment.newInstance(chatId, currentUserId);
+        FragmentTransaction addTransaction = fragmentManager.beginTransaction();
+        addTransaction.replace(R.id.view_pager_fragment_container, newFragment, CHAT_FRAGMENT_TAG);
+        addTransaction.commitNowAllowingStateLoss();
+
+        Log.d(TAG, "Chat fragment replaced: " + chatId);
     }
 
     public UUID getCurrentChatId() {
@@ -104,18 +98,14 @@ public class MainActivityAdapter extends FragmentStateAdapter {
     }
 
     public void onChatCreated(Chat chat) {
-        if (chatsListFragment != null) {
-            chatsListFragment.createChat(chat);
-        }
+        if (chatsListFragment != null && chat != null) chatsListFragment.createChat(chat);
     }
 
     public void reloadChats() {
-        if (chatsListFragment != null) {
-            chatsListFragment.loadChatsFromDatabase(currentUserId);
-        }
+        if (chatsListFragment != null) chatsListFragment.loadChatsFromDatabase(currentUserId);
     }
 
-    public void connect(){
+    public void connect() {
         controller.connect();
     }
 
@@ -129,10 +119,21 @@ public class MainActivityAdapter extends FragmentStateAdapter {
 
     public boolean destroy() {
         boolean isLogout = controller.destroy();
-        if (!isLogout) {
-
-        }
+        removeOpenedChatFragment();
         chatsListFragment = null;
         return isLogout;
+    }
+
+    private void removeOpenedChatFragment() {
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
+
+        FragmentManager fragmentManager = activity.getSupportFragmentManager();
+        Fragment existing = fragmentManager.findFragmentByTag(CHAT_FRAGMENT_TAG);
+
+        if (existing == null) return;
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.remove(existing);
+        transaction.commitAllowingStateLoss();
     }
 }

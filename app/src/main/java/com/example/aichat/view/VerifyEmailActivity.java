@@ -3,8 +3,8 @@ package com.example.aichat.view;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,9 +12,10 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import com.example.aichat.controller.VerifyEmailController;
 import com.example.aichat.databinding.ActivityVerifyEmailBinding;
+import com.example.aichat.view.main.BaseActivity;
+import com.example.aichat.view.helpers.FullScreenHelper;
 
 public class VerifyEmailActivity extends BaseActivity {
 
@@ -29,14 +30,16 @@ public class VerifyEmailActivity extends BaseActivity {
     private int errorColor;
 
     private TextView tvCodeError;
+    private VerifyEmailController controller;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         ActivityVerifyEmailBinding binding = ActivityVerifyEmailBinding.inflate(getLayoutInflater());
+
         setContentView(binding.getRoot());
         FullScreenHelper.enableFullScreen(getWindow());
-
 
         initFields(binding);
         initColors();
@@ -47,9 +50,14 @@ public class VerifyEmailActivity extends BaseActivity {
 
     private void initFields(ActivityVerifyEmailBinding binding) {
         codeFields = new EditText[]{
-                binding.code1, binding.code2, binding.code3,
-                binding.code4, binding.code5, binding.code6
+                binding.code1,
+                binding.code2,
+                binding.code3,
+                binding.code4,
+                binding.code5,
+                binding.code6
         };
+
         tvCodeError = binding.tvCodeError;
         tvCodeError.setVisibility(View.GONE);
     }
@@ -77,14 +85,16 @@ public class VerifyEmailActivity extends BaseActivity {
 
         for (int i = 0; i < codeFields.length; i++) {
             GradientDrawable bg = (GradientDrawable) codeFields[i].getBackground();
+
             backgrounds[i] = bg;
             strokeColors[i] = defaultStrokeColor;
+
             bg.setStroke(3, defaultStrokeColor);
         }
     }
 
     private void setupController() {
-        VerifyEmailController controller = new VerifyEmailController(this, codeFields);
+        controller = new VerifyEmailController(this, codeFields);
 
         for (int i = 0; i < codeFields.length; i++) {
             final int index = i;
@@ -110,17 +120,20 @@ public class VerifyEmailActivity extends BaseActivity {
                 @Override
                 public void afterTextChanged(Editable s) {
                     updateFieldStyle(field, s);
-                    handleFocusAndValidation(controller, index, s);
+                    handleFocusAndValidation(index, s);
                 }
             });
 
             field.setOnKeyListener((v, keyCode, event) -> {
-                if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DEL) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN
+                        && keyCode == KeyEvent.KEYCODE_DEL) {
+
                     if (field.getText().length() == 0 && index > 0) {
                         codeFields[index - 1].requestFocus();
                         codeFields[index - 1].setText("");
                     }
                 }
+
                 return controller.handleKeyEvent(keyCode, index);
             });
 
@@ -139,57 +152,103 @@ public class VerifyEmailActivity extends BaseActivity {
         }
     }
 
-    private void handleFocusAndValidation(VerifyEmailController controller, int index, Editable s) {
+    private void handleFocusAndValidation(int index, Editable s) {
         if (s.length() == 1 && index < codeFields.length - 1) {
             codeFields[index + 1].requestFocus();
         }
 
-        boolean allFilled = true;
-        for (EditText f : codeFields) {
-            if (f.getText().length() == 0) {
-                allFilled = false;
-                break;
-            }
-        }
+        boolean allFilled = isCodeFullyFilled();
 
         if (!allFilled) {
-            tvCodeError.setVisibility(View.GONE);
-            for (int j = 0; j < codeFields.length; j++) {
-                int toColor = (codeFields[j].getText().length() > 0) ? partialStrokeColor : defaultStrokeColor;
-                animateStrokeColor(j, strokeColors[j], toColor);
-                strokeColors[j] = toColor;
+            resetCodeErrorState();
+            return;
+        }
+
+        if (wasLastActionInput && index == codeFields.length - 1) {
+            hideCodeErrorOnly();
+            showCodeCheckingState();
+            controller.verifyCode();
+        }
+    }
+
+    private boolean isCodeFullyFilled() {
+        for (EditText field : codeFields) {
+            if (field.getText() == null || field.getText().length() == 0) {
+                return false;
             }
         }
 
-        if (allFilled && wasLastActionInput) {
-            boolean isValid = controller.handleAfterTextChanged(s, index);
-            int targetColor = isValid ? successColor : errorColor;
-            for (int j = 0; j < codeFields.length; j++) {
-                animateStrokeColor(j, strokeColors[j], targetColor);
-                strokeColors[j] = targetColor;
-            }
-            if (!isValid) {
-                tvCodeError.setVisibility(View.VISIBLE);
-                tvCodeError.setText(getString(com.example.aichat.R.string.verify_code_error));
-            }
+        return true;
+    }
+
+    private void resetCodeErrorState() {
+        hideCodeErrorOnly();
+
+        for (int i = 0; i < codeFields.length; i++) {
+            int toColor = codeFields[i].getText().length() > 0
+                    ? partialStrokeColor
+                    : defaultStrokeColor;
+
+            animateStrokeColor(i, strokeColors[i], toColor);
+            strokeColors[i] = toColor;
+        }
+    }
+
+    private void hideCodeErrorOnly() {
+        if (tvCodeError != null) {
+            tvCodeError.setVisibility(View.GONE);
+        }
+    }
+
+    private void showCodeCheckingState() {
+        for (int i = 0; i < codeFields.length; i++) {
+            animateStrokeColor(i, strokeColors[i], partialStrokeColor);
+            strokeColors[i] = partialStrokeColor;
         }
     }
 
     private void animateStrokeColor(int index, int fromColor, int toColor) {
-        if (fromColor == toColor) return;
+        if (fromColor == toColor) {
+            return;
+        }
+
         ValueAnimator anim = ValueAnimator.ofObject(new ArgbEvaluator(), fromColor, toColor);
+
         anim.setDuration(250);
-        anim.addUpdateListener(animation -> backgrounds[index].setStroke(3, (int) animation.getAnimatedValue()));
+        anim.addUpdateListener(animation ->
+                backgrounds[index].setStroke(3, (int) animation.getAnimatedValue())
+        );
+
         anim.start();
+    }
+
+    public void showCodeSuccessAnimation() {
+        hideCodeErrorOnly();
+
+        for (int i = 0; i < codeFields.length; i++) {
+            animateStrokeColor(i, strokeColors[i], successColor);
+            strokeColors[i] = successColor;
+        }
     }
 
     public void showCodeErrorAnimation() {
         tvCodeError.setVisibility(View.VISIBLE);
         tvCodeError.setText(getString(com.example.aichat.R.string.verify_code_error));
+
         for (int i = 0; i < codeFields.length; i++) {
             animateStrokeColor(i, strokeColors[i], errorColor);
             strokeColors[i] = errorColor;
         }
+    }
+
+    public String getCurrentCodeFromFields() {
+        StringBuilder code = new StringBuilder();
+
+        for (EditText field : codeFields) {
+            code.append(field.getText() != null ? field.getText().toString() : "");
+        }
+
+        return code.toString();
     }
 
     private void setupBackButton(ActivityVerifyEmailBinding binding) {
@@ -200,8 +259,7 @@ public class VerifyEmailActivity extends BaseActivity {
                 intent.putExtra("code" + i, codeFields[i].getText().toString());
             }
 
-            startActivity(intent);
-            finish();
+            startActivityClean(intent, true);
         });
     }
 }

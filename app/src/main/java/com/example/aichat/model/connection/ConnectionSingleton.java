@@ -1,7 +1,6 @@
 package com.example.aichat.model.connection;
 
 import android.app.Activity;
-
 import com.example.aichat.view.main.MainActivity;
 
 public class ConnectionSingleton {

@@ -2,9 +2,7 @@ package com.example.aichat.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.UUID;
-
 import javax.annotation.Nullable;
 
 public class UserAddingResponse {

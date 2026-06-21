@@ -3,28 +3,29 @@ package com.example.aichat.controller;
 import android.content.Intent;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
-import com.example.aichat.R;
 import com.example.aichat.dto.request.GoogleTokenRequest;
 import com.example.aichat.dto.request.LoginRequest;
 import com.example.aichat.dto.response.ApiError;
 import com.example.aichat.dto.response.RegisterResponse;
-import com.example.aichat.model.SecurePreferencesManager;
 import com.example.aichat.model.connection.ConnectionDispatcher;
 import com.example.aichat.model.connection.HttpClient;
 import com.example.aichat.model.connection.JwtUtils;
-import com.example.aichat.model.connection.ConnectionSingleton;
+import com.example.aichat.model.connection.TokenStorage;
 import com.example.aichat.model.entities.HttpCommand;
-import com.example.aichat.util.InputValidator;
+import com.example.aichat.model.SecurePreferencesManager;
+import com.example.aichat.R;
+import com.example.aichat.view.helpers.InputValidator;
 import com.example.aichat.view.LoginActivity;
+import com.example.aichat.view.main.MainActivity;
 import com.example.aichat.view.PreferenceActivity;
 import com.example.aichat.view.UserDataActivity;
 import com.example.aichat.view.VerifyEmailActivity;
-import com.example.aichat.view.main.MainActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -32,11 +33,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
-import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.concurrent.CompletableFuture;
 import java.util.UUID;
+import org.json.JSONObject;
 
 public class LoginController {
 
@@ -48,6 +50,7 @@ public class LoginController {
         void onLoginSuccess(UUID userId, String token);
     }
 
+    private static final String TAG = "LoginController";
     private static final int RC_SIGN_IN = 1001;
 
     private final LoginActivity activity;
@@ -58,14 +61,22 @@ public class LoginController {
     private final EditText emailEditText;
     private final EditText passwordEditText;
     private final Button loginButton;
+    private final ImageView googleSignInButton;
+    private final LoadingDialogController loadingDialog;
 
     private GoogleSignInClient googleSignInClient;
+    private final TokenStorage tokenStorage;
     private final ConnectionDispatcher dispatcher;
 
     private boolean isEmailValidFlag = false;
     private boolean isPasswordValidFlag = false;
     private boolean isLoginInProgress = false;
+    private boolean destroyed = false;
 
+    private boolean emailErrorWasShown = false;
+    private boolean passwordErrorWasShown = false;
+
+    private CompletableFuture<?> loginFuture;
     private OnLoginSuccessListener onLoginSuccessListener;
 
     public LoginController(
@@ -84,8 +95,14 @@ public class LoginController {
         this.emailEditText = emailEditText;
         this.passwordEditText = passwordEditText;
         this.loginButton = loginButton;
+        this.googleSignInButton = googleSignInButton;
         this.loginErrorCallback = loginErrorCallback;
-        dispatcher = ConnectionSingleton.getInstance().getConnectionDispatcher();
+        this.loadingDialog = new LoadingDialogController(activity);
+
+        this.tokenStorage = new TokenStorage(activity);
+        this.tokenStorage.saveToken(null);
+        this.dispatcher = new ConnectionDispatcher(tokenStorage);
+
         setupFieldListeners();
         setupLoginButton();
         setupGoogleSignIn(googleSignInButton);
@@ -97,21 +114,39 @@ public class LoginController {
         this.onLoginSuccessListener = listener;
     }
 
-    // -------------------------
-    // LOGIN VIA REST API
-    // -------------------------
-
     public void login(String email, String password) {
         if (isLoginInProgress) return;
+
         isLoginInProgress = true;
-        loginButton.setEnabled(false);
+        updateButtonsState();
+
+        loadingDialog.show(
+                "Вход",
+                "Пожалуйста, подождите. Выполняем вход..."
+        );
 
         LoginRequest request = new LoginRequest(email, password, "EMAIL_PASSWORD");
-        dispatcher.sendHttpRequestAsync("/api/auth/login", HttpClient.HTTPMethod.POST, request, false)
-                .thenAccept(this::handleResponse);
+
+        loginFuture = dispatcher.sendHttpRequestAsync(
+                        "/api/auth/login",
+                        HttpClient.HTTPMethod.POST,
+                        request,
+                        false
+                )
+                .thenAccept(this::handleResponse)
+                .exceptionally(throwable -> {
+                    Log.e(TAG, "Login request failed", throwable);
+                    onLoginError(activity.getString(R.string.try_again));
+                    return null;
+                });
     }
 
     private void handleResponse(HttpCommand cmd) {
+        if (cmd == null) {
+            onLoginError(activity.getString(R.string.try_again));
+            return;
+        }
+
         if (cmd.isSuccess()) {
             try {
                 RegisterResponse response = cmd.getData(RegisterResponse.class);
@@ -124,224 +159,388 @@ public class LoginController {
                 handleRegisterResponse(response);
 
             } catch (RuntimeException e) {
-                try {
-                    String jwt = cmd.getData(String.class);
-
-                    JSONObject jsonPayload = JwtUtils.decodePayload(jwt);
-
-                    UUID userId =
-                            UUID.fromString(jsonPayload.getString("sub"));
-
-                    SecurePreferencesManager.saveUserId(activity, userId);
-                    SecurePreferencesManager.saveAuthToken(activity, jwt);
-
-                    dispatcher.setToken(jwt);
-
-                    Intent intent =
-                            new Intent(activity, MainActivity.class);
-
-                    activity.startActivity(intent);
-                    activity.finish();
-
-                } catch (Exception ex) {
-                    onLoginError(activity.getString(R.string.try_again));
-                }
+                handleJwtLoginResponse(cmd);
             }
 
-        } else {
+            return;
+        }
 
-            ApiError error = cmd.getData(ApiError.class);
+        ApiError error = cmd.getData(ApiError.class);
+        String message = activity.getString(R.string.try_again);
 
-            String message =
-                    activity.getString(R.string.try_again);
+        if (error != null && error.getCode() != null) {
+            switch (error.getCode()) {
+                case "USER_NOT_FOUND":
+                    message = activity.getString(R.string.user_not_found);
+                    break;
 
-            if (error != null && error.getCode() != null) {
+                case "INVALID_CREDENTIALS":
+                    message = activity.getString(R.string.invalid_credentials);
+                    break;
 
-                switch (error.getCode()) {
+                case "USER_BANNED":
+                    message = activity.getString(R.string.user_banned);
+                    break;
+            }
+        }
 
-                    case "USER_NOT_FOUND":
-                        message =
-                                activity.getString(R.string.user_not_found);
-                        break;
+        onLoginError(message);
+    }
 
-                    case "INVALID_CREDENTIALS":
-                        message =
-                                activity.getString(R.string.invalid_credentials);
-                        break;
+    private void handleJwtLoginResponse(HttpCommand cmd) {
+        try {
+            String jwt = cmd.getData(String.class);
+            JSONObject jsonPayload = JwtUtils.decodePayload(jwt);
 
-                    case "USER_BANNED":
-                        message =
-                                activity.getString(R.string.user_banned);
-                        break;
-                }
+            if (jwt == null || jsonPayload == null) {
+                onLoginError(activity.getString(R.string.try_again));
+                return;
             }
 
-            onLoginError(message);
+            UUID userId = UUID.fromString(jsonPayload.getString("sub"));
+
+            activity.runOnUiThread(() -> {
+                if (!isActivityUsable()) return;
+
+                finishLoading();
+
+                SecurePreferencesManager.saveUserId(activity, userId);
+                SecurePreferencesManager.saveAuthToken(activity, jwt);
+                tokenStorage.saveToken(jwt);
+
+                Intent intent = new Intent(activity, MainActivity.class);
+                activity.startActivityClean(intent, true);
+            });
+
+        } catch (Exception ex) {
+            Log.e(TAG, "JWT login parse failed", ex);
+            onLoginError(activity.getString(R.string.try_again));
         }
     }
 
     private void handleRegisterResponse(RegisterResponse response) {
         activity.runOnUiThread(() -> {
-            isLoginInProgress = false;
-            enableLoginButton();
-            Class type;
+            if (!isActivityUsable()) return;
+
+            finishLoading();
+
+            if (response == null || response.state == null || response.token == null) {
+                onLoginError(activity.getString(R.string.try_again));
+                return;
+            }
+
+            Class<?> type;
+
             switch (response.state) {
                 case CREATED:
                     type = VerifyEmailActivity.class;
                     break;
+
                 case EMAIL_VERIFIED:
                     type = UserDataActivity.class;
                     break;
+
                 case USER_DATA_COMPLETED:
                     type = PreferenceActivity.class;
                     break;
+
                 default:
-                    throw new IllegalArgumentException();
+                    onLoginError(activity.getString(R.string.try_again));
+                    return;
             }
+
             SecurePreferencesManager.saveAuthToken(activity, response.token);
-            dispatcher.setToken(response.token);
+            tokenStorage.saveToken(response.token);
+
             Intent intent = new Intent(activity, type);
-            activity.startActivity(intent);
-            activity.finish();
+            activity.startActivityClean(intent, true);
         });
     }
 
     private void onLoginError(String message) {
         activity.runOnUiThread(() -> {
-            isLoginInProgress = false;
-            enableLoginButton();
+            if (!isActivityUsable()) return;
+
+            finishLoading();
+
             if (loginErrorCallback != null) {
                 loginErrorCallback.onLoginError(message);
             }
         });
     }
 
-    // -------------------------
-    // GOOGLE LOGIN
-    // -------------------------
-
     private void sendGoogleTokenToServer(String idToken) {
         if (isLoginInProgress) return;
+
         isLoginInProgress = true;
-        loginButton.setEnabled(false);
+        updateButtonsState();
 
-        GoogleTokenRequest req = new GoogleTokenRequest(idToken);
+        loadingDialog.show(
+                "Вход через Google",
+                "Пожалуйста, подождите. Проверяем аккаунт..."
+        );
 
-        dispatcher.sendHttpRequestAsync("/api/auth/oauth/google", HttpClient.HTTPMethod.POST, req, false)
-                .thenAccept(this::handleResponse);
+        GoogleTokenRequest request = new GoogleTokenRequest(idToken);
+
+        loginFuture = dispatcher.sendHttpRequestAsync(
+                        "/api/auth/oauth/google",
+                        HttpClient.HTTPMethod.POST,
+                        request,
+                        false
+                )
+                .thenAccept(this::handleResponse)
+                .exceptionally(throwable -> {
+                    Log.e(TAG, "Google login failed", throwable);
+                    onLoginError(activity.getString(R.string.try_again));
+                    return null;
+                });
     }
-
-    // -------------------------
-    // UI VALIDATION
-    // -------------------------
 
     private void setupFieldListeners() {
         emailEditText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) validateEmail();
+            if (!hasFocus && hasEmailText()) {
+                emailErrorWasShown = true;
+            }
+
+            validateEmail(emailErrorWasShown);
+            updateButtonsState();
         });
+
         passwordEditText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) validatePassword();
+            if (!hasFocus && hasPasswordText()) {
+                passwordErrorWasShown = true;
+            }
+
+            validatePassword(passwordErrorWasShown);
+            updateButtonsState();
         });
 
         emailEditText.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                validateEmail(emailErrorWasShown);
+                updateButtonsState();
+            }
+
             @Override
             public void afterTextChanged(Editable s) {
-                isEmailValidFlag = InputValidator.isEmailValid(s.toString().trim());
-                emailInputLayout.setError(null);
-                enableLoginButton();
             }
         });
 
         passwordEditText.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                validatePassword(passwordErrorWasShown);
+                updateButtonsState();
+            }
+
             @Override
             public void afterTextChanged(Editable s) {
-                isPasswordValidFlag = InputValidator.isPasswordValid(s.toString().trim());
-                passwordInputLayout.setError(null);
-                enableLoginButton();
             }
         });
     }
 
     private void setupLoginButton() {
         loginButton.setOnClickListener(v -> {
-            String email = emailEditText.getText().toString().trim();
-            String password = passwordEditText.getText().toString().trim();
+            if (isLoginInProgress) return;
+
+            emailErrorWasShown = true;
+            passwordErrorWasShown = true;
+
+            validateEmail(true);
+            validatePassword(true);
+            updateButtonsState();
+
+            if (!isEmailValidFlag || !isPasswordValidFlag) return;
+
+            String email = getEmail();
+            String password = getPassword();
+
             login(email, password);
         });
     }
 
-    private void validateEmail() {
-        String text = emailEditText.getText().toString().trim();
-        boolean isValid = InputValidator.isEmailValid(text);
-        emailInputLayout.setError(isValid ? null : activity.getString(R.string.invalid_email_error));
-        enableLoginButton();
-    }
+    private void validateEmail(boolean showError) {
+        String text = getEmail();
 
-    private void validatePassword() {
-        String text = passwordEditText.getText().toString().trim();
-        boolean isValid = InputValidator.isPasswordValid(text);
-        passwordInputLayout.setError(isValid ? null : activity.getString(R.string.invalid_password_error));
-        enableLoginButton();
-    }
+        isEmailValidFlag = InputValidator.isEmailValid(text);
 
-    private void enableLoginButton() {
-        loginButton.setEnabled(!isLoginInProgress && isEmailValidFlag && isPasswordValidFlag);
-    }
-
-    // -------------------------
-    // GOOGLE SIGN-IN
-    // -------------------------
-
-    private void setupGoogleSignIn(ImageView googleSignInButton) {
-        String clientId = loadWebClientId();
-        if (clientId == null) {
-            Toast.makeText(activity, "Error configuring Google Sign-In", Toast.LENGTH_SHORT).show();
+        if (text.isEmpty()) {
+            emailInputLayout.setError(null);
+            emailInputLayout.setErrorEnabled(false);
+            emailErrorWasShown = false;
             return;
         }
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(clientId)
-                .requestEmail()
-                .build();
-        googleSignInClient = GoogleSignIn.getClient(activity, gso);
+
+        if (isEmailValidFlag) {
+            emailInputLayout.setError(null);
+            emailInputLayout.setErrorEnabled(false);
+            return;
+        }
+
+        if (showError) {
+            emailInputLayout.setError(activity.getString(R.string.invalid_email_error));
+            emailInputLayout.setErrorEnabled(true);
+        } else {
+            emailInputLayout.setError(null);
+            emailInputLayout.setErrorEnabled(false);
+        }
+    }
+
+    private void validatePassword(boolean showError) {
+        String text = getPassword();
+
+        isPasswordValidFlag = InputValidator.isPasswordValid(text);
+
+        if (text.isEmpty()) {
+            passwordInputLayout.setError(null);
+            passwordInputLayout.setErrorEnabled(false);
+            passwordErrorWasShown = false;
+            return;
+        }
+
+        if (isPasswordValidFlag) {
+            passwordInputLayout.setError(null);
+            passwordInputLayout.setErrorEnabled(false);
+            return;
+        }
+
+        if (showError) {
+            passwordInputLayout.setError(activity.getString(R.string.invalid_password_error));
+            passwordInputLayout.setErrorEnabled(true);
+        } else {
+            passwordInputLayout.setError(null);
+            passwordInputLayout.setErrorEnabled(false);
+        }
+    }
+
+    private void updateButtonsState() {
+        boolean enabled = !isLoginInProgress
+                && isEmailValidFlag
+                && isPasswordValidFlag;
+
+        loginButton.setEnabled(enabled);
+
+        if (googleSignInButton != null) {
+            googleSignInButton.setEnabled(!isLoginInProgress);
+            googleSignInButton.setAlpha(isLoginInProgress ? 0.6f : 1f);
+        }
+    }
+
+    private void finishLoading() {
+        isLoginInProgress = false;
+        loginFuture = null;
+        loadingDialog.dismiss();
+        updateButtonsState();
+    }
+
+    private boolean hasEmailText() {
+        return !getEmail().isEmpty();
+    }
+
+    private boolean hasPasswordText() {
+        return !getPassword().isEmpty();
+    }
+
+    private String getEmail() {
+        return emailEditText.getText() != null
+                ? emailEditText.getText().toString().trim()
+                : "";
+    }
+
+    private String getPassword() {
+        return passwordEditText.getText() != null
+                ? passwordEditText.getText().toString().trim()
+                : "";
+    }
+
+    private void setupGoogleSignIn(ImageView googleSignInButton) {
+        if (googleSignInButton == null) return;
+
+        String clientId = loadWebClientId();
+
+        if (clientId == null) {
+            Toast.makeText(
+                    activity,
+                    "Error configuring Google Sign-In",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        GoogleSignInOptions options =
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestIdToken(clientId)
+                        .requestEmail()
+                        .build();
+
+        googleSignInClient = GoogleSignIn.getClient(activity, options);
+
         googleSignInButton.setOnClickListener(v -> startGoogleSignIn());
     }
 
     private void startGoogleSignIn() {
+        if (isLoginInProgress || googleSignInClient == null) return;
+
         Intent signInIntent = googleSignInClient.getSignInIntent();
         activity.startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
     public void handleGoogleSignInResult(int requestCode, @Nullable Intent data) {
         if (requestCode != RC_SIGN_IN) return;
-        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+
+        Task<GoogleSignInAccount> task =
+                GoogleSignIn.getSignedInAccountFromIntent(data);
+
         try {
-            GoogleSignInAccount account = task.getResult(ApiException.class);
+            GoogleSignInAccount account =
+                    task.getResult(ApiException.class);
+
             if (account != null && account.getIdToken() != null) {
                 sendGoogleTokenToServer(account.getIdToken());
             }
+
         } catch (ApiException e) {
-            Toast.makeText(activity, "Google Sign-In failed: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(
+                    activity,
+                    "Google Sign-In failed: " + e.getStatusCode(),
+                    Toast.LENGTH_SHORT
+            ).show();
         }
     }
 
     private String loadWebClientId() {
-        try (InputStream is = activity.getAssets().open("google-secret.json");
-             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+        try (InputStream inputStream = activity.getAssets().open("google-secret.json");
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+
             StringBuilder builder = new StringBuilder();
             String line;
-            while ((line = reader.readLine()) != null) builder.append(line);
+
+            while ((line = reader.readLine()) != null) {
+                builder.append(line);
+            }
+
             JSONObject root = new JSONObject(builder.toString());
+
             return root.getJSONObject("web").getString("client_id");
+
         } catch (Exception e) {
+            Log.e(TAG, "Failed to load google-secret.json", e);
             return null;
         }
     }
 
     public void qrLogin(String token) {
+        if (isLoginInProgress) return;
 
         if (token == null || token.trim().isEmpty()) {
             onLoginError(activity.getString(R.string.try_again));
@@ -349,30 +548,54 @@ public class LoginController {
         }
 
         try {
-
             if (JwtUtils.decodePayload(token) == null) {
                 onLoginError(activity.getString(R.string.invalid_qr_code));
                 return;
             }
 
+            isLoginInProgress = true;
+            updateButtonsState();
+
+            loadingDialog.show(
+                    "QR-вход",
+                    "Пожалуйста, подождите. Проверяем QR-код..."
+            );
+
             dispatcher.setToken(token);
 
-            dispatcher.sendHttpRequestAsync(
+            loginFuture = dispatcher.sendHttpRequestAsync(
                             "/api/auth/code/verify",
                             HttpClient.HTTPMethod.POST,
                             null,
                             false
-                    ).thenAccept(this::handleResponse)
+                    )
+                    .thenAccept(this::handleResponse)
                     .exceptionally(ex -> {
-
+                        Log.e(TAG, "QR login failed", ex);
                         onLoginError(activity.getString(R.string.invalid_qr_code));
-
                         return null;
                     });
 
         } catch (Exception ex) {
-
+            Log.e(TAG, "QR token parse failed", ex);
             onLoginError(activity.getString(R.string.invalid_qr_code));
         }
+    }
+
+    private boolean isActivityUsable() {
+        return !destroyed
+                && !activity.isFinishing()
+                && !activity.isDestroyed();
+    }
+
+    public void destroy() {
+        destroyed = true;
+
+        if (loginFuture != null && !loginFuture.isDone()) {
+            loginFuture.cancel(true);
+        }
+
+        loginFuture = null;
+        loadingDialog.dismiss();
     }
 }

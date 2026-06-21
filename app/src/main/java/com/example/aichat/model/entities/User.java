@@ -2,9 +2,7 @@ package com.example.aichat.model.entities;
 
 import androidx.annotation.NonUiContext;
 import androidx.annotation.Nullable;
-
-import com.example.aichat.model.utils.TimeConverter;
-
+import com.example.aichat.model.utils.time.TimeConverter;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

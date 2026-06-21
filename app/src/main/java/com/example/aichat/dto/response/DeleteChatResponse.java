@@ -1,7 +1,6 @@
 package com.example.aichat.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.UUID;
 
 public class DeleteChatResponse {

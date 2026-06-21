@@ -5,41 +5,38 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.aichat.controller.main.chatlist.ChatController;
 import com.example.aichat.dto.response.ConnectionChangeResponse;
-import com.example.aichat.model.QRCodeGenerator;
 import com.example.aichat.model.connection.ConnectionDispatcher;
+import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.EventHandler;
 import com.example.aichat.model.connection.HttpClient;
-import com.example.aichat.model.connection.ConnectionSingleton;
 import com.example.aichat.model.connection.SignalRCommand;
 import com.example.aichat.model.entities.ConnectionInfo;
+import com.example.aichat.model.QRCodeGenerator;
 import com.example.aichat.model.utils.JsonHelper;
-import com.example.aichat.view.BaseActivity;
-import com.example.aichat.view.FullScreenHelper;
-import com.example.aichat.view.main.chat.ui.UiAnimations;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.example.aichat.view.main.BaseActivity;
+import com.example.aichat.view.helpers.FullScreenHelper;
+import com.example.aichat.view.main.chat.helpers.UiAnimations;
+import com.example.aichat.view.theme.binders.DevicesActivityThemeBinder;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.tabs.TabLayout;
-
-import android.view.ViewGroup;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -62,6 +59,11 @@ public class DevicesActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_devices);
+
+        DevicesActivityThemeBinder.apply(
+                this
+        );
+
         FullScreenHelper.enableFullScreen(getWindow());
         devicesRecyclerView = findViewById(R.id.devicesRecyclerView);
         ViewCompat.setOnApplyWindowInsetsListener(devicesRecyclerView, (v, insets) -> {
@@ -96,7 +98,6 @@ public class DevicesActivity extends BaseActivity {
         devicesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         devicesAdapter = new DevicesAdapter(connectionId -> terminateSession(connectionId));
         devicesList = new ArrayList<>(Arrays.asList(Objects.requireNonNull(JsonHelper.Deserialize(intent.getStringExtra("devices"), ConnectionInfo[].class))));
-        //devicesAdapter.updateDevices(devicesList);
         updateTabs(0);
         devicesRecyclerView.setAdapter(devicesAdapter);
 
@@ -119,6 +120,15 @@ public class DevicesActivity extends BaseActivity {
             @Override public void onTabUnselected(TabLayout.Tab tab) {}
             @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        DevicesActivityThemeBinder.apply(
+                this
+        );
     }
 
     private void updateTerminateButton(int position) {
@@ -225,13 +235,16 @@ public class DevicesActivity extends BaseActivity {
         View view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_qr, null);
         bottomSheetDialog.setContentView(view);
 
+        DevicesActivityThemeBinder.applyQrBottomSheet(
+                view
+        );
+
         TextView qrCodeTextView = view.findViewById(R.id.qrCodeTextView);
         ImageView qrCodeImage = view.findViewById(R.id.qrCodeImageBottomSheet);
         View blurOverlay = view.findViewById(R.id.qrBlurOverlay);
         ImageView tapHintIcon = view.findViewById(R.id.iv_tap_hint);
         TextView tapHintText = view.findViewById(R.id.tv_tap_hint);
 
-        // Изначально текст пустой и прозрачный
         qrCodeTextView.setText("");
         qrCodeTextView.setAlpha(0f);
 
@@ -275,7 +288,6 @@ public class DevicesActivity extends BaseActivity {
                         runOnUiThread(() -> {
                             qrCodeImage.setImageBitmap(qr);
                             isQrReady[0] = true;
-                            // Первый текст появляется с анимацией появления
                             if (!isFirstTextSet[0]) {
                                 isFirstTextSet[0] = true;
                                 qrCodeTextView.setText(getString(R.string.tap_to_reveal_qr));
@@ -381,6 +393,10 @@ public class DevicesActivity extends BaseActivity {
             }
 
             public void bind(ConnectionInfo device) {
+                DevicesActivityThemeBinder.applyDeviceItem(
+                        itemView
+                );
+
                 deviceName.setText(device.getDevice());
                 lastActivity.setText(
                         device.getLastOnline() == null

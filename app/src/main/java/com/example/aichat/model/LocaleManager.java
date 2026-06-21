@@ -1,10 +1,10 @@
 package com.example.aichat.model;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.SharedPreferences;
 import android.os.Build;
-
+import android.os.LocaleList;
 import java.util.Locale;
 
 public class LocaleManager {
@@ -16,28 +16,45 @@ public class LocaleManager {
             Context context,
             String language
     ) {
+        String normalizedLanguage = normalizeLanguage(language);
 
         persistLanguage(
                 context,
-                language
+                normalizedLanguage
         );
 
         return updateResources(
                 context,
-                language
+                normalizedLanguage
         );
     }
 
-    public static Locale getLocale(Context context) {
+    public static Context wrap(Context context) {
+        if (context == null) {
+            return null;
+        }
 
-        SharedPreferences prefs =
-                getPreferences(context);
+        SharedPreferences prefs = getPreferences(context);
 
-        String language =
+        String language = normalizeLanguage(
                 prefs.getString(
                         KEY_LANGUAGE,
                         "en"
-                );
+                )
+        );
+
+        return updateResources(context, language);
+    }
+
+    public static Locale getLocale(Context context) {
+        SharedPreferences prefs = getPreferences(context);
+
+        String language = normalizeLanguage(
+                prefs.getString(
+                        KEY_LANGUAGE,
+                        "en"
+                )
+        );
 
         return new Locale(language);
     }
@@ -50,18 +67,52 @@ public class LocaleManager {
             Context context,
             String language
     ) {
-
         getPreferences(context)
                 .edit()
                 .putString(
                         KEY_LANGUAGE,
-                        language
+                        normalizeLanguage(language)
                 )
                 .apply();
     }
 
-    private static SharedPreferences getPreferences(Context context) {
+    public static String normalizeLanguage(String language) {
+        if (language == null || language.trim().isEmpty()) {
+            return "en";
+        }
 
+        String normalized = language.trim()
+                .replace('-', '_')
+                .toLowerCase(Locale.US);
+
+        if (normalized.startsWith("ua")) {
+            return "uk";
+        }
+
+        if (normalized.startsWith("uk")) {
+            return "uk";
+        }
+
+        if (normalized.startsWith("pl")) {
+            return "pl";
+        }
+
+        if (normalized.startsWith("ru")) {
+            return "ru";
+        }
+
+        if (normalized.startsWith("es")) {
+            return "es";
+        }
+
+        if (normalized.startsWith("be")) {
+            return "be";
+        }
+
+        return "en";
+    }
+
+    private static SharedPreferences getPreferences(Context context) {
         return context.getSharedPreferences(
                 PREF_NAME,
                 Context.MODE_PRIVATE
@@ -72,43 +123,36 @@ public class LocaleManager {
             Context context,
             String language
     ) {
-
-        Locale locale =
-                new Locale(language);
+        String normalizedLanguage = normalizeLanguage(language);
+        Locale locale = new Locale(normalizedLanguage);
 
         Locale.setDefault(locale);
 
-        Configuration configuration =
-                new Configuration(
-                        context.getResources()
-                                .getConfiguration()
-                );
+        Configuration configuration = new Configuration(
+                context.getResources().getConfiguration()
+        );
 
         configuration.setLocale(locale);
         configuration.setLayoutDirection(locale);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-
-            Context localizedContext =
-                    context.createConfigurationContext(configuration);
-
-            localizedContext.getResources()
-                    .updateConfiguration(
-                            configuration,
-                            localizedContext.getResources()
-                                    .getDisplayMetrics()
-                    );
-
-            return localizedContext;
+            LocaleList localeList = new LocaleList(locale);
+            LocaleList.setDefault(localeList);
+            configuration.setLocales(localeList);
         }
 
-        context.getResources()
-                .updateConfiguration(
-                        configuration,
-                        context.getResources()
-                                .getDisplayMetrics()
-                );
+        Context localizedContext = context.createConfigurationContext(configuration);
 
-        return context;
+        context.getResources().updateConfiguration(
+                configuration,
+                context.getResources().getDisplayMetrics()
+        );
+
+        localizedContext.getResources().updateConfiguration(
+                configuration,
+                localizedContext.getResources().getDisplayMetrics()
+        );
+
+        return localizedContext;
     }
 }

@@ -76,7 +76,7 @@
                     android:importantForAutofill="yes"
                     android:autofillHints="emailAddress"
                     android:focusable="true"
-                    android:focusableInTouchMode="true"/>
+                    android:focusableInTouchMode="true" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -111,7 +111,7 @@
                     android:importantForAutofill="yes"
                     android:autofillHints="password"
                     android:focusable="true"
-                    android:focusableInTouchMode="true"/>
+                    android:focusableInTouchMode="true" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -146,7 +146,7 @@
                     android:importantForAutofill="yes"
                     android:autofillHints="password"
                     android:focusable="true"
-                    android:focusableInTouchMode="true"/>
+                    android:focusableInTouchMode="true" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
@@ -183,7 +183,7 @@
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:paddingHorizontal="4dp" />
 
-                <com.example.aichat.view.NeonTextView
+                <com.example.aichat.view.helpers.NeonTextView
                     android:id="@+id/loginTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -209,7 +209,7 @@
         android:orientation="horizontal"
         android:gravity="center"
         android:paddingTop="16dp"
-        android:paddingBottom="16dp"
+        android:paddingBottom="44dp"
         android:layout_gravity="bottom">
 
         <View
@@ -217,28 +217,28 @@
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:background="@drawable/dot_active"
-            android:layout_margin="4dp"/>
+            android:layout_margin="4dp" />
 
         <View
             android:id="@+id/dot2"
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:background="@drawable/dot_default"
-            android:layout_margin="4dp"/>
+            android:layout_margin="4dp" />
 
         <View
             android:id="@+id/dot3"
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:background="@drawable/dot_default"
-            android:layout_margin="4dp"/>
+            android:layout_margin="4dp" />
 
         <View
             android:id="@+id/dot4"
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:background="@drawable/dot_default"
-            android:layout_margin="4dp"/>
+            android:layout_margin="4dp" />
     </LinearLayout>
 
 </FrameLayout>

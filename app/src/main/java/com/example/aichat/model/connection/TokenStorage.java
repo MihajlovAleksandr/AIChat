@@ -1,9 +1,7 @@
 package com.example.aichat.model.connection;
 
 import android.content.Context;
-
 import androidx.annotation.Nullable;
-
 import com.example.aichat.model.SecurePreferencesManager;
 
 public class TokenStorage {

@@ -4,7 +4,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-
 import com.example.aichat.model.connection.HttpClient;
 import com.example.aichat.model.utils.JsonHelper;
 

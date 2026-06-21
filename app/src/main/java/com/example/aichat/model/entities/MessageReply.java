@@ -1,10 +1,8 @@
 package com.example.aichat.model.entities;
 
 import androidx.annotation.Nullable;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Objects;
 import java.util.UUID;
 

@@ -4,7 +4,6 @@
     android:viewportWidth="1024"
     android:viewportHeight="1024">
 
-    <!-- Шестигранная «петля» (ассоциация с узлом/нейросетью) -->
     <path
         android:fillColor="@android:color/transparent"
         android:strokeColor="?attr/colorPrimary"
@@ -22,7 +21,6 @@
             L380,270
             Z" />
 
-    <!-- Внутренняя «спираль» (интеллект/генерация) -->
     <path
         android:fillColor="@android:color/transparent"
         android:strokeColor="?attr/colorOnSurface"

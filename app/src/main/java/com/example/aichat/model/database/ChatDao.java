@@ -5,9 +5,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 import androidx.room.Upsert;
-
 import com.example.aichat.model.entities.Chat;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -61,8 +59,8 @@ public interface ChatDao {
         if (chat == null || chat.getId() == null) return;
 
         Chat existing = getChatById(chat.getId());
-        if (existing != null && existing.getChatTypeHint() != null) {
-            chat.setChatTypeHint(existing.getChatTypeHint());
+        if (existing != null && existing.getType() != null) {
+            chat.setType(existing.getType());
         }
 
         upsertChat(chat);

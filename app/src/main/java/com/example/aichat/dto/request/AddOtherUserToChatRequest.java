@@ -3,7 +3,6 @@ package com.example.aichat.dto.request;
 import com.example.aichat.model.entities.ChatType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.UUID;
 
 public class AddOtherUserToChatRequest {

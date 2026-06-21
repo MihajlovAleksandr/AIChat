@@ -1,50 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AIChat</string>
-    <string name="language">Язык</string>
+    <string name="close_button_description">Закрыть</string>
+    <string name="back_button_description">Назад</string>
+    <string name="options_button_description">Больше опций</string>
+    <string name="submit_button">Отправить</string>
+    <string name="skip_button">Пропустить</string>
+    <string name="update_button">Обновить</string>
     <string name="logout">Выход</string>
     <string name="first_fragment_label">Первый фрагмент</string>
     <string name="second_fragment_label">Второй фрагмент</string>
     <string name="hello_blank_fragment">Привет, пустой фрагмент</string>
+    <string name="language">Язык</string>
     <string name="select_language">Выберите язык</string>
-    <string name="scan_me">Сканируйте меня</string>
-    <string name="no_email">"Тут  будет ваш email "</string>
     <string name="no_devices">Тут будут ваши устройства</string>
     <string name="device_status">Всего %d, Онлайн %d</string>
     <string name="about">О себе</string>
     <string name="preferences">Предпочтения</string>
     <string name="no_about">Тут будет информация о вас</string>
     <string name="no_preference">Тут будут ваши предпочтения</string>
+    <string name="no_email">"Тут  будет ваш email "</string>
     <string name="email_hint">Введите email</string>
+    <string name="new_password_hint">Введите новый пароль</string>
     <string name="password_hint">Введите пароль</string>
-    <string name= "new_password_hint">Введите новый пароль</string>
     <string name="confirm_password_hint">Подтвердите пароль</string>
     <string name="login_button">Войти</string>
-    <string name="update_button">Обновить</string>
     <string name="register_button">Зарегистрироваться</string>
     <string name="register_prompt">Нет аккаунта? Регистрация</string>
     <string name="login_prompt">Уже есть аккаунт? Войти</string>
+    <string name="register_link_text">Регистрация</string>
+    <string name="login_link_text">Войти</string>
+    <string name="chat_created">Чат был создан</string>
+    <string name="chat_ended">Чат был окончен</string>
+    <string name="you">Вы</string>
+    <string name="name_hint">Имя</string>
     <string name="age_hint">Возраст</string>
     <string name="min_age_hint">Минимальный возраст</string>
     <string name="max_age_hint">Максимальный возраст</string>
-    <string name="age_info_description">Информация о возрасте</string>
-    <string name="name_hint">Имя</string>
-    <string name="name_info_description">Информация о поле имени</string>
     <string name="gender_label">Пол:</string>
     <string name="gender_male">Мужской</string>
     <string name="gender_female">Женский</string>
     <string name="gender_any">Любой</string>
-    <string name="submit_button">Отправить</string>
-    <string name="skip_button">Пропустить</string>
+    <string name="scan_me">Сканируйте меня</string>
+    <string name="email" translatable="false">Email</string>
     <string name="chat_members_title">Участники чата</string>
-    <string name="close_button_description">Закрыть</string>
-    <string name="back_button_description">Назад</string>
-    <string name="options_button_description">Больше опций</string>
     <string name="message_hint">Введите сообщение</string>
-    <string name="send_button">Отправить</string>
     <string name="end_chat_menu">Завершить чат</string>
     <string name="view_members_menu">Участники</string>
     <string name="search_words_menu">Поиск слов</string>
     <string name="export_chat">Экспорт чата</string>
+    <string name="age_info_description">Информация о возрасте</string>
+    <string name="name_info_description">Информация о поле имени</string>
+    <string name="min_age_info">Какой минимальный возраст предпочтителен для собеседника? Введите число, например, 18. Это поможет найти вам подходящих людей для общения.</string>
+    <string name="max_age_info">Какой максимальный возраст предпочтителен для собеседника? Введите число, например, 23. Это поможет найти вам подходящих людей для общения.</string>
+    <string name="name_popup_info">Как вас лучше называть? Введите свое имя, никнейм или предпочитаемый псевдоним. Главное, чтобы вам было комфортно.</string>
+    <string name="age_popup_info">Сколько вам лет? Просто введите число, например, 19. Не обязательно быть абсолютно честным (мы все 18), но помните, что это поможет подобрать вам интересных собеседников.</string>
     <string name="invalid_email_error">Введите корректный email</string>
     <string name="invalid_password_error">Пароль должен содержать\nне менее 8 символов,\nзаглавные и строчные буквы,\nцифры и спецсимволы</string>
     <string name="age_range_error">Возраст должен быть от 18 до 120 лет</string>
@@ -53,19 +63,11 @@
     <string name="password_mismatch_error">Пароли не совпадают</string>
     <string name="email_in_use_error">Этот email уже используется</string>
     <string name="name_validation_error">Имя должно содержать от 1 до 50 символов</string>
-    <string name="register_link_text">Регистрация</string>
-    <string name="login_link_text">Войти</string>
-    <string name="chat_ended">Чат был окончен</string>
-    <string name="chat_created">Чат был создан</string>
-    <string name="you">Вы</string>
-    <string name="min_age_info">Какой минимальный возраст предпочтителен для собеседника? Введите число, например, 18. Это поможет найти вам подходящих людей для общения.</string>
-    <string name="max_age_info">Какой максимальный возраст предпочтителен для собеседника? Введите число, например, 23. Это поможет найти вам подходящих людей для общения.</string>
-    <string name="name_popup_info">Как вас лучше называть? Введите свое имя, никнейм или предпочитаемый псевдоним. Главное, чтобы вам было комфортно.</string>
-    <string name="age_popup_info">Сколько вам лет? Просто введите число, например, 19. Не обязательно быть абсолютно честным (мы все 18), но помните, что это поможет подобрать вам интересных собеседников.</string>
     <string name="profile_section">Профиль</string>
     <string name="change_password">Изменить пароль</string>
     <string name="devices">Устройства</string>
     <string name="settings">Настройки</string>
+    <string name="version_format" translatable="false">Version %s</string>
     <string name="notifications_section">Уведомления</string>
     <string name="send_email_notifications">Отправлять email-уведомления</string>
     <string name="show_notifications">Показывать уведомления</string>
@@ -74,9 +76,11 @@
     <string name="vibration">Вибрация</string>
     <string name="language_section">Язык</string>
     <string name="reference_section">Справка</string>
+    <string name="reference_intro">AIChat объединяет личные чаты, группы, случайные чаты и диалоги с ИИ в одном приложении. Ниже собрана основная информация по разделам, обработке данных и обращению в поддержку.</string>
     <string name="faq">Частые вопросы</string>
     <string name="privacy_policy">Политика конфиденциальности</string>
     <string name="support">Поддержка</string>
+    <string name="version" translatable="false">Version</string>
     <string name="no_permissions">Разрешения не предоставлены</string>
     <string name="login_qr_failed">Ошибка при входе по QR-коду</string>
     <string name="ok">ок</string>
@@ -95,9 +99,6 @@
     <string name="demo_notification_title">Тестовое уведомление</string>
     <string name="demo_notification_message">Привет! Это проверка работы уведомлений</string>
     <string name="connecting">Подключение....</string>
-    <string name="new_message">Новое сообщение</string>
-    <string name="new_chat">Чат был создан</string>
-    <string name="end_chat">Чат был окончен</string>
     <string name="start_chatting">Начинай общаться</string>
     <string name="start_new_chat">Начни новый разговор</string>
     <string name="background_work_section">Работа в фоне</string>
@@ -111,7 +112,6 @@
     <string name="manage_users">Управление учасниками</string>
     <string name="add_new_member">Добавить учасника</string>
     <string name="remove_member_description">Исключить учасника</string>
-    <string name="add_user">Пользователь добавлен</string>
     <string name="add_user_to_chat_prompt">Присоединиться в группу</string>
     <string name="create_chat_prompt">Создать чат</string>
     <string name="cancel_chat_searching">Отменить поиск чата</string>
@@ -129,6 +129,9 @@
     <string name="sign_in_subtitle">Пожалуйста, введите свой email и пароль</string>
     <string name="login_by_qr">Войти по QR-коду</string>
     <string name="registration">Регистрация</string>
+    <string name="facebook_login_desc" translatable="false">Login with Facebook</string>
+    <string name="google_login_desc" translatable="false">Login with Google</string>
+    <string name="instagram_login_desc" translatable="false">Login with Instagram</string>
     <string name="change_language_desc">Сменить язык приложения</string>
     <string name="registration_title">Регистрация</string>
     <string name="registration_subtitle">Введите данные для создания нового аккаунта</string>
@@ -224,6 +227,10 @@
     <string name="empty_marketplace_title">Маркетплейс пуст</string>
     <string name="empty_marketplace_subtitle">Здесь появятся AI-модели и инструменты</string>
     <string name="add_new_ai_model">Добавить новую AI модель</string>
+    <string name="new_chat">Чат был создан</string>
+    <string name="end_chat">Чат был окончен</string>
+    <string name="add_user">Пользователь добавлен</string>
+    <string name="new_message">Новое сообщение</string>
     <string name="tap_to_reveal_qr">Нажмите, чтобы показать QR-код</string>
     <string name="generating_qr_please_wait">Генерация QR-кода, подождите...</string>
     <string name="qr_generation_failed">Ошибка генерации QR-кода</string>
@@ -236,7 +243,8 @@
     <string name="chat_type_letter_group">Г</string>
     <string name="chat_type_letter_ai">ИИ</string>
     <string name="chat_type_letter_human">Ч</string>
-    <string name="chat_type_letter_random">?</string>
+    <string name="chat_type_letter_random">С</string>
+    <string name="chat_circle_me">Я</string>
     <string name="cannot_open_file">Не удалось открыть файл</string>
     <string name="integration_connected">Интеграция подключена</string>
     <string name="integration_disconnected">Интеграция не подключена</string>
@@ -260,4 +268,464 @@
     <string name="user_banned">Ваш аккаунт заблокирован.</string>
     <string name="try_again">Ошибка входа. Пожалуйста, попробуйте снова.</string>
     <string name="invalid_qr_code">Неверный QR-код</string>
+    <string name="products_title">Подписка</string>
+    <string name="payment_history">История платежей</string>
+    <string name="products_header_title">Раскройте возможности AIChat</string>
+    <string name="products_header_description">Доступ к продвинутым моделям,\nпремиум-темам и более быстрым\nответам</string>
+    <string name="premium_subscription">Премиум-подписка</string>
+    <string name="subscriptions">Подписки</string>
+    <string name="token_packages">Пакеты валюты</string>
+    <string name="badge_popular">ПОПУЛЯРНО</string>
+    <string name="badge_best_value">ЛУЧШАЯ ЦЕНА</string>
+    <string name="continue_text">Продолжить</string>
+    <string name="quantity">Количество</string>
+    <string name="pay_now">Оплатить</string>
+    <string name="payment_success">Платёж успешно завершён</string>
+    <string name="payment_canceled">Платёж отменён</string>
+    <string name="product_not_found">Продукт не найден</string>
+    <string name="product_not_loaded">Продукт не загружен</string>
+    <string name="invalid_quantity">Неверное количество</string>
+    <string name="payment_failed">Ошибка оплаты</string>
+    <string name="subscription">Подписка</string>
+    <string name="subscription_month">Премиум на 1 месяц</string>
+    <string name="subscription_3_months">Премиум на 3 месяца</string>
+    <string name="subscription_year">Премиум на 1 год</string>
+    <string name="currency_package">Пакет валюты</string>
+    <string name="currency_100">100 валюты</string>
+    <string name="currency_500">500 валюты</string>
+    <string name="currency_1000">1000 валюты</string>
+    <string name="subscription_month_description">Полный премиум-доступ на 1 месяц со всеми возможностями AIChat.</string>
+    <string name="subscription_3_months_description">Расширенный премиум-доступ на 3 месяца с лучшим балансом цены и возможностей.</string>
+    <string name="subscription_year_description">Безлимитный премиум-доступ на 1 год с максимальной выгодой.</string>
+    <string name="currency_100_description">Небольшой пакет валюты для быстрых AI-запросов и базового использования.</string>
+    <string name="currency_500_description">Средний пакет валюты для регулярного общения и задач генерации.</string>
+    <string name="currency_1000_description">Большой пакет валюты для активного ежедневного использования и расширенных AI-функций.</string>
+    <string name="secure_payment_stripe">Безопасная оплата через Stripe</string>
+    <string name="user_already_has_subscription">У вас уже есть активная подписка с автопродлением</string>
+    <string name="connection_error">Ошибка соединения. Проверьте подключение к интернету</string>
+    <string name="payment_declined">Отклонено</string>
+    <string name="understood">Понятно</string>
+    <string name="contact_support">Связаться с поддержкой</string>
+    <string name="payment_successful">Успешно</string>
+    <string name="next">Далее</string>
+    <string name="previous">Назад</string>
+    <string name="currency">Валюта</string>
+    <string name="premium_inactive">Премиум не активен</string>
+    <string name="no_active_subscription">Нет активной подписки</string>
+    <string name="auto_renew_enabled">Автопродление включено</string>
+    <string name="auto_renew_disabled">Автопродление выключено</string>
+    <string name="premium_active_until">Премиум активен до</string>
+    <string name="payment_details_title">Детали платежа</string>
+    <string name="payment_id_label">ID платежа</string>
+    <string name="payment_amount_label">Сумма</string>
+    <string name="payment_currency_label">Валюта</string>
+    <string name="payment_status_label">Статус</string>
+    <string name="payment_created_label">Создан</string>
+    <string name="payment_items_title">Товары</string>
+    <string name="open_receipt">Открыть чек</string>
+    <string name="details">Подробнее</string>
+    <string name="payment_status_confirmed">Подтверждено</string>
+    <string name="payment_status_pending">В ожидании</string>
+    <string name="payment_status_failed">Ошибка</string>
+    <string name="payment_status_expired">Истек</string>
+    <string name="payment_amount_value">Сумма: %1$s %2$s</string>
+    <string name="payment_created_value">Создано: %1$s</string>
+    <string name="my_themes">Мои темы</string>
+    <string name="create_theme">Создать тему</string>
+    <string name="library">Библиотека</string>
+    <string name="chats">Чаты</string>
+    <string name="default_theme">По умолчанию</string>
+    <string name="in_library">В библиотеке</string>
+    <string name="theme_loading_percent">Загрузка...</string>
+    <string name="explore">Изучить</string>
+    <string name="theme_header_description">Откройте для себя уникальные темы, чтобы персонализировать ваш опыт</string>
+    <string name="premium_title">Премиум</string>
+    <string name="premium_status">Премиум статус</string>
+    <string name="premium_description">Все возможности премиум доступа</string>
+    <string name="premium_autorenew_on">Автопродление включено</string>
+    <string name="premium_autorenew_off">Автопродление выключено</string>
+    <string name="premium_active_period">Премиум активен с — до —</string>
+    <string name="premium_next_payment">Следующая оплата: —</string>
+    <string name="premium_no_active">Нет активного премиума</string>
+    <string name="premium_no_active_description">Оформите подписку, чтобы получить доступ ко всем возможностям</string>
+    <string name="premium_activate">Активировать премиум</string>
+    <string name="premium_history">История подписок</string>
+    <string name="theme_editor_title">Редактор темы</string>
+    <string name="theme_editor_save">Сохранить</string>
+    <string name="theme_editor_name_hint">Название темы</string>
+    <string name="theme_editor_default_name">Моя тема</string>
+    <string name="theme_editor_colors_section">Цвета</string>
+    <string name="theme_editor_primary_color">Основной цвет</string>
+    <string name="theme_editor_background_color">Цвет фона</string>
+    <string name="theme_editor_text_color">Цвет текста</string>
+    <string name="theme_editor_secondary_text_color">Цвет вторичного текста</string>
+    <string name="theme_editor_my_messages_color">Цвет своих сообщений</string>
+    <string name="theme_editor_other_messages_color">Цвет чужих сообщений</string>
+    <string name="theme_editor_chat_background_section">Фон чата</string>
+    <string name="theme_editor_background_image">Фоновое изображение</string>
+    <string name="theme_editor_default_value">По умолчанию</string>
+    <string name="theme_editor_animations_section">Анимации</string>
+    <string name="theme_editor_message_animation">Анимация отправки сообщений</string>
+    <string name="theme_editor_preview_section">Предпросмотр</string>
+    <string name="theme_editor_preview_other_message">Привет! Как дела?</string>
+    <string name="theme_editor_preview_my_message">Отлично! А у тебя?</string>
+    <string name="theme_editor_preview_time">17:30</string>
+    <string name="theme_editor_preview_time_read">17:30 ✓✓</string>
+    <string name="theme_editor_choose_primary_color">Выберите основной цвет</string>
+    <string name="theme_editor_choose_background_color">Выберите цвет фона</string>
+    <string name="theme_editor_choose_text_color">Выберите цвет текста</string>
+    <string name="theme_editor_choose_secondary_text_color">Выберите цвет вторичного текста</string>
+    <string name="theme_editor_choose_my_messages_color">Выберите цвет своих сообщений</string>
+    <string name="theme_editor_choose_other_messages_color">Выберите цвет чужих сообщений</string>
+    <string name="theme_editor_choose_chat_background">Выберите фон чата</string>
+    <string name="theme_editor_palette">Палитра</string>
+    <string name="theme_editor_spectrum">Спектр</string>
+    <string name="theme_editor_cancel">Отмена</string>
+    <string name="theme_editor_choose">Выбрать</string>
+    <string name="theme_editor_enter_theme_name_error">Введите название темы</string>
+    <string name="theme_editor_theme_saved">Тема сохранена</string>
+    <string name="theme_editor_icon_background">▣</string>
+    <string name="theme_editor_icon_animation">◌</string>
+    <string name="theme_editor_background_picker_title">Фон чата</string>
+    <string name="theme_editor_choose_background_color_action">Выбрать цвет фона</string>
+    <string name="theme_editor_choose_background_image">Выбрать фоновое изображение</string>
+    <string name="theme_editor_remove_background_image">Удалить фоновое изображение</string>
+    <string name="theme_editor_background_image_selected">Фоновое изображение выбрано</string>
+    <string name="theme_editor_background_image_error">Не удалось выбрать фоновое изображение</string>
+    <string name="theme_editor_background_image_invalid">Выберите изображение</string>
+    <string name="theme_editor_hex_label">HEX</string>
+    <string name="delete">Удалить</string>
+    <string name="theme_menu">Меню темы</string>
+    <string name="theme_menu_apply">Применить</string>
+    <string name="theme_menu_edit">Редактировать</string>
+    <string name="theme_menu_duplicate">Дублировать</string>
+    <string name="theme_menu_delete">Удалить</string>
+    <string name="theme_applied">Тема применена: %1$s</string>
+    <string name="theme_applied_short">Применена</string>
+    <string name="theme_source_my">Моя тема</string>
+    <string name="theme_source_library">Библиотека</string>
+    <string name="theme_selected_subtitle">Применена • %1$s</string>
+    <string name="theme_copy_suffix">копия</string>
+    <string name="theme_duplicated">Тема продублирована</string>
+    <string name="theme_deleted">Тема удалена</string>
+    <string name="theme_delete_title">Удалить тему?</string>
+    <string name="theme_delete_message">Удалить «%1$s»? Это действие нельзя отменить.</string>
+    <string name="manage_themes">Управление темами</string>
+
+    <string-array name="theme_editor_message_animations">
+        <item>По умолчанию</item>
+        <item>Плавная</item>
+        <item>Сдвиг вверх</item>
+        <item>Сдвиг вверх с эффектом</item>
+        <item>Сдвиг вверх с отскоком</item>
+        <item>Затухание</item>
+        <item>Масштаб</item>
+    </string-array>
+
+    <string name="connection_established">Соединение установлено</string>
+    <string name="reconnecting">Переподключение...</string>
+    <string name="critical_error">Критическая ошибка: %1$s</string>
+    <string name="theme_not_found">Тема не найдена</string>
+    <string name="theme_editor_open_full_preview">Открыть полноэкранный предпросмотр</string>
+    <string name="add_member">Добавить пользователя</string>
+    <string name="youtube_preview_title_default">Видео YouTube</string>
+    <string name="youtube_preview_subtitle_default">https://youtube.com</string>
+    <string name="youtube_preview_open_description">Открыть видео YouTube</string>
+    <string name="video_player_title">Видео</string>
+    <string name="video_player_error">Не удалось воспроизвести видео</string>
+    <string name="video_player_open_youtube">Открыть в YouTube</string>
+    <string name="video_player_youtube_title">YouTube</string>
+    <string name="video_player_youtube_embed_unavailable_title">Это видео недоступно во встроенном плеере</string>
+    <string name="video_player_youtube_embed_unavailable_text">YouTube не разрешил воспроизвести это видео внутри приложения.</string>
+
+    <string name="video_player_quality_short">Q</string>
+    <string name="video_player_quality_auto">Авто</string>
+    <string name="video_player_quality_auto_details">Адаптивное качество на основе текущего видео</string>
+    <string name="video_player_quality_available">Доступное качество</string>
+    <string name="video_player_quality_unknown">Неизвестно</string>
+    <string name="video_player_quality_unavailable">Варианты качества недоступны</string>
+    <string name="video_player_quality_exoplayer_only">Выбор качества доступен только в режиме ExoPlayer</string>
+
+    <string name="video_player_captions_title">Субтитры</string>
+    <string name="video_player_captions_auto">Встроенные субтитры</string>
+    <string name="video_player_captions_auto_description">Использует дорожки субтитров внутри видео, если они есть.</string>
+    <string name="video_player_captions_auto_status">Автосубтитры: используются встроенные дорожки, если они есть</string>
+    <string name="video_player_captions_off">Субтитры выключены</string>
+    <string name="video_player_captions_off_description">Не показывать встроенные субтитры и локальные STT-субтитры.</string>
+    <string name="video_player_captions_short_on">CC</string>
+    <string name="video_player_captions_short_off">CC выкл.</string>
+    <string name="video_player_captions_short_stt">STT %1$s</string>
+    <string name="video_player_captions_short_translate">TR %1$s</string>
+    <string name="video_player_captions_short_bilingual">BI %1$s</string>
+
+    <string name="video_player_stt_original_title">Sherpa STT — оригинал</string>
+    <string name="video_player_stt_original_description">Распознаёт речь локальной Sherpa-ONNX ASR-моделью и показывает исходный текст без перевода.</string>
+    <string name="video_player_stt_translated_title">Sherpa STT — перевод на язык приложения</string>
+    <string name="video_player_stt_translated_description">Распознаёт речь локально, затем переводит готовые фразы локальной ML Kit моделью на текущий язык приложения.</string>
+    <string name="video_player_stt_bilingual_title">Sherpa STT — оригинал + перевод</string>
+    <string name="video_player_stt_bilingual_description">Показывает исходную строку и перевод на язык приложения. Перевод выполняется локально после подготовки модели.</string>
+    <string name="video_player_stt_language_ru_title">Язык видео — русский</string>
+    <string name="video_player_stt_language_ru_description">Русская ASR-модель: asr/ru. Пунктуация и орфография обрабатываются Java-постпроцессором.</string>
+    <string name="video_player_stt_language_en_zh_title">Язык видео — English / 中文</string>
+    <string name="video_player_stt_language_en_zh_description">Двуязычная EN/ZH ASR-модель: asr/en. После распознавания используется Sherpa EN/ZH punctuation-модель, если она доступна.</string>
+    <string name="video_player_stt_language_ru_short">RU</string>
+    <string name="video_player_stt_language_en_zh_short">EN/ZH</string>
+    <string name="video_player_stt_youtube_unavailable">Sherpa-ONNX субтитры недоступны для YouTube-видео внутри приложения</string>
+    <string name="video_player_stt_microphone_permission_missing">Для Sherpa-ONNX субтитров нужно разрешение на микрофон</string>
+    <string name="video_player_translation_model_preparing">Подготовка локального перевода %1$s → %2$s…</string>
+
+    <string name="video_player_scale_short">FIT</string>
+    <string name="video_player_scale_title">Масштаб</string>
+    <string name="video_player_scale_content_description">Масштаб видео</string>
+    <string name="video_player_scale_fit_title">Вписать в экран</string>
+    <string name="video_player_scale_fit_description">Сохраняет пропорции видео без обрезки.</string>
+    <string name="video_player_scale_fill_title">Заполнить экран</string>
+    <string name="video_player_scale_fill_description">Растягивает видео на всю область плеера.</string>
+    <string name="video_player_scale_crop_title">Увеличить / обрезать</string>
+    <string name="video_player_scale_crop_description">Заполняет экран, увеличивая видео и обрезая края.</string>
+    <string name="video_player_scale_pinch_title">Жест масштабирования</string>
+    <string name="video_player_scale_pinch_description">Текущий ручной масштаб: %1$s</string>
+
+    <string name="video_player_filter_short">FX</string>
+    <string name="video_player_filters_title">Фильтры</string>
+    <string name="video_player_filters_content_description">Фильтры видео</string>
+    <string name="video_player_filter_none_title">Без фильтра</string>
+    <string name="video_player_filter_none_description">Оригинальная картинка без цветовой обработки.</string>
+    <string name="video_player_filter_brightness_title">Яркость+</string>
+    <string name="video_player_filter_brightness_description">Делает видео светлее.</string>
+    <string name="video_player_filter_sharpness_title">Резкость+</string>
+    <string name="video_player_filter_sharpness_description">Повышает визуальную контрастность краёв.</string>
+    <string name="video_player_filter_brightness_sharpness_title">Яркость+ и резкость+</string>
+    <string name="video_player_filter_brightness_sharpness_description">Комбинирует усиление яркости и контрастности.</string>
+    <string name="video_player_filter_black_white_title">Чёрно-белый</string>
+    <string name="video_player_filter_black_white_description">Полностью убирает цвет.</string>
+    <string name="video_player_filter_noir_title">Нуар</string>
+    <string name="video_player_filter_noir_description">Контрастный чёрно-белый кино-эффект.</string>
+    <string name="video_player_filter_warm_title">Тёплый</string>
+    <string name="video_player_filter_warm_description">Добавляет тёплый желтоватый оттенок.</string>
+    <string name="video_player_filter_cold_title">Холодный</string>
+    <string name="video_player_filter_cold_description">Добавляет холодный синий оттенок.</string>
+    <string name="video_player_filter_high_contrast_title">Высокий контраст</string>
+    <string name="video_player_filter_high_contrast_description">Усиливает контраст и насыщенность.</string>
+    <string name="video_player_open_youtube_short">YouTube</string>
+    <string name="video_player_enhancement_title">Улучшение видео</string>
+    <string name="video_player_enhance_short">HDR</string>
+    <string name="video_player_quality">Качество видео</string>
+    <string name="video_file">Видео</string>
+    <string name="chat_typing_status">печатает</string>
+    <string name="voice_message">Голосовое сообщение</string>
+    <string name="video_circle_message">Видео-кружок</string>
+
+    <string name="voice_swipe_right_cancel">Вправо — отмена</string>
+    <string name="voice_release_delete">Отпустите — удалить</string>
+    <string name="voice_recording">Запись</string>
+    <string name="voice_swipe_down_unlock">Вниз — снять</string>
+    <string name="voice_locked">Закреплено</string>
+    <string name="voice_unlocked_release_send">Отпустите — отправка</string>
+    <string name="voice_trim">Обрезка</string>
+    <string name="voice_trim_hint">Край внутрь</string>
+    <string name="voice_permission_microphone">Разрешите доступ к микрофону и нажмите ещё раз</string>
+    <string name="voice_start_failed">Не удалось начать запись</string>
+    <string name="video_circle_permission_camera_microphone">Разрешите доступ к камере и микрофону и нажмите ещё раз</string>
+
+    <string name="chat_typing_dot">•</string>
+    <string name="unread_jump_placeholder">1 непроч.</string>
+    <string name="file_counter_zero">0</string>
+    <string name="video_circle_play">Воспроизвести кружок</string>
+    <string name="video_label">VID</string>
+    <string name="audio_now_playing_unknown">Сейчас играет</string>
+    <string name="audio_now_playing_voice">Голосовое сообщение</string>
+    <string name="audio_now_playing_voice_subtitle">Голосовое</string>
+    <string name="audio_now_playing_you">Вы</string>
+    <string name="audio_now_playing_interlocutor">Собеседник</string>
+    <string name="audio_now_playing_voice_title_format">%1$s • %2$s</string>
+
+    <string name="cache_usage_title">Использование памяти</string>
+    <string name="cache_aichat_title">Кэш AIChat</string>
+    <string name="cache_counting">Подсчёт размера кэша…</string>
+    <string name="cache_usage_subtitle">AIChat занимает %1$s места на устройстве.</string>
+    <string name="cache_usage_hint">Нажмите на категории, которые нужно очистить. Файл, который сейчас воспроизводится, всегда защищён.</string>
+    <string name="cache_clear_selected">Очистить выбранный кэш</string>
+    <string name="cache_clear_button">Очистить кэш  %1$s</string>
+    <string name="cache_select_categories">Выберите категории</string>
+    <string name="cache_select_categories_to_clear">Выберите хотя бы одну категорию</string>
+    <string name="cache_cleared">Кэш очищен</string>
+    <string name="cache_limit_title">Максимальный размер кэша</string>
+    <string name="cache_limit_saved">Лимит кэша: %1$s</string>
+    <string name="cache_auto_download_settings">Настройки автозагрузки медиа</string>
+    <string name="cache_auto_download_title">Автозагрузка медиа</string>
+    <string name="cache_auto_download_reset">Сбросить настройки</string>
+    <string name="cache_auto_download_reset_done">Настройки автозагрузки сброшены</string>
+    <string name="cache_auto_download_note">Голосовые сообщения имеют небольшой размер и всегда загружаются автоматически. Остальные типы файлов учитывают выбранный тип сети и лимит размера.</string>
+    <string name="cache_network_mobile">Через мобильную сеть</string>
+    <string name="cache_network_wifi">Через сети Wi‑Fi</string>
+    <string name="cache_network_roaming">В роуминге</string>
+    <string name="cache_network_mobile_short">Моб. сеть</string>
+    <string name="cache_network_wifi_short">Wi‑Fi</string>
+    <string name="cache_network_roaming_short">Роуминг</string>
+    <string name="cache_disabled">Выключено</string>
+    <string name="cache_nothing_selected">Ничего не выбрано</string>
+    <string name="cache_media_photo">Фото</string>
+    <string name="cache_media_video">Видео</string>
+    <string name="cache_media_files">Файлы</string>
+    <string name="cache_media_stories">Истории</string>
+    <string name="cache_media_video_with_limit">Видео (%1$s)</string>
+    <string name="cache_media_files_with_limit">Файлы (%1$s)</string>
+    <string name="cache_download_automatically">Загружать автоматически</string>
+    <string name="cache_traffic_usage">Расход трафика</string>
+    <string name="cache_traffic_low">Низкий</string>
+    <string name="cache_traffic_medium">Средний</string>
+    <string name="cache_traffic_high">Высокий</string>
+    <string name="cache_download_multimedia">Загружать мультимедиа</string>
+    <string name="cache_enabled_for_all_chats">Включено для всех чатов</string>
+    <string name="cache_up_to_for_all_chats">До %1$s для всех чатов</string>
+    <string name="cache_on_short">Вкл.</string>
+    <string name="cache_off_short">Выкл.</string>
+    <string name="cache_voice_always_downloaded">Голосовые сообщения имеют небольшой размер и всегда загружаются автоматически.</string>
+    <string name="cache_category_video">Видео</string>
+    <string name="cache_category_files">Файлы</string>
+    <string name="cache_category_images">Фото</string>
+    <string name="cache_category_voice">Голосовые сообщения</string>
+    <string name="cache_category_music">Музыка</string>
+    <string name="cache_category_other">Другое</string>
+
+    <string name="ai_model_title">AI-модель</string>
+    <string name="ai_model_subtitle">Модель для AI-чатов</string>
+    <string name="ai_translate">Перевести</string>
+    <string name="ai_translate_title">AI-перевод</string>
+    <string name="ai_translate_language_title">Перевести на</string>
+    <string name="ai_translate_style_title">Стиль перевода</string>
+    <string name="ai_translate_loading">Перевод...</string>
+    <string name="ai_translate_error">Ошибка перевода</string>
+    <string name="ai_translate_no_text">Нет текста для перевода</string>
+    <string name="ai_translate_chat_not_found">Не удалось определить чат для перевода</string>
+    <string name="ai_translate_copied">Перевод скопирован</string>
+
+    <string name="currency_package_description">Пакет валюты для AI-запросов, общения и задач генерации.</string>
+
+    <string name="payments_history_title">История платежей</string>
+
+    <string name="payments_header_title">Ваши платежи</string>
+
+    <string name="payments_header_description">Просматривайте историю покупок, подписок и оплат в одном месте.</string>
+
+    <string name="payments_loading">Загрузка...</string>
+
+    <string name="payments_empty_title">Платежей ещё нет</string>
+
+    <string name="payments_empty_description">После покупки подписки или токенов история платежей появится здесь.</string>
+
+    <string name="payments_go_to_products">Перейти к продуктам</string>
+
+    <string name="payments_latest_title">Последние платежи</string>
+
+    <string name="send_message">Отправить сообщение</string>
+    <string name="ai_customize_title">Настройка ИИ</string>
+    <string name="ai_customize_subtitle">Выберите модель и опишите, как ассистент должен отвечать.</string>
+    <string name="ai_model_label">Модель</string>
+    <string name="ai_prompt_label">Кастомный промпт</string>
+    <string name="ai_prompt_hint">Введите кастомный промпт...</string>
+    <string name="ai_prompt_help">Оставьте поле пустым, чтобы использовать стандартный промпт.</string>
+    <string name="ai_customize_done">Готово</string>
+    <string name="ai_settings_loading">Загрузка настроек ИИ...</string>
+    <string name="ai_settings_updated">Настройки ИИ обновлены</string>
+    <string name="ai_settings_update_error">Ошибка обновления настроек ИИ</string>
+    <string name="ai_settings_load_error">Ошибка загрузки настроек ИИ</string>
+    <string name="ai_settings_loading_cancelled">Загрузка отменена</string>
+    <string name="ai_settings_empty_models">Нет доступных моделей ИИ</string>
+    <string name="chat_media_not_supported">Медиа-сообщения не поддерживаются в этом чате</string>
+    <string name="select_model">Настроить ИИ</string>
+    <string name="ai_model_default_display">По умолчанию</string>
+    <string name="ai_model_deepseek_chat_display">DeepSeek Chat</string>
+    <string name="ai_model_ollama_qwen3_4b_display">Ollama Qwen 3 4B</string>
+    <string name="ai_model_ollama_llama3_display">Ollama Llama 3</string>
+    <string name="ai_model_ollama_mistral_display">Ollama Mistral</string>
+    <string name="ai_model_ollama_gemma4e_display">Ollama Gemma 4e</string>
+    <string name="faq_summary">Ответы на частые вопросы о чатах и функциях приложения</string>
+    <string name="privacy_policy_summary">Как AIChat обрабатывает данные аккаунта и сообщений</string>
+    <string name="support_summary">Связь с поддержкой, если что-то работает неправильно</string>
+    <string name="faq_content">В чатах с людьми и группах поддерживаются обычные сообщения и доступные медиа-вложения. В ИИ-чатах и случайных чатах ввод ограничен текстом, поэтому голосовые сообщения, видеокружки и кнопки мультимедиа там скрываются. Значок рядом с аватаром показывает тип чата, а большой круг показывает последнего отправителя или модель ИИ, если эти данные доступны. В настройках можно изменить внешний вид, язык, уведомления, хранилище и модель ИИ.</string>
+    <string name="privacy_policy_content">Приложение хранит только данные, необходимые для входа в аккаунт, синхронизации, работы чатов, уведомлений, выбранной темы, языка и локального кэша. История сообщений и файлы могут сохраняться локально, чтобы интерфейс работал быстрее и корректно восстанавливался после повторного открытия приложения. Не отправляйте в чатах пароли, коды подтверждения, платёжные данные и другую чувствительную информацию. При выходе из аккаунта локальные данные сессии очищаются, а после повторного входа приложение загружает актуальные данные чатов заново.</string>
+    <string name="support_content">Если что-то работает неправильно, сначала проверьте интернет-соединение, перезапустите приложение и убедитесь, что установлена последняя версия. При обращении в поддержку опишите проблему, укажите экран, где она появилась, тип чата и по возможности приложите скриншоты. Так проблему проще повторить и исправить без лишних уточнений.</string>
+
+    <string name="cancel_subscription">Отменить подписку</string>
+    <string name="cancel_subscription_dialog_title">Отмена подписки</string>
+    <string name="cancel_subscription_dialog_message">Автопродление будет отключено. Премиум-доступ останется доступен до конца оплаченного периода.</string>
+    <string name="cancel_subscription_confirm">Отключить автопродление</string>
+    <string name="keep_subscription">Оставить подписку</string>
+    <string name="subscription_cancelled_success">Автопродление подписки отключено</string>
+    <string name="subscription_cancel_error">Не удалось отменить подписку</string>
+    <string name="premium_subscription_cancelled">Автопродление выключено</string>
+    <string name="premium_active_period_format">Премиум активен с %1$s до %2$s</string>
+    <string name="premium_next_payment_format">Следующая оплата: %1$s</string>
+    <string name="premium_access_until_after_cancel">Премиум-доступ доступен до %1$s. Автопродление выключено.</string>
+    <string name="premium_history_autorenew_on">Автопродление: Включено</string>
+    <string name="premium_history_autorenew_off">Автопродление: Выключено</string>
+    <string name="premium_history_item_title">Подписка #%1$s</string>
+    <string name="premium_load_error">Ошибка загрузки данных</string>
+    <string name="payment_load_error">Ошибка загрузки платежа</string>
+    <string name="ai_prompt_english_only_help">Для моделей, кроме «По умолчанию» и DeepSeek Chat, кастомные промпты корректно работают только на английском языке.</string>
+    <string name="models_ollamaqwen3_4B_title">Qwen 3 4B</string>
+    <string name="models_ollamaqwen3_4B_description">Безлимитный доступ к AI-модели Qwen 3 4B для чата. Используйте сколько угодно раз.</string>
+    <string name="models_ollamallama3_title">Llama 3</string>
+    <string name="models_ollamallama3_description">Безлимитный доступ к AI-модели Llama 3 для чата. Используйте сколько угодно раз.</string>
+    <string name="models_ollamamistral_title">Mistral</string>
+    <string name="models_ollamamistral_description">Безлимитный доступ к AI-модели Mistral для чата. Используйте сколько угодно раз.</string>
+    <string name="models_ollamagemma4е_title">Gemma 4e</string>
+    <string name="models_ollamagemma4е_description">Безлимитный доступ к AI-модели Gemma 4e для чата. Используйте сколько угодно раз.</string>
+    <string name="single_item">AI-модель</string>
+    <string name="leaders_title">Таблица лидеров</string>
+    <string name="loading_leaders">Загрузка...</string>
+    <string name="no_leaders_data">Нет данных о лидерах</string>
+    <string name="leader_name_age">Имя / возраст</string>
+    <string name="leader_points">Очки</string>
+    <string name="leader_region">Регион</string>
+    <string name="items_per_page">На странице:</string>
+    <string name="first_page_desc">Первая страница</string>
+    <string name="previous_page_desc">Предыдущая страница</string>
+    <string name="next_page_desc">Следующая страница</string>
+    <string name="last_page_desc">Последняя страница</string>
+    <string name="empty_state_desc">Нет данных</string>
+
+    <string name="lorem_ipsum" translatable="false">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
+        volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
+        dui nec risus. Maecenas non sodales nisi, vel dictum dolor. Class aptent taciti sociosqu ad
+        litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse blandit eleifend
+        diam, vel rutrum tellus vulputate quis. Aliquam eget libero aliquet, imperdiet nisl a,
+        ornare ex. Sed rhoncus est ut libero porta lobortis. Fusce in dictum tellus.\n\n
+        Suspendisse interdum ornare ante. Aliquam nec cursus lorem. Morbi id magna felis. Vivamus
+        egestas, est a condimentum egestas, turpis nisl iaculis ipsum, in dictum tellus dolor sed
+        neque. Morbi tellus erat, dapibus ut sem a, iaculis tincidunt dui. Interdum et malesuada
+        fames ac ante ipsum primis in faucibus. Curabitur et eros porttitor, ultricies urna vitae,
+        molestie nibh. Phasellus at commodo eros, non aliquet metus. Sed maximus nisl nec dolor
+        bibendum, vel congue leo egestas.\n\n
+        Sed interdum tortor nibh, in sagittis risus mollis quis. Curabitur mi odio, condimentum sit
+        amet auctor at, mollis non turpis. Nullam pretium libero vestibulum, finibus orci vel,
+        molestie quam. Fusce blandit tincidunt nulla, quis sollicitudin libero facilisis et. Integer
+        interdum nunc ligula, et fermentum metus hendrerit id. Vestibulum lectus felis, dictum at
+        lacinia sit amet, tristique id quam. Cras eu consequat dui. Suspendisse sodales nunc ligula,
+        in lobortis sem porta sed. Integer id ultrices magna, in luctus elit. Sed a pellentesque
+        est.\n\n
+        Aenean nunc velit, lacinia sed dolor sed, ultrices viverra nulla. Etiam a venenatis nibh.
+        Morbi laoreet, tortor sed facilisis varius, nibh orci rhoncus nulla, id elementum leo dui
+        non lorem. Nam mollis ipsum quis auctor varius. Quisque elementum eu libero sed commodo. In
+        eros nisl, imperdiet vel imperdiet et, scelerisque a mauris. Pellentesque varius ex nunc,
+        quis imperdiet eros placerat ac. Duis finibus orci et est auctor tincidunt. Sed non viverra
+        ipsum. Nunc quis augue egestas, cursus lorem at, molestie sem. Morbi a consectetur ipsum, a
+        placerat diam. Etiam vulputate dignissim convallis. Integer faucibus mauris sit amet finibus
+        convallis.\n\n
+        Phasellus in aliquet mi. Pellentesque habitant morbi tristique senectus et netus et
+        malesuada fames ac turpis egestas. In volutpat arcu ut felis sagittis, in finibus massa
+        gravida. Pellentesque id tellus orci. Integer dictum, lorem sed efficitur ullamcorper,
+        libero justo consectetur ipsum, in mollis nisl ex sed nisl. Donec maximus ullamcorper
+        sodales. Praesent bibendum rhoncus tellus nec feugiat. In a ornare nulla. Donec rhoncus
+        libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
+        vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
+    </string>
+    
+    <string name="leaderboard">Лидеры</string>
+    <string name="theme_source_system">Системная</string>
+    <string name="theme_standard_light">Стандартная светлая</string>
+    <string name="theme_standard_dark">Стандартная тёмная</string>
 </resources>

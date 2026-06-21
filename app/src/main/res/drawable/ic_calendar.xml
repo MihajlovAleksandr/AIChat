@@ -1,0 +1,72 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="36dp"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+
+    <group
+        android:pivotX="512"
+        android:pivotY="512"
+        android:scaleX="1.6"
+        android:scaleY="1.6">
+
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="?attr/colorPrimary"
+            android:strokeWidth="32"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="
+            M362,356
+            L662,356
+            C698,356 724,382 724,418
+            L724,656
+            C724,692 698,718 662,718
+            L362,718
+            C326,718 300,692 300,656
+            L300,418
+            C300,382 326,356 362,356
+            Z" />
+
+        <path
+            android:fillColor="?attr/colorPrimary"
+            android:fillAlpha="0.16"
+            android:pathData="
+            M340,450
+            L684,450
+            L684,638
+            C684,664 666,682 640,682
+            L384,682
+            C358,682 340,664 340,638
+            Z" />
+
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="?attr/colorPrimary"
+            android:strokeWidth="26"
+            android:strokeLineCap="round"
+            android:pathData="
+            M300,450
+            L724,450" />
+
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="?attr/colorPrimary"
+            android:strokeWidth="30"
+            android:strokeLineCap="round"
+            android:pathData="
+            M396,306
+            L396,396" />
+
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="?attr/colorPrimary"
+            android:strokeWidth="30"
+            android:strokeLineCap="round"
+            android:pathData="
+            M628,306
+            L628,396" />
+
+    </group>
+
+</vector>

@@ -49,5 +49,19 @@
     <color name="state_layer_light">@android:color/transparent</color>
     <color name="state_layer_dark">@android:color/transparent</color>
     <color name="black_translucent_50">#80000000</color>
+    <color name="settings_screen_background">#FFFFFF</color>
+    <color name="fab_panel_dark">#FF2B2D31</color>
+    <color name="fab_panel_dark_pressed">#FF35383E</color>
+    <color name="dialog_scrim">#99000000</color>
+
+    <color name="ai_dialog_surface">#FFFFF8FF</color>
+    <color name="ai_dialog_field">#FFE8E0EC</color>
+    <color name="ai_dialog_dropdown_surface">#FFFFFFFF</color>
+    <color name="ai_dialog_stroke">#FF79747E</color>
+    <color name="ai_dialog_soft_button">#FFE8E0EC</color>
+    <color name="popup_menu_light_surface">#FFFFFFFF</color>
+    <color name="popup_menu_light_stroke">#1F000000</color>
+
+    <color name="aichat_splash_background">#E8FAF9</color>
 
 </resources>

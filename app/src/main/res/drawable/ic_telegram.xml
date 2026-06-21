@@ -4,7 +4,6 @@
     android:viewportWidth="96"
     android:viewportHeight="96">
 
-    <!-- Круг (чуть меньше) -->
     <path
         android:fillColor="#29A9EA"
         android:pathData="M48,12
@@ -14,7 +13,6 @@
             C12,28.327 28.327,12 48,12
             Z"/>
 
-    <!-- Самолётик -->
     <path
         android:fillColor="#FFFFFF"
         android:pathData="M28,50

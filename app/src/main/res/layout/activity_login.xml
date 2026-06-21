@@ -157,7 +157,7 @@
                 app:backgroundTint="@color/login_button_tint"
                 app:rippleColor="@color/login_button_ripple" />
 
-            <com.example.aichat.view.NeonTextView
+            <com.example.aichat.view.helpers.NeonTextView
                 android:id="@+id/qrLogin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -174,7 +174,7 @@
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackgroundBorderless"/>
 
-            <com.example.aichat.view.NeonTextView
+            <com.example.aichat.view.helpers.NeonTextView
                 android:id="@+id/registerTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

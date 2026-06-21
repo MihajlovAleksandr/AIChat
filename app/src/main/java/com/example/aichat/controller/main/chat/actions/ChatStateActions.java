@@ -1,27 +1,36 @@
 package com.example.aichat.controller.main.chat.actions;
 
 import android.util.Log;
-
-import com.example.aichat.dto.response.ChatUserActionResponse; // Добавьте этот импорт
+import androidx.annotation.Nullable;
+import com.example.aichat.dto.request.AISettingsRequest;
+import com.example.aichat.dto.request.MakeGuessRequest;
+import com.example.aichat.dto.request.MatchmakingRequest;
+import com.example.aichat.dto.response.AISettingsResponse;
+import com.example.aichat.dto.response.ChatUserActionResponse;
 import com.example.aichat.dto.response.DeleteChatResponse;
 import com.example.aichat.dto.response.EndChatResponse;
 import com.example.aichat.dto.response.UpdateChatNameResponse;
-
+import com.example.aichat.model.ai.AIModel;
 import com.example.aichat.model.connection.ConnectionDispatcher;
-import com.example.aichat.model.connection.HttpClient;
 import com.example.aichat.model.connection.ConnectionSingleton;
+import com.example.aichat.model.connection.HttpClient;
 import com.example.aichat.model.database.AppDatabase;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.database.DatabaseSaver;
+import com.example.aichat.model.entities.AiRole;
 import com.example.aichat.model.entities.Chat;
-import com.example.aichat.model.utils.TimeConverter;
+import com.example.aichat.model.entities.ChatGameState;
+import com.example.aichat.model.utils.time.TimeConverter;
+import com.example.aichat.view.main.chat.ChatFragment;
 import com.example.aichat.view.main.MainActivity;
 import com.example.aichat.view.main.MainActivityAdapter;
-import com.example.aichat.view.main.chat.ChatFragment;
-
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
+import java.util.List;
 import java.util.UUID;
 
+@androidx.media3.common.util.UnstableApi
 public class ChatStateActions {
 
     private static final String TAG = "ChatStateActions";
@@ -79,6 +88,63 @@ public class ChatStateActions {
                 });
 
         Log.d(TAG, "WebSocket EndChat command sent");
+    }
+
+    public CompletableFuture<ChatGameState> getChatGameResult(UUID chatId) {
+        return dispatcher.sendHttpRequestAsync("/api/chat/game/" + chatId, HttpClient.HTTPMethod.GET, null, false).thenApply(cmd -> {
+            if (cmd.isSuccess()) {
+                return cmd.getData(ChatGameState.class);
+            } else {
+                return ChatGameState.NotAvailable;
+            }
+        });
+    }
+
+    public CompletableFuture<AISettingsResponse> getAISettings(UUID chatId) {
+        return dispatcher.sendHttpRequestAsync("/api/chat/" + chatId+"/ai", HttpClient.HTTPMethod.GET, null, false).thenApply(cmd -> {
+            if (cmd.isSuccess()) {
+                return cmd.getData(AISettingsResponse.class);
+            } else {
+                return null;
+            }
+        });
+    }
+
+    public CompletableFuture<List<AIModel>> getAvailableModels(UUID chatId) {
+        return dispatcher.sendHttpRequestAsync("/api/ai/models", HttpClient.HTTPMethod.GET, null, false).thenApply(cmd -> {
+            if (cmd.isSuccess()) {
+                var modelsString = cmd.getData(String[].class);
+                List<AIModel> models = new ArrayList<>();
+                for (var string : modelsString) {
+                    models.add(AIModel.fromServerValue(string));
+                }
+                return models;
+            } else {
+                return null;
+            }
+        });
+    }
+
+    public CompletableFuture<AISettingsResponse> setAISettings(UUID chatId, AIModel model, @Nullable String prompt) {
+        return dispatcher.sendHttpRequestAsync("/api/chat/" + chatId+"/ai", HttpClient.HTTPMethod.PUT, new AISettingsRequest(model, prompt), false).thenApply(cmd -> {
+            if (cmd.isSuccess()) {
+                AISettingsResponse response = cmd.getData(AISettingsResponse.class);
+                return response != null ? response : AISettingsResponse.local(model, prompt);
+            }
+
+            throw new RuntimeException("AI settings update failed with code: " + cmd.getCode());
+        });
+    }
+
+    public CompletableFuture<ChatGameState> setChatGameResult(UUID chatId, AiRole role) {
+        return dispatcher.sendHttpRequestAsync("/api/chat/game/guess", HttpClient.HTTPMethod.POST, new MakeGuessRequest(chatId, role), false)
+                .thenCompose(cmd -> {
+                    if (cmd.isSuccess()) {
+                        return getChatGameResult(chatId);
+                    } else {
+                        return CompletableFuture.completedFuture(ChatGameState.NotAvailable);
+                    }
+                });
     }
 
     private void updateChatEndedUI(String endTime){
@@ -164,7 +230,6 @@ public class ChatStateActions {
         );
     }
 
-    // ✅ ДОБАВЬТЕ ЭТОТ МЕТОД
     public void onChatRemoved(ChatUserActionResponse response) {
         Log.d(TAG, "onChatRemoved called for chatId=" + response.chatId);
 
@@ -180,10 +245,8 @@ public class ChatStateActions {
         if (!fragment.isAdded()) return;
 
         fragment.requireActivity().runOnUiThread(() -> {
-            // Показываем уведомление
             android.widget.Toast.makeText(fragment.getContext(),
                     "Чат был удалён", android.widget.Toast.LENGTH_SHORT).show();
-            // Закрываем текущий чат
             fragment.navigateBack();
         });
     }

@@ -1,7 +1,6 @@
 package com.example.aichat.dto.response;
 
 import com.example.aichat.model.entities.IntegrationTypes;
-
 import java.util.List;
 
 public class IntegrationResponse {

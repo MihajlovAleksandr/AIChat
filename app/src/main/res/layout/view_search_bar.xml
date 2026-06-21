@@ -6,35 +6,36 @@
     android:layout_width="0dp"
     android:layout_height="46dp"
     android:layout_marginTop="70dp"
-    android:scaleX="0.95"
-    android:scaleY="0.95"
     android:background="@drawable/bg_search_bar"
+    android:clipToOutline="true"
     android:elevation="4dp"
     android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:clipToOutline="true"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
+    android:paddingEnd="12dp"
+    android:scaleX="0.95"
+    android:scaleY="0.95"
     app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintWidth_percent="0.95">
 
     <ImageButton
         android:id="@+id/btn_search_icon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:background="@null"
-        android:src="@drawable/ic_search"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/search_button"
-        app:tint="?attr/colorOnSurface"
+        android:padding="8dp"
+        android:src="@drawable/ic_search"
+        app:tint="?attr/colorOnSurfaceVariant"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <EditText
         android:id="@+id/et_search"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@null"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
         android:gravity="center_vertical"
         android:hint="@string/search_hint"
         android:imeOptions="actionSearch"
@@ -42,24 +43,26 @@
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
         android:singleLine="true"
-        android:textSize="16sp"
         android:textColor="?attr/colorOnSurface"
         android:textColorHint="?attr/colorOnSurfaceVariant"
-        app:layout_constraintStart_toEndOf="@id/btn_search_icon"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_back"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintStart_toEndOf="@id/btn_search_icon"
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <ImageButton
         android:id="@+id/btn_back"
-        android:layout_width="wrap_content"
-        android:layout_height="24dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_cancel"
         android:contentDescription="@string/back_button"
+        android:padding="8dp"
+        android:src="@drawable/ic_cancel"
         android:visibility="gone"
-        app:tint="?attr/colorOnSurface"
+        app:tint="?attr/colorOnSurfaceVariant"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

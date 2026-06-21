@@ -2,7 +2,6 @@ package com.example.aichat.controller.main;
 
 import android.app.Activity;
 import android.util.Log;
-
 import com.example.aichat.controller.main.chat.actions.SendMessageController;
 import com.example.aichat.dto.response.AddUserToChatResponse;
 import com.example.aichat.dto.response.ChatEndedResponse;
@@ -17,25 +16,28 @@ import com.example.aichat.dto.response.RemoveUserFromChatResponse;
 import com.example.aichat.dto.response.SyncResponse;
 import com.example.aichat.dto.response.UpdateMessageStatusResponse;
 import com.example.aichat.model.connection.ConnectionDispatcher;
-import com.example.aichat.model.connection.EventHandler;
-import com.example.aichat.model.connection.LogoutHelper;
 import com.example.aichat.model.connection.ConnectionSingleton;
-import com.example.aichat.model.connection.SignalRCommand;
-import com.example.aichat.model.connection.UploadProgress;
+import com.example.aichat.model.connection.EventHandler;
 import com.example.aichat.model.connection.files.UploadProgressListener;
+import com.example.aichat.model.connection.HttpClient;
+import com.example.aichat.model.connection.LogoutHelper;
+import com.example.aichat.model.connection.SignalRCommand;
+import com.example.aichat.model.connection.files.UploadProgress;
 import com.example.aichat.model.database.AppDatabase;
+import com.example.aichat.model.database.ChatStatusSingleton;
 import com.example.aichat.model.database.DatabaseEventHandler;
 import com.example.aichat.model.database.DatabaseManager;
 import com.example.aichat.model.database.DatabaseSaver;
+import com.example.aichat.model.database.GroupSearchModel;
 import com.example.aichat.model.entities.Chat;
 import com.example.aichat.model.exceptions.UnauthorizedException;
 import com.example.aichat.model.utils.mappers.ChatMapper;
 import com.example.aichat.model.utils.mappers.MapperResponse;
-import com.example.aichat.view.main.MainActivityAdapter;
 import com.example.aichat.view.main.chatlist.ChatsListFragment;
-
+import com.example.aichat.view.main.MainActivityAdapter;
 import java.util.UUID;
 
+@androidx.media3.common.util.UnstableApi
 public class MainActivityController {
 
     private static final String TAG = "MainActivityController";
@@ -43,32 +45,29 @@ public class MainActivityController {
     private UUID currentChatId;
     private final ConnectionDispatcher connectionDispatcher;
     private final AppDatabase appDatabase;
+    private final DatabaseSaver saver;
     private final MainActivityAdapter mainActivityAdapter;
+
     private Activity activity;
     private boolean isLogout = false;
+    private boolean handlersRegistered = false;
 
     private final MapperResponse<Chat, ChatResponse> chatMapper = new ChatMapper();
     private DatabaseEventHandler databaseEventHandler;
     private ChatsListFragment cachedChatsListFragment;
 
-    // Для логирования количества вызовов
     private int messageSentCallCount = 0;
     private int messageStatusUpdatedCallCount = 0;
 
-    public MainActivityController(
-            Activity activity,
-            MainActivityAdapter mainActivityAdapter,
-            UUID userId
-    ) {
+    public MainActivityController(Activity activity, MainActivityAdapter mainActivityAdapter, UUID userId) {
         Log.d("Loading", "MainActivityController");
-        connectionDispatcher = ConnectionSingleton.getInstance().getConnectionDispatcher();
-        this.mainActivityAdapter = mainActivityAdapter;
+
+        this.connectionDispatcher = ConnectionSingleton.getInstance().getConnectionDispatcher();
         this.appDatabase = DatabaseManager.getDatabase();
         this.activity = activity;
-
-        AppDatabase db = DatabaseManager.getDatabase();
-        DatabaseSaver saver = new DatabaseSaver(db, userId);
-        databaseEventHandler = new DatabaseEventHandler(saver, userId);
+        this.mainActivityAdapter = mainActivityAdapter;
+        this.saver = new DatabaseSaver(appDatabase, userId);
+        this.databaseEventHandler = new DatabaseEventHandler(saver, userId);
     }
 
     public void logout(Activity activity) {
@@ -78,12 +77,9 @@ public class MainActivityController {
         }
     }
 
-    /**
-     * Установить ссылку на ChatsListFragment для UI обновлений
-     * И передать её в DatabaseEventHandler
-     */
     public void setChatsListFragment(ChatsListFragment fragment) {
         this.cachedChatsListFragment = fragment;
+
         if (databaseEventHandler != null) {
             databaseEventHandler.setChatsListFragment(fragment);
             Log.d(TAG, "ChatsListFragment set to DatabaseEventHandler");
@@ -91,153 +87,273 @@ public class MainActivityController {
     }
 
     public ChatsListFragment getChatsListFragment() {
-        return cachedChatsListFragment;
+        return getCurrentChatsListFragment();
     }
 
-    public void connect(){
-        Log.e(TAG, "🔌 connect() called");
-        connectionDispatcher.connect().exceptionally((throwable) -> {
-            Log.e(TAG, "❌ Connection failed: " + throwable.getMessage());
-            if (throwable instanceof UnauthorizedException) {
-                logout(activity);
-            }
-            return null;
-        }).thenRun(() -> {
-            Log.e(TAG, "✅ Connection successful, registering handlers...");
-            // ✅ РЕГИСТРИРУЕМ ВСЕ ОБРАБОТЧИКИ В ОДНОМ МЕСТЕ
-            registerAllHandlers();
+    public void connect() {
+        Log.e(TAG, "connect() called");
 
-            SendMessageController controller = new SendMessageController(
-                    activity,
-                    connectionDispatcher,
-                    new UploadProgressListener() {
-                        @Override
-                        public void onProgress(UploadProgress progress) {
-                            Log.d("File loading Progress",
-                                    progress.getFileId() + ": " + progress.getPercent() + "%");
-                        }
-                    }
-            );
-            Log.e(TAG, "✅ SendMessageController created");
-        });
+        connectionDispatcher.connect()
+                .exceptionally(throwable -> {
+                    Log.e(TAG, "Connection failed: " + throwable.getMessage());
+
+                    if (throwable instanceof UnauthorizedException) logout(activity);
+
+                    return null;
+                })
+                .thenRun(() -> {
+                    Log.e(TAG, "Connection successful, registering handlers...");
+                    registerAllHandlers();
+
+                    new SendMessageController(
+                            activity,
+                            connectionDispatcher,
+                            new UploadProgressListener() {
+                                @Override
+                                public void onProgress(UploadProgress progress) {
+                                    Log.d("File loading Progress", progress.getFileId() + ": " + progress.getPercent() + "%");
+                                }
+                            }
+                    );
+
+                    Log.e(TAG, "SendMessageController created");
+                });
     }
 
-    /**
-     * ✅ ЕДИНАЯ РЕГИСТРАЦИЯ ВСЕХ ОБРАБОТЧИКОВ
-     */
     private void registerAllHandlers() {
+        if (handlersRegistered) {
+            Log.d(TAG, "Handlers already registered, skip");
+            return;
+        }
+
+        handlersRegistered = true;
+
         Log.e(TAG, "========================================");
         Log.e(TAG, "Registering ALL DatabaseEventHandlers");
         Log.e(TAG, "Dispatcher hashCode: " + connectionDispatcher.hashCode());
         Log.e(TAG, "========================================");
 
-        // 1. Основные события чатов
-        connectionDispatcher.addEventListener("ChatCreated", ChatResponse.class, databaseEventHandler.onChatCreated());
-        Log.d(TAG, "✓ ChatCreated registered");
+        connectionDispatcher.addEventListener("ChatCreated", ChatResponse.class, command -> {
+            databaseEventHandler.onChatCreated().handle(command);
+
+            ChatResponse response = command.getPayload();
+
+            if (response != null) {
+                stopGroupSearchBecauseMatchFound();
+                safelyReloadChatsList();
+            }
+        });
+
+        Log.d(TAG, "ChatCreated registered");
 
         connectionDispatcher.addEventListener("ChatEnded", ChatEndedResponse.class, databaseEventHandler.onChatEnded());
-        Log.d(TAG, "✓ ChatEnded registered");
+        Log.d(TAG, "ChatEnded registered");
 
         connectionDispatcher.addEventListener("DeleteChat", DeleteChatResponse.class, databaseEventHandler.onDeleteChat());
-        Log.d(TAG, "✓ DeleteChat registered");
+        Log.d(TAG, "DeleteChat registered");
 
         connectionDispatcher.addEventListener("ChatUserRemoved", ChatUserActionResponse.class, databaseEventHandler.onChatUserRemoved());
-        Log.d(TAG, "✓ ChatUserRemoved registered");
+        Log.d(TAG, "ChatUserRemoved registered");
 
-        // 2. Сообщения и статусы - ИСПРАВЛЕНЫ ИМЕНА СОБЫТИЙ
-        // Сервер отправляет "MessageSent" (из nameof(MessageSent))
         connectionDispatcher.addEventListener("MessageSent", MessageResponse.class, new EventHandler<MessageResponse>() {
             @Override
             public void handle(SignalRCommand<MessageResponse> command) {
                 messageSentCallCount++;
+
                 MessageResponse response = command.getPayload();
 
-                Log.e(TAG, "╔════════════════════════════════════════════════╗");
-                Log.e(TAG, "║ 🔥🔥🔥 MessageSent EVENT RECEIVED! 🔥🔥🔥");
-                Log.e(TAG, "╠════════════════════════════════════════════════╣");
-                Log.e(TAG, "║ Call count: " + messageSentCallCount);
-                Log.e(TAG, "║ Response chatId: " + (response != null ? response.chatId : "NULL"));
-                Log.e(TAG, "║ Response userId: " + (response != null ? response.userId : "NULL"));
-                Log.e(TAG, "║ Response text: " + (response != null ? response.text : "NULL"));
-                Log.e(TAG, "║ Current chatId: " + currentChatId);
-                Log.e(TAG, "║ Thread: " + Thread.currentThread().getName());
-                Log.e(TAG, "╚════════════════════════════════════════════════╝");
+                Log.e(TAG, "MessageSent EVENT RECEIVED. Count=" + messageSentCallCount + ", chatId=" + (response != null ? response.chatId : "NULL"));
 
-                if (response == null) {
-                    Log.e(TAG, "❌ Response is NULL!");
-                    return;
-                }
+                if (response == null) return;
 
-                // Вызываем DatabaseEventHandler
-                Log.d(TAG, "📦 Calling databaseEventHandler.onSendMessage()");
                 databaseEventHandler.onSendMessage().handle(command);
-                Log.d(TAG, "✅ databaseEventHandler.onSendMessage() completed");
             }
         });
 
-        // Сервер отправляет "MessageStatusUpdated" (из nameof(MessageStatusUpdated))
         connectionDispatcher.addEventListener("MessageStatusUpdated", UpdateMessageStatusResponse.class, new EventHandler<UpdateMessageStatusResponse>() {
             @Override
             public void handle(SignalRCommand<UpdateMessageStatusResponse> command) {
                 messageStatusUpdatedCallCount++;
+
                 UpdateMessageStatusResponse response = command.getPayload();
 
-                Log.e(TAG, "╔════════════════════════════════════════════════╗");
-                Log.e(TAG, "║ 🔄 MessageStatusUpdated EVENT RECEIVED! 🔄");
-                Log.e(TAG, "╠════════════════════════════════════════════════╣");
-                Log.e(TAG, "║ Call count: " + messageStatusUpdatedCallCount);
-                Log.e(TAG, "║ Response chatId: " + (response != null ? response.chatId : "NULL"));
-                Log.e(TAG, "║ Status: " + (response != null ? response.status : "NULL"));
-                Log.e(TAG, "║ Message ids count: " + (response != null && response.messageIds != null ? response.messageIds.size() : 0));
-                Log.e(TAG, "║ Current chatId: " + currentChatId);
-                Log.e(TAG, "╚════════════════════════════════════════════════╝");
+                Log.e(TAG, "MessageStatusUpdated EVENT RECEIVED. Count=" + messageStatusUpdatedCallCount + ", chatId=" + (response != null ? response.chatId : "NULL"));
 
-                if (response == null) {
-                    Log.e(TAG, "❌ Response is NULL!");
-                    return;
-                }
+                if (response == null) return;
 
-                Log.d(TAG, "📦 Calling databaseEventHandler.onUpdateMessageStatus()");
                 databaseEventHandler.onUpdateMessageStatus().handle(command);
-                Log.d(TAG, "✅ databaseEventHandler.onUpdateMessageStatus() completed");
             }
         });
 
-        // 3. Участники чатов
-        connectionDispatcher.addEventListener("AddUserToChat", AddUserToChatResponse.class, databaseEventHandler.onAddUserToChat());
+        connectionDispatcher.addEventListener("AddUserToChat", AddUserToChatResponse.class, command -> {
+            databaseEventHandler.onAddUserToChat().handle(command);
+
+            AddUserToChatResponse response = command.getPayload();
+
+            if (response != null) {
+                stopGroupSearchBecauseMatchFound();
+                forceLoadChatFromServer(response.chatId);
+            }
+        });
+
         connectionDispatcher.addEventListener("RemoveUserFromChat", RemoveUserFromChatResponse.class, databaseEventHandler.onRemoveUserFromChat());
-        Log.d(TAG, "✓ User events registered");
+        Log.d(TAG, "User events registered");
 
-        // 4. Обновление имени чата
         connectionDispatcher.addEventListener("ChatNameUpdated", ChatNameUpdatedResponse.class, databaseEventHandler.onChatNameUpdated());
-        Log.d(TAG, "✓ ChatNameUpdated registered");
+        Log.d(TAG, "ChatNameUpdated registered");
 
-        // 5. Синхронизация
         connectionDispatcher.addEventListener("SyncDB", SyncResponse.class, new EventHandler<SyncResponse>() {
             @Override
             public void handle(SignalRCommand<SyncResponse> command) {
-                Log.d(TAG, "🔄 SyncDB event received");
+                Log.d(TAG, "SyncDB event received");
                 databaseEventHandler.onSyncDB().handle(command);
             }
         });
-        Log.d(TAG, "✓ SyncDB registered");
 
-        // 6. Статусы поиска
+        Log.d(TAG, "SyncDB registered");
+
         connectionDispatcher.addEventListener("ChatSearchingStatusUpdated", ChatSearchingStatusResponse.class, databaseEventHandler.onChatSearchingStatusUpdated());
         connectionDispatcher.addEventListener("GroupSearchingStatusUpdated", GroupSearchingStatusResponse.class, databaseEventHandler.onGroupSearchingStatusUpdated());
-        Log.d(TAG, "✓ Search status events registered");
 
-        // 7. Обработчик Logout
+        Log.d(TAG, "Search status events registered");
+
         connectionDispatcher.addEventListener("Logout", new EventHandler<Void>() {
             @Override
             public void handle(SignalRCommand<Void> command) {
-                Log.e(TAG, "🚪 Logout event received");
+                Log.e(TAG, "Logout event received");
                 logout(activity);
             }
         });
 
-        Log.e(TAG, "✅ All DatabaseEventHandlers registered successfully");
+        Log.e(TAG, "All DatabaseEventHandlers registered successfully");
         Log.e(TAG, "========================================");
+    }
+
+    public void handleChatDataPush(UUID chatId, String reason) {
+        if (chatId == null) return;
+
+        Log.d(TAG, "handleChatDataPush: chatId=" + chatId + ", reason=" + reason);
+
+        stopGroupSearchBecauseMatchFound();
+        forceLoadChatFromServer(chatId);
+    }
+
+    private void stopGroupSearchBecauseMatchFound() {
+        try {
+            GroupSearchModel currentSearch = ChatStatusSingleton.getInstance()
+                    .getHandler()
+                    .getGroupSearchModel();
+
+            if (currentSearch == null || !currentSearch.getIsSearching()) return;
+
+            ChatStatusSingleton.getInstance()
+                    .getHandler()
+                    .setGroupSearchModel(new GroupSearchModel(false, null));
+
+            Activity currentActivity = activity;
+
+            if (currentActivity != null) {
+                currentActivity.runOnUiThread(() -> {
+                    ChatsListFragment fragment = getCurrentChatsListFragment();
+
+                    if (fragment != null) {
+                        fragment.setGroupSearchingStatus();
+                        fragment.reloadChatsFromDatabaseSafe();
+                    }
+                });
+            }
+
+            Log.d(TAG, "Group search stopped because match was found");
+
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to stop group search because match was found", e);
+        }
+    }
+
+    public void forceLoadChatFromServer(UUID chatId) {
+        if (chatId == null || connectionDispatcher == null) return;
+
+        connectionDispatcher.sendHttpRequestAsync("/api/chat/" + chatId, HttpClient.HTTPMethod.GET, null, true)
+                .thenAccept(cmd -> {
+                    if (cmd == null || !cmd.isSuccess()) {
+                        Log.w(TAG, "forceLoadChatFromServer failed. chatId=" + chatId + ", code=" + (cmd != null ? cmd.getCode() : "NULL"));
+                        safelyReloadChatsList();
+                        return;
+                    }
+
+                    try {
+                        ChatResponse response = cmd.getData(ChatResponse.class);
+
+                        if (response == null) {
+                            Log.w(TAG, "forceLoadChatFromServer: empty ChatResponse");
+                            safelyReloadChatsList();
+                            return;
+                        }
+
+                        saver.saveChatFromResponse(response);
+
+                        Chat chat = chatMapper.ToModel(response);
+
+                        if (chat != null) safelyCreateOrReloadChat(chat);
+                        else safelyReloadChatsList();
+
+                    } catch (Exception e) {
+                        Log.e(TAG, "forceLoadChatFromServer parse/save error", e);
+                        safelyReloadChatsList();
+                    }
+                })
+                .exceptionally(throwable -> {
+                    Log.e(TAG, "forceLoadChatFromServer request error", throwable);
+                    safelyReloadChatsList();
+                    return null;
+                });
+    }
+
+    private void safelyCreateOrReloadChat(Chat chat) {
+        if (chat == null) {
+            safelyReloadChatsList();
+            return;
+        }
+
+        Activity currentActivity = activity;
+
+        if (currentActivity == null) return;
+
+        currentActivity.runOnUiThread(() -> {
+            ChatsListFragment fragment = getCurrentChatsListFragment();
+
+            if (fragment != null) {
+                fragment.createChat(chat);
+                fragment.reloadChatsFromDatabaseSafe();
+
+                Log.d(TAG, "Chat loaded from server and UI reloaded: " + chat.getId());
+            }
+        });
+    }
+
+    private void safelyReloadChatsList() {
+        Activity currentActivity = activity;
+
+        if (currentActivity == null) return;
+
+        currentActivity.runOnUiThread(() -> {
+            ChatsListFragment fragment = getCurrentChatsListFragment();
+
+            if (fragment != null) {
+                fragment.reloadChatsFromDatabaseSafe();
+                Log.d(TAG, "Chats list safely reloaded");
+            }
+        });
+    }
+
+    private ChatsListFragment getCurrentChatsListFragment() {
+        if (cachedChatsListFragment != null) return cachedChatsListFragment;
+
+        if (mainActivityAdapter != null) {
+            cachedChatsListFragment = mainActivityAdapter.getChatsListFragment();
+        }
+
+        return cachedChatsListFragment;
     }
 
     public UUID getCurrentChatId() {

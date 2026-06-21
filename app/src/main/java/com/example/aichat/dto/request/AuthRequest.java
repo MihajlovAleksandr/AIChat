@@ -1,5 +1,6 @@
 package com.example.aichat.dto.request;
 
+import com.example.aichat.model.ai.AIModel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

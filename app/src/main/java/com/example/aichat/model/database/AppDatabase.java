@@ -1,18 +1,16 @@
 package com.example.aichat.model.database;
 
 import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.room.Database;
+import androidx.room.migration.Migration;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
-
 import com.example.aichat.model.entities.Chat;
+import com.example.aichat.model.entities.File;
 import com.example.aichat.model.entities.Message;
 import com.example.aichat.model.entities.PendingCommand;
-import com.example.aichat.model.entities.File;
 
 @Database(
         entities = {

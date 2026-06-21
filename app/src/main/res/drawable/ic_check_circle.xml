@@ -4,12 +4,10 @@
     android:viewportWidth="1024"
     android:viewportHeight="1024">
 
-    <!-- Внешний круг (контурный) -->
     <path
         android:fillColor="?android:attr/textColorSecondary"
         android:pathData="M512,85.3C276.3,85.3 85.3,276.3 85.3,512s191,426.7 426.7,426.7 426.7,-191 426.7,-426.7S747.7,85.3 512,85.3zM512,896c-212.1,0 -384,-171.9 -384,-384s171.9,-384 384,-384 384,171.9 384,384 -171.9,384 -384,384z"/>
 
-    <!-- Контурная галочка (только обводка, внутри пусто) -->
     <path
         android:fillColor="@android:color/transparent"
         android:strokeColor="?android:attr/textColorSecondary"

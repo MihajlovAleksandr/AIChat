@@ -3,7 +3,6 @@ package com.example.aichat.model.entities;
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-
 import java.util.UUID;
 
 @Entity(tableName = "files")

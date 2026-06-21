@@ -1,7 +1,6 @@
 package com.example.aichat.model.database;
 
 import java.util.UUID;
-
 import javax.annotation.Nullable;
 
 public class GroupSearchModel {

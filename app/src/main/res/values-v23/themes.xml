@@ -1,12 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
-    <style name="Theme.AIChat" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.AIChat" parent="Theme.Material3.Light.NoActionBar">
+
+        <item name="dynamicPrimaryColor">@color/teal_primary</item>
+        <item name="dynamicBackgroundColor">@drawable/bg_dynamic_background</item>
+        <item name="dynamicTextColor">@color/primaryTextLight</item>
+        <item name="dynamicSecondaryTextColor">@color/secondaryTextLight</item>
+
+        <item name="dynamicOutgoingBubbleColor">@color/teal_primary</item>
+        <item name="dynamicIncomingBubbleColor">@color/light_gray</item>
+        <item name="dynamicChatBackgroundColor">@color/buttonBackgroundLight</item>
+        <item name="dynamicChatStrokeColor">@color/secondaryTextLight</item>
+
+        <item name="dynamicRippleColor">@color/rippleLight</item>
+        <item name="dynamicStateLayerColor">@android:color/transparent</item>
+        <item name="paymentDialogBackground">
+            #FAF7FA
+        </item>
+
+        <item name="paymentDialogTitle">
+            #111827
+        </item>
+
+        <item name="paymentDialogMessage">
+            #6B7280
+        </item>
+
+        <item name="paymentDialogSupport">
+            #18B7A0
+        </item>
+        <item name="colorPrimary">@color/teal_primary</item>
+        <item name="colorOnPrimary">@color/buttonTextLight</item>
+        <item name="colorSurface">@color/buttonBackgroundLight</item>
+        <item name="colorOnSurface">@color/primaryTextLight</item>
+        <item name="colorOnSurfaceVariant">@color/secondaryTextLight</item>
+        <item name="colorControlHighlight">@color/rippleLight</item>
+        <item name="myMessageColor">#20A39A</item>
+        <item name="otherMessageColor">#F1F1F1</item>
+        <item name="stateLayerColor">@color/state_layer_light</item>
+        <item name="chatCircleStroke">@color/chat_circle_stroke_light</item>
+        <item name="bottomSheetOverlayColor">#80FFFFFF</item>
+        <item name="toolbarBackground">@color/buttonBackgroundLight</item>
+        <item name="toolbarTitleColor">@color/primaryTextLight</item>
+        <item name="toolbarIconColor">@color/primaryTextLight</item>
+        <item name="dividerColor">@color/secondaryTextLight</item>
+        <item name="searchHintColor">@color/secondaryTextLight</item>
+        <item name="searchTextColor">@color/primaryTextLight</item>
+        <item name="searchIconColor">@color/primaryTextLight</item>
+        <item name="bottomIconColor">@color/teal_primary</item>
+        <item name="bottomTextColor">@color/teal_primary</item>
+        <item name="toolbarIconColorCustom">@color/teal_primary</item>
+        <item name="toolbarTextColorCustom">@color/teal_primary</item>
+        <item name="android:windowBackground">@drawable/bg_oil_light_gradient</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:textColor">@color/primaryTextLight</item>
+        <item name="android:autofilledHighlight">@android:color/transparent</item>
+        <item name="login_button_text">@color/login_text_enabled_light</item>
+        <item name="login_button_tint">@color/login_background_enabled_light</item>
+        <item name="textinput_hint_selector">@color/textinput_hint_light</item>
+        <item name="textinput_endicon_tint">@color/textinput_endicon_light</item>
+        <item name="textInputStyle">@style/Widget.AIChat.TextInput</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Material3.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Material3.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.Material3.BodySmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.Material3.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.Material3.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Material3.TitleSmall</item>
+
+    </style>
+
+    <style name="Widget.AIChat.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@android:color/transparent</item>
+        <item name="android:textColor">@color/primaryTextLight</item>
+        <item name="android:autofilledHighlight">@android:color/transparent</item>
+    </style>
+
+    <style name="ShapeAppearance.AIChat.Glow" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+        <item name="colorSecondary">@color/teal_primary</item>
+        <item name="colorSecondaryContainer">@color/teal_primary</item>
+        <item name="colorOnSecondaryContainer">@color/buttonTextLight</item>
+    </style>
+
+    <style name="CodeInputStyle">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_margin">5dp</item>
+        <item name="android:background">@drawable/edittext_border</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">number</item>
+        <item name="android:maxLength">1</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+
+    </style>
+    <style name="Base.Theme.AIChat" parent="Theme.Material3.DayNight.NoActionBar">
+
     </style>
 
 
+
+
+    <style name="Theme.AIChat.Starting" parent="Theme.AIChat" />
 
 </resources>

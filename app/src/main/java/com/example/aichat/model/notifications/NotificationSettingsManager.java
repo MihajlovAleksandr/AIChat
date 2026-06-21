@@ -2,13 +2,12 @@ package com.example.aichat.model.notifications;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
-
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 

@@ -3,7 +3,6 @@ package com.example.aichat.dto.response;
 import com.example.aichat.model.entities.FileType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.UUID;
 
 public class UploadSessionFileResponse {

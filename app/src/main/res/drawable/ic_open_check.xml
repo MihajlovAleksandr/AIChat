@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="4dp">
+
+    <vector
+        android:width="36dp"
+        android:height="36dp"
+        android:viewportWidth="1024"
+        android:viewportHeight="1024">
+
+        <group
+            android:pivotX="2500"
+            android:pivotY="-1200"
+            android:scaleX="1.08"
+            android:scaleY="1.08"
+            android:translateY="8">
+
+            <path
+                android:fillColor="?attr/colorSecondary"
+                android:fillAlpha="0.18"
+                android:pathData="
+                    M260,300
+                    C260,245 300,205 355,205
+                    L565,205
+                    C620,205 660,245 660,300
+                    L660,510
+                    C660,565 620,605 565,605
+                    L355,605
+                    C300,605 260,565 260,510
+                    Z" />
+
+            <path
+                android:fillColor="@android:color/transparent"
+                android:strokeColor="?attr/colorOnSurface"
+                android:strokeWidth="34"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round"
+                android:pathData="
+                    M355,205
+                    L565,205
+                    C620,205 660,245 660,300
+                    L660,510
+                    C660,565 620,605 565,605
+                    L355,605
+                    C300,605 260,565 260,510
+                    L260,300
+                    C260,245 300,205 355,205
+                    Z" />
+
+            <path
+                android:fillColor="@android:color/transparent"
+                android:strokeColor="?attr/colorOnSurface"
+                android:strokeWidth="38"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round"
+                android:pathData="
+                    M310,560
+                    L600,270" />
+
+            <path
+                android:fillColor="@android:color/transparent"
+                android:strokeColor="?attr/colorOnSurface"
+                android:strokeWidth="38"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round"
+                android:pathData="
+                    M450,270
+                    L600,270
+                    L600,420" />
+
+        </group>
+
+    </vector>
+
+</inset>

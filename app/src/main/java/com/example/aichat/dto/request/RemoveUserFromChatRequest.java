@@ -1,9 +1,7 @@
 package com.example.aichat.dto.request;
 
 import androidx.annotation.Nullable;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.UUID;
 
 public class RemoveUserFromChatRequest {

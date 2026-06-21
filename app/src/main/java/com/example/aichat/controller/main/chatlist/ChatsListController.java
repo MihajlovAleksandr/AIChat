@@ -2,11 +2,7 @@ package com.example.aichat.controller.main.chatlist;
 
 import android.content.Intent;
 import android.util.Log;
-
 import androidx.fragment.app.FragmentActivity;
-
-import com.example.aichat.R;
-import com.example.aichat.SettingsActivity;
 import com.example.aichat.dto.request.CreateChatRequest;
 import com.example.aichat.dto.request.MatchmakingRequest;
 import com.example.aichat.dto.request.RemoveUserFromChatRequest;
@@ -14,9 +10,10 @@ import com.example.aichat.dto.request.SearchGroupRequest;
 import com.example.aichat.dto.request.UpdateChatNameRequest;
 import com.example.aichat.dto.response.ChatResponse;
 import com.example.aichat.dto.response.MessageResponse;
+import com.example.aichat.LeaderboardActivity;
 import com.example.aichat.model.connection.ConnectionDispatcher;
-import com.example.aichat.model.connection.HttpClient;
 import com.example.aichat.model.connection.ConnectionSingleton;
+import com.example.aichat.model.connection.HttpClient;
 import com.example.aichat.model.database.AppDatabase;
 import com.example.aichat.model.database.ChatStatusSingleton;
 import com.example.aichat.model.database.DatabaseManager;
@@ -31,14 +28,15 @@ import com.example.aichat.model.utils.mappers.ChatMapper;
 import com.example.aichat.model.utils.mappers.Mapper;
 import com.example.aichat.model.utils.mappers.MapperResponse;
 import com.example.aichat.model.utils.mappers.MessageMapper;
-import com.example.aichat.view.main.marketplace.AiMarketplaceActivity;
+import com.example.aichat.R;
+import com.example.aichat.SettingsActivity;
 import com.example.aichat.view.main.chatlist.ChatsListFragment;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
+@androidx.media3.common.util.UnstableApi
 public class ChatsListController {
     private static final String TAG = "ChatsListController";
 
@@ -214,10 +212,6 @@ public class ChatsListController {
         activity.startActivity(new Intent(activity, SettingsActivity.class));
     }
 
-    public void openMarketplace(FragmentActivity activity) {
-        activity.startActivity(new Intent(activity, AiMarketplaceActivity.class));
-    }
-
     public boolean getIsChatSearching() {
         return handler.getIsChatSearching();
     }
@@ -249,22 +243,6 @@ public class ChatsListController {
     private void createChat(ChatResponse response, ChatType type) {
         if (response != null) {
             Chat chat = chatMapper.ToModel(response);
-
-            switch (type) {
-                case Group:
-                    chat.setChatTypeHint(fragment.getString(R.string.chat_type_letter_group));
-                    break;
-                case AI:
-                    chat.setChatTypeHint(fragment.getString(R.string.chat_type_letter_ai));
-                    break;
-                case Human:
-                    chat.setChatTypeHint(fragment.getString(R.string.chat_type_letter_human));
-                    break;
-                case Random:
-                    chat.setChatTypeHint(fragment.getString(R.string.chat_type_letter_random));
-                    break;
-            }
-
             fragment.getActivity().runOnUiThread(() -> fragment.createChat(chat));
             saver.saveChat(chat);
         }

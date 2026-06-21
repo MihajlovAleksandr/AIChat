@@ -1,9 +1,7 @@
 package com.example.aichat.model.entities;
 
 import android.content.res.Resources;
-
 import com.example.aichat.R;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;

@@ -8,105 +8,195 @@
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
-    <uses-feature android:name="android.hardware.camera" />
-    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
 
     <application
         android:name=".MyApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
+        android:forceDarkAllowed="false"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_aichat_launcher"
         android:label="@string/app_name"
-        android:usesCleartextTraffic="true"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_aichat_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AIChat"
-        android:enableOnBackInvokedCallback="true"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
+        <!-- Google Mobile Ads App ID (тестовый) -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713"/>
+
+        <activity
+            android:name=".LeaderboardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat" />
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AIChat" />
+        <activity
+            android:name=".view.payment.PaymentDetailsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat" />
+        <activity
+            android:name=".view.payment.PaymentsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat" />
+        <activity
+            android:name=".view.payment.PremiumListActivity"
+            android:configChanges="locale|layoutDirection|screenSize|orientation"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat" />
+
+        <!-- ГЛАВНАЯ Activity - СЮДА ДОБАВЛЯЕМ INTENT-FILTER -->
         <activity
             android:name=".view.main.MainActivity"
+            android:configChanges="locale|layoutDirection|screenSize|orientation"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:theme="@style/Theme.AIChat"
-            android:configChanges="locale|layoutDirection|uiMode|screenSize|orientation">
+            android:theme="@style/Theme.AIChat.Starting"
+            android:windowSoftInputMode="adjustResize|stateHidden">
+
+            <!-- Существующий intent-filter для запуска -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="aichatt.xyz" />
+                <data android:pathPrefix="/chat" /> </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="aichat" />
+                <data android:host="open" />
+                <data android:pathPrefix="/chat" />
+            </intent-filter>
         </activity>
 
         <activity
-            android:name=".view.main.marketplace.AiMarketplaceActivity"
+            android:name=".view.payment.ProductsActivity"
+            android:configChanges="locale|layoutDirection|screenSize|orientation"
             android:exported="false"
             android:theme="@style/Theme.AIChat"
-            android:configChanges="locale|layoutDirection|uiMode|screenSize|orientation" />
-
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".view.payment.CheckoutActivity"
+            android:configChanges="locale|layoutDirection|screenSize|orientation"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".view.theme.ThemesActivity"
+            android:configChanges="locale|layoutDirection|screenSize|orientation"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".view.theme.ThemeEditorActivity"
+            android:configChanges="locale|layoutDirection|screenSize|orientation"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".view.LoginActivity"
             android:exported="true"
-            android:theme="@style/Theme.AIChat" />
-
+            android:theme="@style/Theme.AIChat"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <activity
             android:name=".view.RegistrationActivity"
             android:exported="true"
-            android:theme="@style/Theme.AIChat" />
-
+            android:theme="@style/Theme.AIChat"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <activity
             android:name=".view.VerifyEmailActivity"
             android:exported="false"
-            android:theme="@style/Theme.AIChat" />
-
+            android:theme="@style/Theme.AIChat"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <activity
             android:name=".SettingsActivity"
+            android:configChanges="locale|layoutDirection|screenSize|orientation"
             android:exported="false"
-            android:theme="@style/Theme.AIChat"
-            android:configChanges="locale|layoutDirection|uiMode|screenSize|orientation" />
-
+            android:theme="@style/Theme.AIChat" />
         <activity
             android:name=".QRCodeActivity"
+            android:configChanges="locale|layoutDirection|screenSize|orientation"
             android:exported="false"
-            android:theme="@style/Theme.AIChat"
-            android:configChanges="locale|layoutDirection|uiMode|screenSize|orientation" />
-
+            android:theme="@style/Theme.AIChat" />
         <activity
             android:name=".DevicesActivity"
+            android:configChanges="locale|layoutDirection|screenSize|orientation"
             android:exported="false"
-            android:theme="@style/Theme.AIChat"
-            android:configChanges="locale|layoutDirection|uiMode|screenSize|orientation" />
-
+            android:theme="@style/Theme.AIChat" />
         <activity
-            android:name=".ChangePasswordActivity"
+            android:name=".view.main.chat.VideoMessageCircleActivity"
             android:exported="false"
-            android:theme="@style/Theme.AIChat"
-            android:configChanges="locale|layoutDirection|uiMode|screenSize|orientation" />
-
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Material3.Dark.NoActionBar" />
         <activity
             android:name=".view.PreferenceActivity"
+            android:configChanges="locale|layoutDirection|screenSize|orientation"
             android:exported="true"
             android:theme="@style/Theme.AIChat"
-            android:configChanges="locale|layoutDirection|uiMode|screenSize|orientation" />
-
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
+        <activity
+            android:name=".view.cache.CacheUsageActivity"
+            android:configChanges="locale|layoutDirection|screenSize|orientation"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat" />
+        <activity
+            android:name=".view.cache.MediaAutoDownloadActivity"
+            android:configChanges="locale|layoutDirection|screenSize|orientation"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat" />
+        <activity
+            android:name=".view.cache.AutoDownloadNetworkActivity"
+            android:configChanges="locale|layoutDirection|screenSize|orientation"
+            android:exported="false"
+            android:theme="@style/Theme.AIChat" />
         <activity
             android:name=".view.UserDataActivity"
+            android:configChanges="locale|layoutDirection|screenSize|orientation"
             android:exported="true"
             android:theme="@style/Theme.AIChat"
-            android:configChanges="locale|layoutDirection|uiMode|screenSize|orientation" />
-
-        <activity
-            android:name=".view.main.chatlist.CreateChatActivity"
-            android:exported="true"
-            android:label="@string/menu_create_chat"
-            android:theme="@style/Theme.AIChat"
-            android:configChanges="locale|layoutDirection|uiMode|screenSize|orientation" />
-
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <activity
             android:name=".ImagePreviewActivity"
             android:exported="false"
             android:theme="@style/Theme.AIChat" />
+        <activity
+            android:name=".view.main.chat.VideoPlayerActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:forceDarkAllowed="false"
+            android:hardwareAccelerated="true"
+            android:process=":video_player"
+            android:resizeableActivity="false"
+            android:screenOrientation="sensor"
+            android:theme="@style/Theme.AIChat.VideoPlayer" />
 
         <service
             android:name=".model.notifications.MyFirebaseMessagingService"
@@ -117,17 +207,19 @@
             </intent-filter>
         </service>
 
+        <receiver
+            android:name=".model.utils.media.audio.AudioPlayerManager$NotificationActionReceiver"
+            android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
-
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
     </application>
 
 </manifest>

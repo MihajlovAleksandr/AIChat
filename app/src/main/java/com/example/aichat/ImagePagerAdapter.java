@@ -2,16 +2,13 @@ package com.example.aichat;
 
 import android.view.MotionEvent;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.bumptech.glide.Glide;
-import com.example.aichat.model.utils.GlideAuthHelper;
+import com.example.aichat.model.utils.files.GlideAuthHelper;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.github.chrisbanes.photoview.PhotoViewAttacher;
-
 import java.util.List;
 
 public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.VH> {
@@ -32,7 +29,6 @@ public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.VH
         ));
         view.setScaleType(PhotoView.ScaleType.FIT_CENTER);
 
-        // Настройка масштабирования
         view.setMinimumScale(1.0f);
         view.setMediumScale(2.5f);
         view.setMaximumScale(5.0f);

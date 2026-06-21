@@ -1,15 +1,10 @@
 package com.example.aichat.model.connection.files;
 
 import androidx.annotation.NonNull;
-
-import com.example.aichat.model.connection.UploadProgress;
-import com.example.aichat.model.connection.files.UploadProgressListener;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.UUID;
-
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okio.BufferedSink;

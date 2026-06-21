@@ -3,14 +3,17 @@ package com.example.aichat.view;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
-
-import com.example.aichat.R;
 import com.example.aichat.controller.RegistrationController;
+import com.example.aichat.R;
+import com.example.aichat.view.main.BaseActivity;
+import com.example.aichat.view.helpers.FullScreenHelper;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class RegistrationActivity extends BaseActivity {
+
+    private RegistrationController registrationController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,10 +37,9 @@ public class RegistrationActivity extends BaseActivity {
             });
         }
 
-
         applyThemeColors(emailInputLayout, passwordInputLayout, confirmPasswordInputLayout);
 
-        new RegistrationController(
+        registrationController = new RegistrationController(
                 this,
                 emailInputLayout,
                 passwordInputLayout,
@@ -47,6 +49,16 @@ public class RegistrationActivity extends BaseActivity {
                 confirmPasswordEditText,
                 registrationButton
         );
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (registrationController != null) {
+            registrationController.destroy();
+            registrationController = null;
+        }
+
+        super.onDestroy();
     }
 
     private void applyThemeColors(TextInputLayout emailLayout, TextInputLayout passwordLayout, TextInputLayout confirmLayout) {
@@ -63,12 +75,13 @@ public class RegistrationActivity extends BaseActivity {
         confirmLayout.setEndIconTintList(android.content.res.ColorStateList.valueOf(endIconColor));
 
         int hintColor;
+
         if (!isDarkTheme && emailLayout.getDefaultHintTextColor() != null) {
             hintColor = emailLayout.getDefaultHintTextColor().getDefaultColor();
         } else {
             hintColor = isDarkTheme
                     ? getResources().getColor(R.color.primaryTextDark, getTheme())
-                    : 0xFF000000; // fallback
+                    : 0xFF000000;
         }
 
         emailLayout.setDefaultHintTextColor(android.content.res.ColorStateList.valueOf(hintColor));

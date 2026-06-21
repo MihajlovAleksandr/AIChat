@@ -8,16 +8,14 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
-
-import com.example.aichat.model.utils.FileMimeMapConverter;
-import com.example.aichat.model.utils.FileTypeMapConverter;
-import com.example.aichat.model.utils.HashMapConverter;
-import com.example.aichat.model.utils.ListMessageReplyConverter;
-import com.example.aichat.model.utils.TimeConverter;
-import com.example.aichat.model.utils.UuidListConverter;
+import com.example.aichat.model.utils.database.converters.FileMimeMapConverter;
+import com.example.aichat.model.utils.database.converters.FileTypeMapConverter;
+import com.example.aichat.model.utils.database.converters.HashMapConverter;
+import com.example.aichat.model.utils.database.converters.ListMessageReplyConverter;
+import com.example.aichat.model.utils.time.TimeConverter;
+import com.example.aichat.model.utils.database.converters.UuidListConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;

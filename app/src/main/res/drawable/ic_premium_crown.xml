@@ -1,0 +1,153 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="4096"
+    android:viewportHeight="4096">
+
+    <group
+        android:scaleX="5.5"
+        android:scaleY="5.5"
+        android:translateX="-720"
+        android:translateY="-650">
+
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="?attr/colorOnSurface"
+            android:strokeWidth="30"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="
+            M356,676
+            L668,676
+            C690,676 708,658 708,636
+            C708,614 690,596 668,596
+            L612,408
+            L544,468
+            L512,302
+            L480,468
+            L412,408
+            L356,596
+            C334,596 316,614 316,636
+            C316,658 334,676 356,676
+            Z" />
+
+        <path
+            android:fillColor="?attr/colorSecondary"
+            android:fillAlpha="0.12"
+            android:pathData="
+            M366,586
+            L446,586
+            L420,438
+            L492,514
+            L492,586
+            Z" />
+
+        <path
+            android:fillColor="?attr/colorSecondary"
+            android:fillAlpha="0.12"
+            android:pathData="
+            M655,586
+            L578,586
+            L604,438
+            L532,514
+            L532,586
+            Z" />
+
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="?attr/colorOnSurface"
+            android:strokeWidth="26"
+            android:strokeLineJoin="round"
+            android:pathData="
+            M512,480
+            L548,532
+            L512,584
+            L476,532
+            Z" />
+
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="?attr/colorOnSurface"
+            android:strokeWidth="30"
+            android:strokeLineCap="round"
+            android:pathData="
+            M404,638
+            L620,636" />
+
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="?attr/colorOnSurface"
+            android:strokeWidth="28"
+            android:pathData="
+            M512,308
+            m-28,0
+            a28,28 0,1 1,56 0
+            a28,28 0,1 1,-56 0" />
+
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="?attr/colorOnSurface"
+            android:strokeWidth="28"
+            android:pathData="
+            M412,406
+            m-24,0
+            a24,24 0,1 1,48 0
+            a24,24 0,1 1,-48 0" />
+
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="?attr/colorOnSurface"
+            android:strokeWidth="28"
+            android:pathData="
+            M615,406
+            m-24,0
+            a24,24 0,1 1,48 0
+            a24,24 0,1 1,-48 0" />
+
+        <path
+            android:fillColor="?attr/colorOnSurface"
+            android:pathData="
+            M214,450
+            L238,502
+            L290,526
+            L238,550
+            L214,602
+            L190,550
+            L138,526
+            L190,502
+            Z" />
+
+        <path
+            android:fillColor="?attr/colorOnSurface"
+            android:pathData="
+            M794,438
+            L816,486
+            L864,508
+            L816,530
+            L794,578
+            L772,530
+            L724,508
+            L772,486
+            Z" />
+
+        <path
+            android:fillColor="?attr/colorOnSurface"
+            android:fillAlpha="0.85"
+            android:pathData="
+            M694,300
+            m-16,0
+            a16,16 0,1 1,32 0
+            a16,16 0,1 1,-32 0" />
+
+        <path
+            android:fillColor="?attr/colorOnSurface"
+            android:fillAlpha="0.85"
+            android:pathData="
+            M184,628
+            m-18,0
+            a18,18 0,1 1,36 0
+            a18,18 0,1 1,-36 0" />
+
+    </group>
+
+</vector>

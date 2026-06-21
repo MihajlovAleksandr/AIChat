@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AIChat</string>
     <string name="close_button_description">Close</string>
@@ -5,7 +6,6 @@
     <string name="options_button_description">More options</string>
     <string name="submit_button">Submit</string>
     <string name="skip_button">Skip</string>
-    <string name="send_button">Send</string>
     <string name="update_button">Update</string>
     <string name="logout">Logout</string>
     <string name="first_fragment_label">First Fragment</string>
@@ -48,6 +48,7 @@
     <string name="end_chat_menu">End chat</string>
     <string name="view_members_menu">Members</string>
     <string name="search_words_menu">Search words</string>
+    <string name="select_model">Customise AI</string>
     <string name="export_chat">Export chat</string>
     <string name="age_info_description">Age field information</string>
     <string name="name_info_description">Name field information</string>
@@ -75,7 +76,8 @@
     <string name="in_app_notifications">Show notifications while in app</string>
     <string name="vibration">Vibration</string>
     <string name="language_section">Language</string>
-    <string name="reference_section">Reference</string>
+    <string name="reference_section">Help</string>
+    <string name="reference_intro">AIChat combines private chats, groups, random chats and AI conversations in one place. Below is the basic information about the main sections, data handling and support.</string>
     <string name="faq">FAQ</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="support">Support</string>
@@ -242,7 +244,8 @@
     <string name="chat_type_letter_group">G</string>
     <string name="chat_type_letter_ai">AI</string>
     <string name="chat_type_letter_human">H</string>
-    <string name="chat_type_letter_random">?</string>
+    <string name="chat_type_letter_random">R</string>
+    <string name="chat_circle_me">Me</string>
     <string name="cannot_open_file">Cannot open file</string>
     <string name="integration_connected">Integration connected</string>
     <string name="integration_disconnected">Integration not connected</string>
@@ -266,4 +269,462 @@
     <string name="user_banned">Your account has been banned.</string>
     <string name="try_again">Login failed. Please try again.</string>
     <string name="invalid_qr_code">Invalid QR code</string>
+    <string name="products_title">Subscription</string>
+    <string name="payment_history">Payment history</string>
+    <string name="products_header_title">Unlock AIChat capabilities</string>
+    <string name="products_header_description">Access advanced models,\npremium themes and faster\nresponses</string>
+    <string name="premium_subscription">Premium subscription</string>
+    <string name="subscriptions">Subscriptions</string>
+    <string name="token_packages">Currency packages</string>
+    <string name="badge_popular">POPULAR</string>
+    <string name="badge_best_value">BEST VALUE</string>
+    <string name="continue_text">Continue</string>
+    <string name="quantity">Quantity</string>
+    <string name="pay_now">Pay now</string>
+    <string name="payment_success">Payment completed successfully</string>
+    <string name="payment_canceled">Payment canceled</string>
+    <string name="product_not_found">Product not found</string>
+    <string name="product_not_loaded">Product not loaded</string>
+    <string name="invalid_quantity">Invalid quantity</string>
+    <string name="payment_failed">Payment failed</string>
+    <string name="subscription">Subscription</string>
+    <string name="subscription_month">1 Month Premium</string>
+    <string name="subscription_3_months">3 Months Premium</string>
+    <string name="subscription_year">1 Year Premium</string>
+    <string name="currency_package">Currency Package</string>
+    <string name="currency_100">100 Currency</string>
+    <string name="currency_500">500 Currency</string>
+    <string name="currency_1000">1000 Currency</string>
+    <string name="subscription_month_description">Full premium access for 1 month with all AIChat features.</string>
+    <string name="subscription_3_months_description">Extended premium access for 3 months with the best balance of price and features.</string>
+    <string name="subscription_year_description">Unlimited premium experience for 1 year with maximum savings.</string>
+    <string name="currency_100_description">Small currency pack for quick AI requests and basic usage.</string>
+    <string name="currency_500_description">Medium currency pack for regular conversations and generation tasks.</string>
+    <string name="currency_1000_description">Large currency pack for active daily usage and advanced AI features.</string>
+    <string name="secure_payment_stripe">Secure payment via Stripe</string>
+    <string name="user_already_has_subscription">You already have an active auto-renew subscription</string>
+    <string name="connection_error">Connection error. Please check your internet connection</string>
+    <string name="payment_declined">Declined</string>
+    <string name="understood">Understood</string>
+    <string name="contact_support">Contact support</string>
+    <string name="payment_successful">Successful</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="currency">Currency</string>
+    <string name="premium_inactive">Premium is inactive</string>
+    <string name="no_active_subscription">No active subscription</string>
+    <string name="auto_renew_enabled">Auto-renewal enabled</string>
+    <string name="auto_renew_disabled">Auto-renewal disabled</string>
+    <string name="premium_active_until">Premium active until</string>
+    <string name="payment_details_title">Payment details</string>
+    <string name="payment_id_label">Payment ID</string>
+    <string name="payment_amount_label">Amount</string>
+    <string name="payment_currency_label">Currency</string>
+    <string name="payment_status_label">Status</string>
+    <string name="payment_created_label">Created</string>
+    <string name="payment_items_title">Items</string>
+    <string name="open_receipt">Open receipt</string>
+    <string name="details">Details</string>
+    <string name="payment_status_confirmed">Confirmed</string>
+    <string name="payment_status_pending">Pending</string>
+    <string name="payment_status_failed">Failed</string>
+    <string name="payment_status_expired">Expired</string>
+    <string name="payment_amount_value">Amount: %1$s %2$s</string>
+    <string name="payment_created_value">Created: %1$s</string>
+    <string name="my_themes">My themes</string>
+    <string name="create_theme">Create theme</string>
+    <string name="library">Library</string>
+    <string name="chats">Chats</string>
+    <string name="default_theme">Default</string>
+    <string name="in_library">In library</string>
+    <string name="theme_loading_percent">Loading...</string>
+    <string name="explore">Explore</string>
+    <string name="theme_header_description">Discover unique themes to personalize your experience</string>
+    <string name="premium_title">Premium</string>
+    <string name="premium_status">Premium status</string>
+    <string name="premium_description">All premium access features</string>
+    <string name="premium_autorenew_on">Auto-renew enabled</string>
+    <string name="premium_autorenew_off">Auto-renew disabled</string>
+    <string name="premium_active_period">Premium active from — to —</string>
+    <string name="premium_next_payment">Next payment: —</string>
+    <string name="premium_no_active">No active premium</string>
+    <string name="premium_no_active_description">Subscribe to unlock all features</string>
+    <string name="premium_activate">Activate premium</string>
+    <string name="premium_history">Subscription history</string>
+    <string name="theme_editor_title">Theme editor</string>
+    <string name="theme_editor_save">Save</string>
+    <string name="theme_editor_name_hint">Theme name</string>
+    <string name="theme_editor_default_name">My theme</string>
+    <string name="theme_editor_colors_section">Colors</string>
+    <string name="theme_editor_primary_color">Primary color</string>
+    <string name="theme_editor_background_color">Background color</string>
+    <string name="theme_editor_text_color">Text color</string>
+    <string name="theme_editor_secondary_text_color">Secondary text color</string>
+    <string name="theme_editor_my_messages_color">My messages color</string>
+    <string name="theme_editor_other_messages_color">Other messages color</string>
+    <string name="theme_editor_chat_background_section">Chat background</string>
+    <string name="theme_editor_background_image">Background image</string>
+    <string name="theme_editor_default_value">Default</string>
+    <string name="theme_editor_animations_section">Animations</string>
+    <string name="theme_editor_message_animation">Message sending animation</string>
+    <string name="theme_editor_preview_section">Preview</string>
+    <string name="theme_editor_preview_other_message">Hi! How are you?</string>
+    <string name="theme_editor_preview_my_message">Great! And you?</string>
+    <string name="theme_editor_preview_time">17:30</string>
+    <string name="theme_editor_preview_time_read">17:30 ✓✓</string>
+    <string name="theme_editor_choose_primary_color">Choose primary color</string>
+    <string name="theme_editor_choose_background_color">Choose background color</string>
+    <string name="theme_editor_choose_text_color">Choose text color</string>
+    <string name="theme_editor_choose_secondary_text_color">Choose secondary text color</string>
+    <string name="theme_editor_choose_my_messages_color">Choose your messages color</string>
+    <string name="theme_editor_choose_other_messages_color">Choose other messages color</string>
+    <string name="theme_editor_choose_chat_background">Choose chat background</string>
+    <string name="theme_editor_palette">Palette</string>
+    <string name="theme_editor_spectrum">Spectrum</string>
+    <string name="theme_editor_cancel">Cancel</string>
+    <string name="theme_editor_choose">Choose</string>
+    <string name="theme_editor_enter_theme_name_error">Enter theme name</string>
+    <string name="theme_editor_theme_saved">Theme saved</string>
+    <string name="theme_editor_icon_background">▣</string>
+    <string name="theme_editor_icon_animation">◌</string>
+    <string name="theme_editor_background_picker_title">Chat background</string>
+    <string name="theme_editor_choose_background_color_action">Choose background color</string>
+    <string name="theme_editor_choose_background_image">Choose background image</string>
+    <string name="theme_editor_remove_background_image">Remove background image</string>
+    <string name="theme_editor_background_image_selected">Background image selected</string>
+    <string name="theme_editor_background_image_error">Could not select background image</string>
+    <string name="theme_editor_background_image_invalid">Please select an image</string>
+    <string name="theme_editor_hex_label">HEX</string>
+    <string name="delete">Delete</string>
+    <string name="theme_menu">Theme menu</string>
+    <string name="theme_menu_apply">Apply</string>
+    <string name="theme_menu_edit">Edit</string>
+    <string name="theme_menu_duplicate">Duplicate</string>
+    <string name="theme_menu_delete">Delete</string>
+    <string name="theme_applied">Theme applied: %1$s</string>
+    <string name="theme_applied_short">Applied</string>
+    <string name="theme_source_my">My theme</string>
+    <string name="theme_source_library">Library</string>
+    <string name="theme_selected_subtitle">Applied • %1$s</string>
+    <string name="theme_copy_suffix">copy</string>
+    <string name="theme_duplicated">Theme duplicated</string>
+    <string name="theme_deleted">Theme deleted</string>
+    <string name="theme_delete_title">Delete theme?</string>
+    <string name="theme_delete_message">Delete “%1$s”? This action cannot be undone.</string>
+    <string name="manage_themes">Manage themes</string>
+
+    <string-array name="theme_editor_message_animations">
+        <item>Default</item>
+        <item>Smooth</item>
+        <item>Slide up</item>
+        <item>Slide up with effect</item>
+        <item>Slide up with bounce</item>
+        <item>Fade</item>
+        <item>Scale</item>
+    </string-array>
+
+    <string name="connection_established">Connection established</string>
+    <string name="reconnecting">Reconnecting...</string>
+    <string name="critical_error">Critical error: %1$s</string>
+    <string name="theme_not_found">Theme not found</string>
+    <string name="theme_editor_open_full_preview">Open full-screen preview</string>
+    <string name="add_member">Add user</string>
+    <string name="youtube_preview_title_default">YouTube video</string>
+    <string name="youtube_preview_subtitle_default">https://youtube.com</string>
+    <string name="youtube_preview_open_description">Open YouTube video</string>
+
+    <string name="video_player_title">Video</string>
+    <string name="video_player_error">Unable to play video</string>
+    <string name="video_player_open_youtube">Open on YouTube</string>
+    <string name="video_player_youtube_title">YouTube</string>
+    <string name="video_player_youtube_embed_unavailable_title">This video is unavailable in the embedded player</string>
+    <string name="video_player_youtube_embed_unavailable_text">YouTube did not allow this video to play inside the app.</string>
+
+    <string name="video_player_quality_short">Q</string>
+    <string name="video_player_quality_auto">Auto</string>
+    <string name="video_player_quality_auto_details">Adaptive quality based on the current video</string>
+    <string name="video_player_quality_available">Available quality</string>
+    <string name="video_player_quality_unknown">Unknown</string>
+    <string name="video_player_quality_unavailable">No quality options available</string>
+    <string name="video_player_quality_exoplayer_only">Quality selection is available only in ExoPlayer mode</string>
+
+    <string name="video_player_captions_title">Subtitles</string>
+    <string name="video_player_captions_auto">Embedded subtitles</string>
+    <string name="video_player_captions_auto_description">Uses subtitle tracks included in the video, if available.</string>
+    <string name="video_player_captions_auto_status">Auto subtitles: embedded tracks are used when available</string>
+    <string name="video_player_captions_off">Subtitles off</string>
+    <string name="video_player_captions_off_description">Do not show embedded subtitles or local STT subtitles.</string>
+    <string name="video_player_captions_short_on">CC</string>
+    <string name="video_player_captions_short_off">CC off</string>
+    <string name="video_player_captions_short_stt">STT %1$s</string>
+    <string name="video_player_captions_short_translate">TR %1$s</string>
+    <string name="video_player_captions_short_bilingual">BI %1$s</string>
+
+    <string name="video_player_stt_original_title">Sherpa STT — original</string>
+    <string name="video_player_stt_original_description">Recognizes speech with the local Sherpa-ONNX ASR model and shows the original text without translation.</string>
+    <string name="video_player_stt_translated_title">Sherpa STT — translate to app language</string>
+    <string name="video_player_stt_translated_description">Recognizes speech locally, then translates final phrases locally with the ML Kit model to the current app language.</string>
+    <string name="video_player_stt_bilingual_title">Sherpa STT — original + translation</string>
+    <string name="video_player_stt_bilingual_description">Shows the original line and the translation to the app language. Translation is performed locally after the model is prepared.</string>
+    <string name="video_player_stt_language_ru_title">Video language — Russian</string>
+    <string name="video_player_stt_language_ru_description">Russian ASR model: asr/ru. Punctuation and spelling are handled by the Java postprocessor.</string>
+    <string name="video_player_stt_language_en_zh_title">Video language — English / Chinese</string>
+    <string name="video_player_stt_language_en_zh_description">Bilingual EN/ZH ASR model: asr/en. Sherpa EN/ZH punctuation is used after recognition when the model is available.</string>
+    <string name="video_player_stt_language_ru_short">RU</string>
+    <string name="video_player_stt_language_en_zh_short">EN/ZH</string>
+    <string name="video_player_stt_youtube_unavailable">Sherpa-ONNX subtitles are unavailable for YouTube videos opened inside the app</string>
+    <string name="video_player_stt_microphone_permission_missing">Microphone permission is required for Sherpa-ONNX subtitles</string>
+    <string name="video_player_translation_model_preparing">Preparing local translation %1$s → %2$s…</string>
+
+    <string name="video_player_scale_short">FIT</string>
+    <string name="video_player_scale_title">Scale</string>
+    <string name="video_player_scale_content_description">Video scale</string>
+    <string name="video_player_scale_fit_title">Fit to screen</string>
+    <string name="video_player_scale_fit_description">Keeps the video aspect ratio without cropping.</string>
+    <string name="video_player_scale_fill_title">Fill screen</string>
+    <string name="video_player_scale_fill_description">Stretches the video to the full player area.</string>
+    <string name="video_player_scale_crop_title">Upscale / crop</string>
+    <string name="video_player_scale_crop_description">Fills the screen by enlarging the video and cropping the edges.</string>
+    <string name="video_player_scale_pinch_title">Pinch zoom</string>
+    <string name="video_player_scale_pinch_description">Current manual zoom: %1$s</string>
+
+    <string name="video_player_filter_short">FX</string>
+    <string name="video_player_filters_title">Filters</string>
+    <string name="video_player_filters_content_description">Video filters</string>
+    <string name="video_player_filter_none_title">No filter</string>
+    <string name="video_player_filter_none_description">Original image without color processing.</string>
+    <string name="video_player_filter_brightness_title">Brightness+</string>
+    <string name="video_player_filter_brightness_description">Makes the video brighter.</string>
+    <string name="video_player_filter_sharpness_title">Sharpness+</string>
+    <string name="video_player_filter_sharpness_description">Increases visual edge contrast.</string>
+    <string name="video_player_filter_brightness_sharpness_title">Brightness+ and Sharpness+</string>
+    <string name="video_player_filter_brightness_sharpness_description">Combines brightness and contrast enhancement.</string>
+    <string name="video_player_filter_black_white_title">Black &amp; white</string>
+    <string name="video_player_filter_black_white_description">Removes color completely.</string>
+    <string name="video_player_filter_noir_title">Noir</string>
+    <string name="video_player_filter_noir_description">A high-contrast black-and-white cinema effect.</string>
+    <string name="video_player_filter_warm_title">Warm</string>
+    <string name="video_player_filter_warm_description">Adds a warm yellowish tone.</string>
+    <string name="video_player_filter_cold_title">Cold</string>
+    <string name="video_player_filter_cold_description">Adds a cold blue tone.</string>
+    <string name="video_player_filter_high_contrast_title">High contrast</string>
+    <string name="video_player_filter_high_contrast_description">Adds stronger contrast and saturation.</string>
+    <string name="video_player_open_youtube_short">YouTube</string>
+    <string name="video_player_enhancement_title">Enhancement</string>
+    <string name="video_player_enhance_short">HDR</string>
+    <string name="video_player_quality">Video quality</string>
+    <string name="video_file">Video file</string>
+    <string name="chat_typing_status">typing</string>
+    <string name="voice_message">Voice message</string>
+    <string name="video_circle_message">Video circle</string>
+
+    <string name="voice_swipe_right_cancel">Right to cancel</string>
+    <string name="voice_release_delete">Release to delete</string>
+    <string name="voice_recording">Recording</string>
+    <string name="voice_swipe_down_unlock">Down to unlock</string>
+    <string name="voice_locked">Locked</string>
+    <string name="voice_unlocked_release_send">Release to send</string>
+    <string name="voice_trim">Trim</string>
+    <string name="voice_trim_hint">Move edge in</string>
+    <string name="voice_permission_microphone">Allow microphone access and try again</string>
+    <string name="voice_start_failed">Could not start recording</string>
+    <string name="video_circle_permission_camera_microphone">Allow camera and microphone access and try again</string>
+
+    <string name="chat_typing_dot">•</string>
+    <string name="unread_jump_placeholder">1 unread</string>
+    <string name="file_counter_zero">0</string>
+    <string name="video_circle_play">Play video circle</string>
+    <string name="video_label">VID</string>
+    <string name="audio_now_playing_unknown">Now playing</string>
+    <string name="audio_now_playing_voice">Voice message</string>
+    <string name="audio_now_playing_voice_subtitle">Voice</string>
+    <string name="audio_now_playing_you">You</string>
+    <string name="audio_now_playing_interlocutor">Interlocutor</string>
+    <string name="audio_now_playing_voice_title_format">%1$s • %2$s</string>
+
+    <string name="cache_usage_title">Storage usage</string>
+    <string name="cache_aichat_title">AIChat cache</string>
+    <string name="cache_counting">Calculating cache size…</string>
+    <string name="cache_usage_subtitle">AIChat uses %1$s of storage on this device.</string>
+    <string name="cache_usage_hint">Tap the categories you want to clear. The audio file currently playing is always protected.</string>
+    <string name="cache_clear_selected">Clear selected cache</string>
+    <string name="cache_clear_button">Clear cache  %1$s</string>
+    <string name="cache_select_categories">Select categories</string>
+    <string name="cache_select_categories_to_clear">Select at least one category</string>
+    <string name="cache_cleared">Cache cleared</string>
+    <string name="cache_limit_title">Maximum cache size</string>
+    <string name="cache_limit_saved">Cache limit: %1$s</string>
+    <string name="cache_auto_download_settings">Media auto-download settings</string>
+    <string name="cache_auto_download_title">Media auto-download</string>
+    <string name="cache_auto_download_reset">Reset settings</string>
+    <string name="cache_auto_download_reset_done">Auto-download settings reset</string>
+    <string name="cache_auto_download_note">Voice messages are small and always downloaded automatically. Other media follows the selected network type and size limit.</string>
+    <string name="cache_network_mobile">Over mobile data</string>
+    <string name="cache_network_wifi">Over Wi‑Fi</string>
+    <string name="cache_network_roaming">While roaming</string>
+    <string name="cache_network_mobile_short">Mobile data</string>
+    <string name="cache_network_wifi_short">Wi‑Fi</string>
+    <string name="cache_network_roaming_short">Roaming</string>
+    <string name="cache_disabled">Disabled</string>
+    <string name="cache_nothing_selected">Nothing selected</string>
+    <string name="cache_media_photo">Photos</string>
+    <string name="cache_media_video">Videos</string>
+    <string name="cache_media_files">Files</string>
+    <string name="cache_media_stories">Stories</string>
+    <string name="cache_media_video_with_limit">Videos (%1$s)</string>
+    <string name="cache_media_files_with_limit">Files (%1$s)</string>
+    <string name="cache_download_automatically">Download automatically</string>
+    <string name="cache_traffic_usage">Data usage</string>
+    <string name="cache_traffic_low">Low</string>
+    <string name="cache_traffic_medium">Medium</string>
+    <string name="cache_traffic_high">High</string>
+    <string name="cache_download_multimedia">Download media</string>
+    <string name="cache_enabled_for_all_chats">Enabled for all chats</string>
+    <string name="cache_up_to_for_all_chats">Up to %1$s for all chats</string>
+    <string name="cache_on_short">On</string>
+    <string name="cache_off_short">Off</string>
+    <string name="cache_voice_always_downloaded">Voice messages are small and always downloaded automatically.</string>
+    <string name="cache_category_video">Videos</string>
+    <string name="cache_category_files">Files</string>
+    <string name="cache_category_images">Photos</string>
+    <string name="cache_category_voice">Voice messages</string>
+    <string name="cache_category_music">Music</string>
+    <string name="cache_category_other">Other</string>
+
+    <string name="ai_model_title">AI model</string>
+    <string name="ai_model_subtitle">Model for AI chats</string>
+    <string name="ai_translate">Translate</string>
+    <string name="ai_translate_title">AI translation</string>
+    <string name="ai_translate_language_title">Translate to</string>
+    <string name="ai_translate_style_title">Translation style</string>
+    <string name="ai_translate_loading">Translating...</string>
+    <string name="ai_translate_error">Translation failed</string>
+    <string name="ai_translate_no_text">No text to translate</string>
+    <string name="ai_translate_chat_not_found">Could not detect chat for translation</string>
+    <string name="ai_translate_copied">Translation copied</string>
+
+    <string name="currency_package_description">Currency package for AI requests, conversations and generation tasks.</string>
+
+    <string name="payments_history_title">Payment history</string>
+
+    <string name="payments_header_title">Your payments</string>
+
+    <string name="payments_header_description">View purchase, subscription and payment history in one place.</string>
+
+    <string name="payments_loading">Loading...</string>
+
+    <string name="payments_empty_title">No payments yet</string>
+
+    <string name="payments_empty_description">After purchasing subscriptions or tokens, your payment history will appear here.</string>
+
+    <string name="payments_go_to_products">Go to products</string>
+
+    <string name="payments_latest_title">Recent payments</string>
+    <string name="leaders_title" translatable="false">Таблица лидеров</string>
+    <string name="leader_name_age" translatable="false">Имя / Возраст</string>
+    <string name="leader_region" translatable="false">Регион</string>
+    <string name="leader_points" translatable="false">Очки</string>
+    <string name="no_leaders_data" translatable="false">Нет данных о лидерах</string>
+    <string name="loading_leaders" translatable="false">Загрузка...</string>
+    <string name="items_per_page" translatable="false">На странице:</string>
+    <string name="first_page_desc" translatable="false">Первая страница</string>
+    <string name="previous_page_desc" translatable="false">Предыдущая страница</string>
+    <string name="next_page_desc" translatable="false">Следующая страница</string>
+    <string name="last_page_desc" translatable="false">Последняя страница</string>
+    <string name="empty_state_desc" translatable="false">Нет данных</string>
+    <string name="lorem_ipsum" translatable="false">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
+        volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
+        dui nec risus. Maecenas non sodales nisi, vel dictum dolor. Class aptent taciti sociosqu ad
+        litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse blandit eleifend
+        diam, vel rutrum tellus vulputate quis. Aliquam eget libero aliquet, imperdiet nisl a,
+        ornare ex. Sed rhoncus est ut libero porta lobortis. Fusce in dictum tellus.\n\n
+        Suspendisse interdum ornare ante. Aliquam nec cursus lorem. Morbi id magna felis. Vivamus
+        egestas, est a condimentum egestas, turpis nisl iaculis ipsum, in dictum tellus dolor sed
+        neque. Morbi tellus erat, dapibus ut sem a, iaculis tincidunt dui. Interdum et malesuada
+        fames ac ante ipsum primis in faucibus. Curabitur et eros porttitor, ultricies urna vitae,
+        molestie nibh. Phasellus at commodo eros, non aliquet metus. Sed maximus nisl nec dolor
+        bibendum, vel congue leo egestas.\n\n
+        Sed interdum tortor nibh, in sagittis risus mollis quis. Curabitur mi odio, condimentum sit
+        amet auctor at, mollis non turpis. Nullam pretium libero vestibulum, finibus orci vel,
+        molestie quam. Fusce blandit tincidunt nulla, quis sollicitudin libero facilisis et. Integer
+        interdum nunc ligula, et fermentum metus hendrerit id. Vestibulum lectus felis, dictum at
+        lacinia sit amet, tristique id quam. Cras eu consequat dui. Suspendisse sodales nunc ligula,
+        in lobortis sem porta sed. Integer id ultrices magna, in luctus elit. Sed a pellentesque
+        est.\n\n
+        Aenean nunc velit, lacinia sed dolor sed, ultrices viverra nulla. Etiam a venenatis nibh.
+        Morbi laoreet, tortor sed facilisis varius, nibh orci rhoncus nulla, id elementum leo dui
+        non lorem. Nam mollis ipsum quis auctor varius. Quisque elementum eu libero sed commodo. In
+        eros nisl, imperdiet vel imperdiet et, scelerisque a mauris. Pellentesque varius ex nunc,
+        quis imperdiet eros placerat ac. Duis finibus orci et est auctor tincidunt. Sed non viverra
+        ipsum. Nunc quis augue egestas, cursus lorem at, molestie sem. Morbi a consectetur ipsum, a
+        placerat diam. Etiam vulputate dignissim convallis. Integer faucibus mauris sit amet finibus
+        convallis.\n\n
+        Phasellus in aliquet mi. Pellentesque habitant morbi tristique senectus et netus et
+        malesuada fames ac turpis egestas. In volutpat arcu ut felis sagittis, in finibus massa
+        gravida. Pellentesque id tellus orci. Integer dictum, lorem sed efficitur ullamcorper,
+        libero justo consectetur ipsum, in mollis nisl ex sed nisl. Donec maximus ullamcorper
+        sodales. Praesent bibendum rhoncus tellus nec feugiat. In a ornare nulla. Donec rhoncus
+        libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
+        vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
+    </string>
+
+    <string name="single_item" translatable="false">AI Model</string>
+    <string name="send_message">Send message</string>
+    <string name="ai_customize_title">AI customization</string>
+    <string name="ai_customize_subtitle">Choose the model and describe how the assistant should answer.</string>
+    <string name="ai_model_label">Model</string>
+    <string name="ai_prompt_label">Custom prompt</string>
+    <string name="ai_prompt_hint">Enter your custom prompt here...</string>
+    <string name="ai_prompt_help">Leave the field empty to use the default prompt.</string>
+    <string name="ai_customize_done">Done</string>
+    <string name="ai_settings_loading">Loading AI settings...</string>
+    <string name="ai_settings_updated">AI settings updated</string>
+    <string name="ai_settings_update_error">Error updating AI settings</string>
+    <string name="ai_settings_load_error">Error loading AI settings</string>
+    <string name="ai_settings_loading_cancelled">Loading cancelled</string>
+    <string name="ai_settings_empty_models">No AI models available</string>
+    <string name="chat_media_not_supported">Media messages are not supported in this chat</string>
+    <string name="ai_model_default_display">Default</string>
+    <string name="ai_model_deepseek_chat_display">DeepSeek Chat</string>
+    <string name="ai_model_ollama_qwen3_4b_display">Ollama Qwen 3 4B</string>
+    <string name="ai_model_ollama_llama3_display">Ollama Llama 3</string>
+    <string name="ai_model_ollama_mistral_display">Ollama Mistral</string>
+    <string name="ai_model_ollama_gemma4e_display">Ollama Gemma 4e</string>
+    <string name="faq_summary">Answers to common questions about chats and app features</string>
+    <string name="privacy_policy_summary">How AIChat handles account and message data</string>
+    <string name="support_summary">Contact support if something does not work correctly</string>
+    <string name="faq_content">Chats with people and groups support regular messages and supported media attachments. AI chats and random chats are limited to text input, so voice messages, video circles and multimedia buttons are hidden there. Chat badges show the type of conversation, and the large avatar circle shows the latest sender or AI model when this information is available. Appearance, language, notifications, storage and AI model preferences can be changed in settings.</string>
+    <string name="privacy_policy_content">The app stores only the information needed for account access, synchronization, chats, notifications, selected theme, language and local cache. Message history and files can be cached locally to make the interface faster and available after reopening the app. Do not send passwords, verification codes, payment data or other sensitive information in chats. When signing out, local session data is cleared and the app loads fresh chat data after the next sign in.</string>
+    <string name="support_content">If something works incorrectly, first check the internet connection, restart the app and make sure the latest version is installed. When contacting support, describe the problem, name the screen where it happened, mention the chat type and add screenshots if possible. This helps reproduce the issue faster and fix it without unnecessary questions.</string>
+
+    <string name="cancel_subscription">Cancel subscription</string>
+    <string name="cancel_subscription_dialog_title">Cancel subscription</string>
+    <string name="cancel_subscription_dialog_message">Auto-renewal will be turned off. Premium access will remain available until the paid period ends.</string>
+    <string name="cancel_subscription_confirm">Turn off auto-renewal</string>
+    <string name="keep_subscription">Keep subscription</string>
+    <string name="subscription_cancelled_success">Subscription auto-renewal is turned off</string>
+    <string name="subscription_cancel_error">Could not cancel subscription</string>
+    <string name="premium_subscription_cancelled">Auto-renewal disabled</string>
+    <string name="premium_active_period_format">Premium active from %1$s to %2$s</string>
+    <string name="premium_next_payment_format">Next payment: %1$s</string>
+    <string name="premium_access_until_after_cancel">Premium access is available until %1$s. Auto-renewal is disabled.</string>
+    <string name="premium_history_autorenew_on">Auto-renewal: Enabled</string>
+    <string name="premium_history_autorenew_off">Auto-renewal: Disabled</string>
+    <string name="premium_history_item_title">Subscription #%1$s</string>
+    <string name="premium_load_error">Failed to load premium data</string>
+    <string name="payment_load_error">Failed to load payment</string>
+    <string name="ai_prompt_english_only_help">For models other than Default and DeepSeek Chat, custom prompts work reliably only in English.</string>
+    <string name="models_ollamaqwen3_4B_title">Qwen 3 4B</string>
+    <string name="models_ollamaqwen3_4B_description">Unlimited access to Qwen 3 4B AI model for chat. Use it as often as you want.</string>
+    <string name="models_ollamallama3_title">Llama 3</string>
+    <string name="models_ollamallama3_description">Unlimited access to Llama 3 AI model for chat. Use it as often as you want.</string>
+    <string name="models_ollamamistral_title">Mistral</string>
+    <string name="models_ollamamistral_description">Unlimited access to Mistral AI model for chat. Use it as often as you want.</string>
+    <string name="models_ollamagemma4е_title">Gemma 4e</string>
+    <string name="models_ollamagemma4е_description">Unlimited access to Gemma 4e AI model for chat. Use it as often as you want.</string>
+    <string name="leaderboard">Leaderboard</string>
+    <string name="theme_source_system">System</string>
+    <string name="theme_standard_light">Standard light</string>
+    <string name="theme_standard_dark">Standard dark</string>
 </resources>

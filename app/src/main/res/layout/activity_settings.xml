@@ -5,17 +5,17 @@
     android:id="@+id/settings_scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground"
+    android:background="@color/settings_screen_background"
     android:fitsSystemWindows="true"
     android:fillViewport="true">
 
     <LinearLayout
+        android:id="@+id/settings_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -30,7 +30,8 @@
                 android:padding="12dp"
                 android:src="@drawable/ic_cancel"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/back_button_description"/>
+                android:contentDescription="@string/back_button_description"
+                app:tint="?attr/colorPrimary"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -77,22 +78,7 @@
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/change_password_item"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="16dp">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/change_password"
-                android:textColor="?android:attr/textColorPrimary"/>
-        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/userData_item"
@@ -188,85 +174,6 @@
                 android:textStyle="bold"/>
         </LinearLayout>
 
-        <!-- Integrations Section -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/integrations"
-            android:textSize="16sp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textStyle="bold"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"
-            android:gravity="center"/>
-
-        <LinearLayout
-            android:id="@+id/integrations_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="12dp">
-
-            <!-- Google Integration - используем существующую иконку -->
-            <ImageView
-                android:id="@+id/integration_google"
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:layout_margin="8dp"
-                android:src="@mipmap/ic_google_foreground"
-                android:alpha="0.3"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_social_ripple"
-                android:scaleType="centerInside"
-                android:contentDescription="@string/integration_google_desc"/>
-
-            <!-- Instagram Integration - используем существующую иконку -->
-            <ImageView
-                android:id="@+id/integration_inst"
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:layout_margin="8dp"
-                android:src="@mipmap/ic_instagram_foreground"
-                android:alpha="0.3"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_social_ripple"
-                android:scaleType="centerInside"
-                android:contentDescription="@string/integration_instagram_desc"/>
-
-            <!-- Facebook Integration - используем существующую иконку -->
-            <ImageView
-                android:id="@+id/integration_facebook"
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:layout_margin="8dp"
-                android:src="@mipmap/ic_facebook_foreground"
-                android:alpha="0.3"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_social_ripple"
-                android:scaleType="centerInside"
-                android:contentDescription="@string/integration_facebook_desc"/>
-
-            <!-- Telegram Integration -->
-            <ImageView
-                android:id="@+id/integration_telegram"
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:layout_margin="8dp"
-                android:src="@drawable/ic_telegram"
-                android:alpha="0.3"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_social_ripple"
-                android:scaleType="centerInside"
-                android:contentDescription="@string/integration_telegram_desc"/>
-
-        </LinearLayout>
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -279,7 +186,18 @@
 
         <LinearLayout
             android:id="@+id/email_notifications_item"
-            style="@style/SettingsSwitchItem">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="72dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="12dp">
 
             <TextView
                 android:layout_width="0dp"
@@ -290,14 +208,24 @@
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/email_notifications_switch"
-                style="@style/CustomSwitchStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/show_notifications_item"
-            style="@style/SettingsSwitchItem">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="72dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="12dp">
 
             <TextView
                 android:layout_width="0dp"
@@ -308,14 +236,24 @@
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/show_notifications_switch"
-                style="@style/CustomSwitchStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/background_notifications_item"
-            style="@style/SettingsSwitchItem">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="72dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="12dp">
 
             <TextView
                 android:layout_width="0dp"
@@ -326,14 +264,24 @@
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/background_notifications_switch"
-                style="@style/CustomSwitchStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/in_app_notifications_item"
-            style="@style/SettingsSwitchItem">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="72dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="12dp">
 
             <TextView
                 android:layout_width="0dp"
@@ -344,14 +292,24 @@
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/in_app_notifications_switch"
-                style="@style/CustomSwitchStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/vibration_item"
-            style="@style/SettingsSwitchItem">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="72dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="12dp">
 
             <TextView
                 android:layout_width="0dp"
@@ -362,7 +320,6 @@
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/vibration_switch"
-                style="@style/CustomSwitchStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
@@ -379,7 +336,18 @@
 
         <LinearLayout
             android:id="@+id/fullscreen_item"
-            style="@style/SettingsSwitchItem">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="72dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="12dp">
 
             <TextView
                 android:layout_width="0dp"
@@ -390,7 +358,6 @@
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/fullscreen_switch"
-                style="@style/CustomSwitchStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
@@ -430,11 +397,56 @@
             </LinearLayout>
 
             <ImageView
+                android:id="@+id/theme_chevron"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_chevron_right"
                 android:contentDescription="@string/chevron_description"
-                app:tint="?android:attr/textColorSecondary"/>
+                app:tint="?attr/colorPrimary"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/ai_model_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/ai_model_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ai_model_title"
+                    android:textSize="14sp"
+                    android:textColor="?android:attr/textColorPrimary"/>
+
+                <TextView
+                    android:id="@+id/current_ai_model_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:layout_marginTop="2dp"/>
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/ai_model_chevron"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_chevron_right"
+                android:contentDescription="@string/chevron_description"
+                app:tint="?attr/colorPrimary"/>
         </LinearLayout>
 
         <LinearLayout
@@ -472,14 +484,14 @@
             </LinearLayout>
 
             <ImageView
+                android:id="@+id/language_chevron"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_chevron_right"
                 android:contentDescription="@string/chevron_description"
-                app:tint="?android:attr/textColorSecondary"/>
+                app:tint="?attr/colorPrimary"/>
         </LinearLayout>
 
-        <!-- Storage Item -->
         <LinearLayout
             android:id="@+id/storage_item"
             android:layout_width="match_parent"
@@ -512,68 +524,8 @@
                 android:layout_marginTop="8dp"
                 android:max="100"
                 android:progress="0"
-                android:progressTint="#42969E"/>
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/reference_section"
-            android:textSize="18sp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textStyle="bold"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"/>
-
-        <LinearLayout
-            android:id="@+id/faq_item"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/faq"
-                android:textColor="?android:attr/textColorPrimary"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/policy_item"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/privacy_policy"
-                android:textColor="?android:attr/textColorPrimary"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/support_item"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/support"
-                android:textColor="?android:attr/textColorPrimary"/>
+                android:progressTint="?attr/colorPrimary"
+                android:progressBackgroundTint="?attr/colorOnSurfaceVariant"/>
         </LinearLayout>
 
         <TextView
@@ -585,6 +537,251 @@
             android:textColor="?android:attr/textColorSecondary"
             android:gravity="center"
             android:layout_marginTop="24dp"/>
+
+        <TextView
+            android:id="@+id/reference_section_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/reference_section"
+            android:textSize="18sp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/reference_intro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/reference_intro"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="14sp"
+            android:lineSpacingExtra="2dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="10dp"/>
+
+        <LinearLayout
+            android:id="@+id/reference_info_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:animateLayoutChanges="true"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="8dp"
+            android:layout_marginBottom="12dp">
+
+            <LinearLayout
+                android:id="@+id/reference_faq_item"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/reference_faq_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="68dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="8dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="10dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/faq_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/faq"
+                            android:textColor="?android:attr/textColorPrimary"
+                            android:textStyle="bold"
+                            android:textSize="15sp"/>
+
+                        <TextView
+                            android:id="@+id/faq_summary_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/faq_summary"
+                            android:textColor="?android:attr/textColorSecondary"
+                            android:textSize="13sp"
+                            android:lineSpacingExtra="1dp"/>
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/faq_chevron"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="12dp"
+                        android:src="@drawable/ic_keyboard_arrow_down"
+                        app:tint="?attr/colorPrimary"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/faq_content_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="40dp"
+                    android:paddingBottom="14dp"
+                    android:text="@string/faq_content"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="2dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/reference_policy_item"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/reference_policy_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="68dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="8dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="10dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/policy_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/privacy_policy"
+                            android:textColor="?android:attr/textColorPrimary"
+                            android:textStyle="bold"
+                            android:textSize="15sp"/>
+
+                        <TextView
+                            android:id="@+id/policy_summary_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/privacy_policy_summary"
+                            android:textColor="?android:attr/textColorSecondary"
+                            android:textSize="13sp"
+                            android:lineSpacingExtra="1dp"/>
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/policy_chevron"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="12dp"
+                        android:src="@drawable/ic_keyboard_arrow_down"
+                        app:tint="?attr/colorPrimary"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/policy_content_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="40dp"
+                    android:paddingBottom="14dp"
+                    android:text="@string/privacy_policy_content"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="2dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/reference_support_item"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/reference_support_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="68dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="8dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="10dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/support_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/support"
+                            android:textColor="?android:attr/textColorPrimary"
+                            android:textStyle="bold"
+                            android:textSize="15sp"/>
+
+                        <TextView
+                            android:id="@+id/support_summary_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/support_summary"
+                            android:textColor="?android:attr/textColorSecondary"
+                            android:textSize="13sp"
+                            android:lineSpacingExtra="1dp"/>
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/support_chevron"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="12dp"
+                        android:src="@drawable/ic_keyboard_arrow_down"
+                        app:tint="?attr/colorPrimary"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/support_content_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="40dp"
+                    android:paddingBottom="14dp"
+                    android:text="@string/support_content"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="2dp"/>
+            </LinearLayout>
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

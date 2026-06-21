@@ -1,11 +1,9 @@
 package com.example.aichat.dto.response;
 
 import androidx.annotation.NonNull;
-
 import com.example.aichat.model.entities.ConnectionInfo;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 public class ConnectionChangeResponse {

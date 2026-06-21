@@ -2,7 +2,6 @@ package com.example.aichat.model.database;
 
 import android.util.Log;
 import android.widget.Toast;
-
 import com.example.aichat.dto.request.MessageRequest;
 import com.example.aichat.dto.response.AddUserToChatResponse;
 import com.example.aichat.dto.response.ChatEndedResponse;
@@ -23,9 +22,8 @@ import com.example.aichat.model.entities.MessageChat;
 import com.example.aichat.model.utils.mappers.ChatMapper;
 import com.example.aichat.model.utils.mappers.MapperResponse;
 import com.example.aichat.model.utils.mappers.MessageMapper;
-import com.example.aichat.view.main.MainActivity;
 import com.example.aichat.view.main.chatlist.ChatsListFragment;
-
+import com.example.aichat.view.main.MainActivity;
 import java.util.UUID;
 
 public class DatabaseEventHandler {
@@ -37,10 +35,9 @@ public class DatabaseEventHandler {
     private final MapperResponse<Chat, ChatResponse> chatMapper = new ChatMapper();
     private final UUID userId;
 
-    // Ссылка на UI фрагмент для перерисовки
     private ChatsListFragment chatsListFragment;
 
-    // Ссылка на контроллер для обновления состояния поиска
+
     private ChatsListControllerCallback controllerCallback;
 
     public interface ChatsListControllerCallback {
@@ -66,7 +63,6 @@ public class DatabaseEventHandler {
         this.controllerCallback = callback;
     }
 
-    // ==================== 1. CHAT CREATED ====================
     public EventHandler<ChatResponse> onChatCreated() {
         return command -> {
             ChatResponse response = command.getPayload();
@@ -74,18 +70,15 @@ public class DatabaseEventHandler {
                 Log.d(TAG, "DatabaseOperation: AddChat - saving to DB");
                 saver.saveChatFromResponse(response);
 
-                // ✅ UI обновление
                 if (chatsListFragment != null) {
                     Chat chat = chatMapper.ToModel(response);
                     chatsListFragment.createChat(chat);
-                    chatsListFragment.reloadChatsFromDatabaseSafe();
-                    Log.d(TAG, "UI updated: createChat + reload");
+                    Log.d(TAG, "UI updated: createChat");
                 }
             }
         };
     }
 
-    // ==================== 2. CHAT ENDED ====================
     public EventHandler<ChatEndedResponse> onChatEnded() {
         return command -> {
             ChatEndedResponse response = command.getPayload();
@@ -96,17 +89,14 @@ public class DatabaseEventHandler {
                 endedChat.setEndTime(response.endedTime);
                 saver.endChat(endedChat);
 
-                // ✅ UI обновление
                 if (chatsListFragment != null) {
                     chatsListFragment.endChat(response.chatId);
-                    chatsListFragment.reloadChatsFromDatabaseSafe();
-                    Log.d(TAG, "UI updated: endChat + reload");
+                    Log.d(TAG, "UI updated: endChat");
                 }
             }
         };
     }
 
-    // ==================== 3. DELETE CHAT ====================
     public EventHandler<DeleteChatResponse> onDeleteChat() {
         return command -> {
             DeleteChatResponse response = command.getPayload();
@@ -114,17 +104,14 @@ public class DatabaseEventHandler {
                 Log.d(TAG, "DatabaseOperation: DeleteChat - deleting from DB");
                 saver.deleteChatFromResponse(response);
 
-                // ✅ UI обновление
                 if (chatsListFragment != null) {
                     chatsListFragment.removeChat(response.chatId);
-                    chatsListFragment.reloadChatsFromDatabaseSafe();
-                    Log.d(TAG, "UI updated: deleteChat + reload");
+                    Log.d(TAG, "UI updated: deleteChat");
                 }
             }
         };
     }
 
-    // ==================== 4. CHAT USER REMOVED ====================
     public EventHandler<ChatUserActionResponse> onChatUserRemoved() {
         return command -> {
             ChatUserActionResponse response = command.getPayload();
@@ -142,7 +129,6 @@ public class DatabaseEventHandler {
                         saver.deleteChatFromResponse(deleteResponse);
 
                         chatsListFragment.removeChat(response.chatId);
-                        chatsListFragment.reloadChatsFromDatabaseSafe();
 
                         // Показать Toast и закрыть чат если открыт
                         if (chatsListFragment.getActivity() instanceof MainActivity) {
@@ -156,35 +142,48 @@ public class DatabaseEventHandler {
                             });
                         }
                     } else {
-                        chatsListFragment.reloadChatsFromDatabaseSafe();
+                        chatsListFragment.refreshChatOnly(response.chatId);
                     }
                 }
             }
         };
     }
 
-    // ==================== 5. SEND MESSAGE ====================
     public EventHandler<MessageResponse> onSendMessage() {
         return command -> {
             MessageResponse response = command.getPayload();
-            Log.e(TAG, "🔥 SendMessage event received! ChatId=" + (response != null ? response.chatId : "null"));
+            Log.d(TAG, "SendMessage event received. ChatId=" + (response != null ? response.chatId : "null"));
 
             if (response == null || saver == null) return;
 
             new Thread(() -> {
                 saver.saveMessageFromResponse(response);
 
+                Message message;
+
+                try {
+                    message = messageMapper.ToModel(response);
+                } catch (Exception exception) {
+                    Log.e(TAG, "Cannot map message response. Fallback to chat reload", exception);
+                    message = null;
+                }
+
                 if (chatsListFragment != null && chatsListFragment.getActivity() != null) {
+                    Message finalMessage = message;
                     chatsListFragment.getActivity().runOnUiThread(() -> {
-                        chatsListFragment.reloadChatsFromDatabaseSafe();
-                        Log.d(TAG, "UI reloaded from DB after receiving message");
+                        if (finalMessage != null && chatsListFragment.hasChat(response.chatId)) {
+                            chatsListFragment.updateLastMessage(finalMessage);
+                            Log.d(TAG, "UI updated: updateLastMessage");
+                        } else {
+                            chatsListFragment.reloadChatsFromDatabaseSafe();
+                            Log.d(TAG, "UI updated: fallback reload after message");
+                        }
                     });
                 }
             }).start();
         };
     }
 
-    // ==================== 6. UPDATE MESSAGE STATUS ====================
     public EventHandler<UpdateMessageStatusResponse> onUpdateMessageStatus() {
         return command -> {
             UpdateMessageStatusResponse response = command.getPayload();
@@ -203,8 +202,6 @@ public class DatabaseEventHandler {
             }
         };
     }
-
-    // ==================== 7. ADD USER TO CHAT ====================
     public EventHandler<AddUserToChatResponse> onAddUserToChat() {
         return command -> {
             AddUserToChatResponse response = command.getPayload();
@@ -221,7 +218,6 @@ public class DatabaseEventHandler {
         };
     }
 
-    // ==================== 8. REMOVE USER FROM CHAT ====================
     public EventHandler<RemoveUserFromChatResponse> onRemoveUserFromChat() {
         return command -> {
             RemoveUserFromChatResponse response = command.getPayload();
@@ -238,7 +234,6 @@ public class DatabaseEventHandler {
         };
     }
 
-    // ==================== 9. UPDATE CHAT NAME ====================
     public EventHandler<ChatNameUpdatedResponse> onChatNameUpdated() {
         return command -> {
             ChatNameUpdatedResponse response = command.getPayload();
@@ -246,17 +241,14 @@ public class DatabaseEventHandler {
                 Log.d(TAG, "DatabaseOperation: UpdateChatName - updating DB");
                 saver.updateChatName(response.chatId, response.name);
 
-                // ✅ UI обновление
                 if (chatsListFragment != null) {
                     chatsListFragment.updateChatName(response.chatId, response.name);
-                    chatsListFragment.reloadChatsFromDatabaseSafe();
-                    Log.d(TAG, "UI updated: updateChatName + reload");
+                    Log.d(TAG, "UI updated: updateChatName");
                 }
             }
         };
     }
 
-    // ==================== 10. SYNC DB ====================
     public EventHandler<com.example.aichat.dto.response.SyncResponse> onSyncDB() {
         return command -> {
             com.example.aichat.dto.response.SyncResponse response = command.getPayload();
@@ -274,7 +266,6 @@ public class DatabaseEventHandler {
         };
     }
 
-    // ==================== 11. CHAT SEARCHING STATUS ====================
     public EventHandler<ChatSearchingStatusResponse> onChatSearchingStatusUpdated() {
         return command -> {
             ChatSearchingStatusResponse response = command.getPayload();
@@ -286,7 +277,6 @@ public class DatabaseEventHandler {
         };
     }
 
-    // ==================== 12. GROUP SEARCHING STATUS ====================
     public EventHandler<GroupSearchingStatusResponse> onGroupSearchingStatusUpdated() {
         return command -> {
             GroupSearchingStatusResponse response = command.getPayload();

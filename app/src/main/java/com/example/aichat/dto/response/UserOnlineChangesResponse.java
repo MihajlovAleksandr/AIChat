@@ -2,7 +2,6 @@ package com.example.aichat.dto.response;
 
 import androidx.annotation.NonUiContext;
 import androidx.annotation.Nullable;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.UUID;

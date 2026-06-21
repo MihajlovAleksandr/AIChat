@@ -4,7 +4,6 @@
     android:viewportWidth="24"
     android:viewportHeight="24">
 
-    <!-- Рамка -->
     <path
         android:fillColor="@android:color/transparent"
         android:pathData="
@@ -22,7 +21,6 @@
         android:strokeWidth="2"
         android:strokeLineJoin="round"/>
 
-    <!-- Горы -->
     <path
         android:pathData="
             M6,16
@@ -35,7 +33,6 @@
         android:strokeLineCap="round"
         android:strokeLineJoin="round"/>
 
-    <!-- Солнце -->
     <path
         android:pathData="M16,9A1.6,1.5 0 3,1 15.999,9"
         android:strokeColor="?attr/colorControlNormal"

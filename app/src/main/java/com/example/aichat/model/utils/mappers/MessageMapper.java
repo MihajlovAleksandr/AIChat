@@ -3,7 +3,6 @@ package com.example.aichat.model.utils.mappers;
 import com.example.aichat.dto.request.MessageRequest;
 import com.example.aichat.dto.response.MessageResponse;
 import com.example.aichat.model.entities.Message;
-
 import java.util.UUID;
 
 public class MessageMapper implements Mapper<MessageRequest, Message, MessageResponse> {

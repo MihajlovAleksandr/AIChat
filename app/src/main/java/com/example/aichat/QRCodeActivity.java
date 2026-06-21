@@ -1,8 +1,27 @@
 package com.example.aichat;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
+import android.graphics.Rect;
+import android.Manifest;
+import android.media.Image;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.provider.Settings;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
-import androidx.appcompat.app.AppCompatActivity;
+import com.example.aichat.view.main.BaseActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalGetImage;
@@ -16,42 +35,20 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
-import android.Manifest;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.Rect;
-import android.media.Image;
-import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Vibrator;
-import android.os.VibrationEffect;
-import android.provider.Settings;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.widget.ImageView;
-
-import com.example.aichat.view.DialogHelper;
-import com.example.aichat.view.FullScreenHelper;
-import com.example.aichat.view.OverlayView;
+import com.example.aichat.view.helpers.DialogHelper;
+import com.example.aichat.view.helpers.FullScreenHelper;
+import com.example.aichat.view.helpers.OverlayView;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 
-public class QRCodeActivity extends AppCompatActivity {
+public class QRCodeActivity extends BaseActivity {
 
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private ExecutorService cameraExecutor;

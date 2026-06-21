@@ -1,10 +1,10 @@
 package com.example.aichat.model.entities;
 
 import androidx.annotation.NonNull;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -30,9 +30,10 @@ public class HttpCommand {
 
     @JsonIgnore
     public boolean isSuccess() {
-        return operation != null && operation.getCode() == 200;
+        return operation != null
+                && operation.getCode() >= 200
+                && operation.getCode() < 300;
     }
-
     @JsonIgnore
     public HttpCommand(CommandOperation operation) {
         this.operation = operation;
@@ -51,6 +52,16 @@ public class HttpCommand {
             return objectMapper.treeToValue(data, type);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to convert data to type: " + type.getSimpleName(), e);
+        }
+    }
+
+    public <T> T getData(TypeReference<T> typeReference) {
+        if (data == null) return null;
+
+        try {
+            return objectMapper.readValue(data.toString(), typeReference);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to convert data to type: " + typeReference.getType(), e);
         }
     }
 

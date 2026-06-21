@@ -4,5 +4,6 @@ public enum FileType {
     MessageImage,
     MessageFile,
     VoiceMessage,
-    VideoMessage
+    VideoMessage,
+    ThemeBackground
 }

@@ -1,60 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Login / TextInput attributes -->
+    <attr name="colorPrimary" format="color"/>
+    <attr name="colorSurface" format="color"/>
+    <attr name="colorOnSurface" format="color"/>
+    <attr name="colorOnSurfaceVariant" format="color"/>
+    <attr name="colorOnBackground" format="color"/>
+    <attr name="colorSecondary" format="color"/>
+    <attr name="colorOnPrimary" format="color"/>
+    <attr name="myMessageColor" format="color"/>
+    <attr name="otherMessageColor" format="color"/>
+
     <attr name="login_button_text" format="reference|color"/>
     <attr name="login_button_tint" format="reference|color"/>
     <attr name="textinput_hint_selector" format="reference|color"/>
     <attr name="textinput_endicon_tint" format="reference|color"/>
+    <attr name="popupBackground" format="reference|color" />
 
-    <!-- Bottom navigation -->
     <attr name="bottomIconColor" format="color"/>
     <attr name="bottomTextColor" format="color"/>
 
-    <!-- Toolbar -->
     <attr name="toolbarIconColorCustom" format="color"/>
     <attr name="toolbarTextColorCustom" format="color"/>
     <attr name="toolbarBackground" format="reference|color"/>
     <attr name="toolbarTitleColor" format="reference|color"/>
     <attr name="toolbarIconColor" format="reference|color"/>
 
-    <!-- Search -->
     <attr name="searchHintColor" format="reference|color"/>
     <attr name="searchTextColor" format="reference|color"/>
     <attr name="searchIconColor" format="reference|color"/>
 
-    <!-- Misc -->
     <attr name="dividerColor" format="reference|color"/>
     <attr name="stateLayerColor" format="color"/>
     <attr name="chatCircleStroke" format="reference|color"/>
     <attr name="bottomSheetOverlayColor" format="color"/>
 
-    <!-- NeonTextView -->
     <declare-styleable name="NeonTextView">
         <attr name="neonBaseColor" format="color"/>
         <attr name="neonBrightColor" format="color"/>
     </declare-styleable>
 
 
-    <!-- =============================== -->
-    <!--       DYNAMIC THEME SYSTEM      -->
-    <!-- =============================== -->
-
-    <!-- Основные динамические цвета -->
     <attr name="dynamicPrimaryColor" format="reference|color"/>
     <attr name="dynamicBackgroundColor" format="reference"/>
     <attr name="dynamicTextColor" format="reference|color"/>
     <attr name="dynamicSecondaryTextColor" format="reference|color"/>
 
-    <!-- Чат -->
     <attr name="dynamicOutgoingBubbleColor" format="reference|color"/>
     <attr name="dynamicIncomingBubbleColor" format="reference|color"/>
     <attr name="dynamicChatBackgroundColor" format="reference|color"/>
     <attr name="dynamicChatStrokeColor" format="reference|color"/>
 
-    <!-- Производные -->
     <attr name="dynamicRippleColor" format="reference|color"/>
     <attr name="dynamicStateLayerColor" format="reference|color"/>
+
+
+    <attr
+        name="paymentDialogBackground"
+        format="color" />
+
+    <attr
+        name="paymentDialogTitle"
+        format="color" />
+
+    <attr
+        name="paymentDialogMessage"
+        format="color" />
+
+    <attr
+        name="paymentDialogSupport"
+        format="color" />
+
 
 
 </resources>

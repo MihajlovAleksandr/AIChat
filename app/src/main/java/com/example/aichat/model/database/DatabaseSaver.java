@@ -2,7 +2,6 @@ package com.example.aichat.model.database;
 
 import android.content.Context;
 import android.util.Log;
-
 import com.example.aichat.dto.request.MessageRequest;
 import com.example.aichat.dto.response.AddUserToChatResponse;
 import com.example.aichat.dto.response.ChatResponse;
@@ -12,17 +11,15 @@ import com.example.aichat.dto.response.MessageResponse;
 import com.example.aichat.dto.response.RemoveUserFromChatResponse;
 import com.example.aichat.dto.response.SyncResponse;
 import com.example.aichat.dto.response.UpdateMessageStatusResponse;
-
 import com.example.aichat.model.entities.Chat;
 import com.example.aichat.model.entities.Message;
 import com.example.aichat.model.utils.mappers.ChatMapper;
 import com.example.aichat.model.utils.mappers.Mapper;
 import com.example.aichat.model.utils.mappers.MapperResponse;
 import com.example.aichat.model.utils.mappers.MessageMapper;
-
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.UUID;
 
 public class DatabaseSaver {
 
@@ -36,7 +33,6 @@ public class DatabaseSaver {
         this.messageMapper = new MessageMapper(userId);
     }
 
-    // ---------------- PUBLIC SAVE METHODS ----------------
 
     public void sendMessage(Message message) {
         appDatabase.messageDao().upsertMessage(message);
@@ -74,40 +70,18 @@ public class DatabaseSaver {
     }
 
     public void syncDatabase(SyncResponse sync) {
-        // --- CHATS ---
-        // --- CHATS ---
         for (ChatResponse cr : sync.chats.newChats) {
-            Chat chat = chatMapper.ToModel(cr);
-
-            Chat existing = appDatabase.chatDao().getChatById(chat.getId());
-            if (existing != null && existing.getChatTypeHint() != null) {
-                chat.setChatTypeHint(existing.getChatTypeHint());
-            }
-
-            appDatabase.chatDao().upsertChat(chat);
+            saveSyncedChatPreservingLocalTypeOnlyWhenResponseHasNoType(cr);
         }
 
         for (ChatResponse cr : sync.chats.updatedChats) {
-            Chat chat = chatMapper.ToModel(cr);
-
-            Chat existing = appDatabase.chatDao().getChatById(chat.getId());
-            if (existing != null && existing.getChatTypeHint() != null) {
-                chat.setChatTypeHint(existing.getChatTypeHint());
-            }
-
-            appDatabase.chatDao().upsertChat(chat);
-        }
-
-        for (ChatResponse cr : sync.chats.updatedChats) {
-            Chat chat = chatMapper.ToModel(cr);
-            appDatabase.chatDao().upsertChat(chat);
+            saveSyncedChatPreservingLocalTypeOnlyWhenResponseHasNoType(cr);
         }
 
         for (UUID cr : sync.chats.deletedChats) {
             appDatabase.chatDao().deleteChat(cr);
         }
 
-        // --- MESSAGES ---
         for (MessageResponse mr : sync.messages.newMessages) {
             Message msg = messageMapper.ToModel(mr);
             appDatabase.messageDao().upsertMessage(msg);
@@ -146,14 +120,26 @@ public class DatabaseSaver {
     }
 
     public void saveChatFromResponse(ChatResponse chatResponse) {
-        Chat createdChat = chatMapper.ToModel(chatResponse);
+        saveSyncedChatPreservingLocalTypeOnlyWhenResponseHasNoType(chatResponse);
+    }
 
-        Chat existing = appDatabase.chatDao().getChatById(createdChat.getId());
-        if (existing != null && existing.getChatTypeHint() != null) {
-            createdChat.setChatTypeHint(existing.getChatTypeHint());
+    private void saveSyncedChatPreservingLocalTypeOnlyWhenResponseHasNoType(ChatResponse chatResponse) {
+        if (chatResponse == null) return;
+
+        Chat chat = chatMapper.ToModel(chatResponse);
+
+        if (chat == null || chat.getId() == null) return;
+
+
+        if (chatResponse.type == null) {
+            Chat existing = appDatabase.chatDao().getChatById(chat.getId());
+
+            if (existing != null && existing.getType() != null) {
+                chat.setType(existing.getType());
+            }
         }
 
-        createChat(createdChat);
+        appDatabase.chatDao().upsertChat(chat);
     }
 
     public void saveChat(Chat chat) {
@@ -172,7 +158,6 @@ public class DatabaseSaver {
     }
 
     public void updateMessageStatus(UpdateMessageStatusResponse update) {
-        // ✅ Добавить защиту от null
         if (update == null || update.messageIds == null || update.userId == null) {
             Log.e(TAG, "updateMessageStatus: invalid parameters");
             return;

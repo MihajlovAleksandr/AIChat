@@ -5,11 +5,9 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 import androidx.room.Upsert;
-
 import com.example.aichat.controller.main.chatlist.ChatController;
 import com.example.aichat.model.entities.Message;
 import com.example.aichat.model.entities.MessageStatus;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -69,13 +67,12 @@ public interface MessageDao {
     default HashMap<UUID, List<Message>> getUnreadMessages(List<UUID> chatIds, UUID userId) {
         HashMap<UUID, List<Message>> unreadMessages = new HashMap<>();
 
-        // ✅ Защита от null
+
         if (chatIds == null || userId == null) {
             return unreadMessages;
         }
 
         for (UUID chatId : chatIds) {
-            // ✅ Защита от null chatId
             if (chatId == null) continue;
 
             List<Message> messages = getMessagesByChatId(chatId);

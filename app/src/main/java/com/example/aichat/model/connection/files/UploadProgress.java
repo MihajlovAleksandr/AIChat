@@ -1,4 +1,4 @@
-package com.example.aichat.model.connection;
+package com.example.aichat.model.connection.files;
 
 import java.util.UUID;
 

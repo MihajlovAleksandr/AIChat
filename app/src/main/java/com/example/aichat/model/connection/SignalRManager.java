@@ -2,42 +2,35 @@ package com.example.aichat.model.connection;
 
 import android.os.Build;
 import android.util.Log;
-
 import com.example.aichat.BuildConfig;
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
 import com.microsoft.signalr.HubConnectionState;
-
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.Map;
+import java.util.Set;
 
 public class SignalRManager {
 
     private static final String TAG = "SignalRManager";
+    private static final String PONG_EVENT = "Pong";
 
     private volatile boolean shouldReconnect = true;
     private final String hubUrl;
     private final String jwtToken;
-    private volatile boolean isStarted = false;
     private HubConnection hubConnection;
 
     private final Set<SignalRListener> listeners = new CopyOnWriteArraySet<>();
     private final CompositeDisposable disposables = new CompositeDisposable();
 
-    /**
-     * eventName -> dispatcher
-     */
     private final Map<String, EventDispatcher<?>> dispatchers = new ConcurrentHashMap<>();
 
     public SignalRManager(String hubUrl, String jwtToken) {
         String deviceModel = Build.MANUFACTURER + " " + Build.MODEL;
         this.hubUrl = BuildConfig.SERVER_URL + hubUrl + "?device=" + deviceModel;
-        Log.e(TAG,  jwtToken);
         this.jwtToken = jwtToken;
         initConnection();
     }
@@ -49,9 +42,8 @@ public class SignalRManager {
                 .build();
 
         hubConnection.onClosed(error -> {
-            Log.e(TAG, "Connection closed", error);
+            logConnectionClosed(error);
 
-            isStarted = false;
             notifyDisconnected();
 
             if (error != null) {
@@ -62,19 +54,36 @@ public class SignalRManager {
                 Log.d(TAG, "⛔ Reconnect disabled");
                 return;
             }
-
-            new Thread(() -> {
-                try {
-                    Thread.sleep(2000);
-
-                    if (!shouldReconnect) return;
-
-                    Log.d(TAG, "🔁 Attempting reconnect...");
-                    connect();
-
-                } catch (InterruptedException ignored) {}
-            }).start();
         });
+    }
+
+
+    private void logConnectionClosed(Throwable error) {
+        if (error == null) {
+            Log.d(TAG, "Connection closed");
+            return;
+        }
+
+        if (isRecoverableConnectionClose(error)) {
+            Log.w(TAG, "Connection closed, reconnect will be attempted: " + error.getMessage());
+            return;
+        }
+
+        Log.e(TAG, "Connection closed", error);
+    }
+
+    private boolean isRecoverableConnectionClose(Throwable error) {
+        if (!shouldReconnect || error == null) return false;
+
+        String message = error.getMessage();
+
+        if (message == null) return false;
+
+        return message.contains("Software caused connection abort")
+                || message.contains("Socket closed")
+                || message.contains("Canceled")
+                || message.contains("timeout")
+                || message.contains("ECONNRESET");
     }
 
     public void connect() {
@@ -84,10 +93,7 @@ public class SignalRManager {
 
         Disposable disposable = hubConnection.start()
                 .subscribe(
-                        () -> {
-                            isStarted = true;
-                            notifyConnected();
-                        },
+                        this::notifyConnected,
                         this::notifyError
                 );
 
@@ -101,10 +107,7 @@ public class SignalRManager {
 
         Disposable disposable = hubConnection.stop()
                 .subscribe(
-                        () -> {
-                            isStarted = false;
-                            notifyDisconnected();
-                        },
+                        this::notifyDisconnected,
                         this::notifyError
                 );
 
@@ -121,10 +124,7 @@ public class SignalRManager {
         }
     }
 
-    public <T> void invoke(String method, Class<T> returnType,
-                           SignalRResultListener<T> callback,
-                           Object... args) {
-
+    public <T> void invoke(String method, Class<T> returnType, SignalRResultListener<T> callback, Object... args) {
         if (hubConnection.getConnectionState() != HubConnectionState.CONNECTED) return;
 
         Disposable disposable = hubConnection.invoke(returnType, method, args)
@@ -139,22 +139,22 @@ public class SignalRManager {
         disposables.add(disposable);
     }
 
-    // ================= SUBSCRIBE =================
-
-    // В SignalRManager.java, в методе subscribe для событий с данными:
     public <T> void subscribe(String eventName, Class<T> clazz) {
-        ensureStarted();
-
         if (dispatchers.containsKey(eventName)) return;
 
         EventDispatcher<T> dispatcher = new EventDispatcher<>();
         dispatchers.put(eventName, dispatcher);
 
-        Log.e(TAG, "📡 Subscribing to event: " + eventName + ", isConnected=" + hubConnection.getConnectionState());
+        if (shouldLogEvent(eventName)) {
+            Log.e(TAG, "📡 Subscribing to event: " + eventName + ", isConnected=" + hubConnection.getConnectionState());
+        }
 
         hubConnection.on(eventName, data -> {
-            Log.e(TAG, "🔥🔥🔥 SignalR RAW EVENT RECEIVED: " + eventName + " 🔥🔥🔥");
-            Log.e(TAG, "Data: " + (data != null ? data.toString() : "null"));
+            if (shouldLogEvent(eventName)) {
+                Log.e(TAG, "🔥🔥🔥 SignalR RAW EVENT RECEIVED: " + eventName + " 🔥🔥🔥");
+                Log.e(TAG, "Data: " + (data != null ? data.toString() : "null"));
+            }
+
             dispatcher.emit(new SignalRCommand<>(eventName, data));
             notifyRaw(eventName, data);
         }, clazz);
@@ -166,19 +166,18 @@ public class SignalRManager {
         EventDispatcher<Void> dispatcher = new EventDispatcher<>();
         dispatchers.put(eventName, dispatcher);
 
-        // ✅ ВАЖНО: пустой массив типов
+        if (shouldLogEvent(eventName)) {
+            Log.e(TAG, "📡 Subscribing to event: " + eventName + ", isConnected=" + hubConnection.getConnectionState());
+        }
+
         hubConnection.on(eventName, () -> {
             dispatcher.emit(new SignalRCommand<>(eventName, null));
             notifyRaw(eventName, null);
         });
     }
 
-    // ================= UNSUBSCRIBE =================
-
     public void unsubscribe(String eventName) {
         dispatchers.remove(eventName);
-
-        // ✅ правильная отписка для SignalR
         hubConnection.remove(eventName);
     }
 
@@ -186,10 +185,9 @@ public class SignalRManager {
         for (String eventName : dispatchers.keySet()) {
             hubConnection.remove(eventName);
         }
+
         dispatchers.clear();
     }
-
-    // ================= HANDLERS =================
 
     public <T> void addHandler(String eventName, SignalRCommandHandler<T> handler) {
         EventDispatcher<T> dispatcher = getDispatcher(eventName);
@@ -199,26 +197,32 @@ public class SignalRManager {
     @SuppressWarnings("unchecked")
     private <T> EventDispatcher<T> getDispatcher(String eventName) {
         EventDispatcher<?> dispatcher = dispatchers.get(eventName);
+
         if (dispatcher == null) {
             throw new IllegalStateException("Event not registered: " + eventName);
         }
+
         return (EventDispatcher<T>) dispatcher;
     }
-
-    // ================= NOTIFY =================
 
     private void notifyRaw(String name, Object payload) {
         SignalRCommand<Object> command = new SignalRCommand<>(name, payload);
 
-        for (SignalRListener l : listeners) {
-            l.onCommandReceived(command);
+        for (SignalRListener listener : listeners) {
+            listener.onCommandReceived(command);
         }
     }
+
     private void ensureStarted() {
-        if (!isStarted) {
+        if (hubConnection.getConnectionState() != HubConnectionState.CONNECTED) {
             throw new IllegalStateException("SignalR is not connected yet");
         }
     }
+
+    private boolean shouldLogEvent(String eventName) {
+        return !PONG_EVENT.equals(eventName);
+    }
+
     public void addListener(SignalRListener listener) {
         listeners.add(listener);
     }
@@ -227,23 +231,27 @@ public class SignalRManager {
         listeners.remove(listener);
     }
 
-    public boolean isConnected(){
+    public boolean isConnected() {
         return hubConnection.getConnectionState() == HubConnectionState.CONNECTED;
     }
 
     private void notifyConnected() {
-        for (SignalRListener l : listeners) l.onConnected();
+        for (SignalRListener listener : listeners) {
+            listener.onConnected();
+        }
     }
 
     private void notifyDisconnected() {
-        for (SignalRListener l : listeners) l.onDisconnected();
+        for (SignalRListener listener : listeners) {
+            listener.onDisconnected();
+        }
     }
 
     private void notifyError(Throwable throwable) {
-        for (SignalRListener l : listeners) l.onError(throwable);
+        for (SignalRListener listener : listeners) {
+            listener.onError(throwable);
+        }
     }
-
-    // ================= CLEANUP =================
 
     public void clear() {
         disposables.clear();
@@ -254,8 +262,6 @@ public class SignalRManager {
         disposables.dispose();
     }
 
-    // ================= INTERNAL =================
-
     private static class EventDispatcher<T> {
 
         private volatile SignalRCommandHandler<T> handler;
@@ -265,9 +271,10 @@ public class SignalRManager {
         }
 
         void emit(SignalRCommand<T> command) {
-            SignalRCommandHandler<T> h = handler;
-            if (h != null) {
-                h.handle(command);
+            SignalRCommandHandler<T> currentHandler = handler;
+
+            if (currentHandler != null) {
+                currentHandler.handle(command);
             }
         }
     }
