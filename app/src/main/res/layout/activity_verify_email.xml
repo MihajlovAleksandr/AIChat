@@ -1,105 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".view.VerifyEmailActivity">
+    android:background="?attr/android:windowBackground"
+    android:fitsSystemWindows="true">
 
-    <!-- AppBar -->
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:layout_marginTop="?attr/actionBarSize">
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingTop="40dp"
+        android:paddingBottom="80dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="66dp"
-            android:layout_marginTop="50dp"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="top|center_horizontal"
+            android:paddingStart="28dp"
+            android:paddingEnd="28dp"
+            android:layout_gravity="center_horizontal"
+            android:maxWidth="480dp">
 
-            <EditText
-                android:id="@+id/code1"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_margin="5dp"
-                android:background="@drawable/edittext_border"
-                android:gravity="center"
-                android:inputType="number"
-                android:maxLength="1" />
+            <TextView
+                android:id="@+id/verifyTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/verify_email_title"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="#42969E"
+                android:layout_marginTop="36dp"
+                android:layout_marginBottom="12dp"/>
 
-            <EditText
-                android:id="@+id/code2"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_margin="5dp"
-                android:background="@drawable/edittext_border"
+            <TextView
+                android:id="@+id/verifySubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/verify_email_subtitle"
+                android:textSize="15sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:gravity="center"
-                android:inputType="number"
-                android:maxLength="1" />
+                android:layout_marginBottom="36dp"/>
 
-            <EditText
-                android:id="@+id/code3"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_margin="5dp"
-                android:background="@drawable/edittext_border"
+            <LinearLayout
+                android:id="@+id/codeContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:gravity="center"
-                android:inputType="number"
-                android:maxLength="1" />
+                android:layout_marginBottom="8dp">
 
-            <EditText
-                android:id="@+id/code4"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_margin="5dp"
-                android:background="@drawable/edittext_border"
-                android:gravity="center"
-                android:inputType="number"
-                android:maxLength="1" />
+                <EditText
+                    android:id="@+id/code1"
+                    style="@style/CodeInputStyle"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:maxLength="1"
+                    android:hint="@string/otp_hint_1"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:autofillHints="oneTimeCode"/>
 
-            <EditText
-                android:id="@+id/code5"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_margin="5dp"
-                android:background="@drawable/edittext_border"
-                android:gravity="center"
-                android:inputType="number"
-                android:maxLength="1" />
+                <EditText
+                    android:id="@+id/code2"
+                    style="@style/CodeInputStyle"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:maxLength="1"
+                    android:hint="@string/otp_hint_2"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:autofillHints="oneTimeCode"/>
 
-            <EditText
-                android:id="@+id/code6"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_margin="5dp"
-                android:background="@drawable/edittext_border"
+                <EditText
+                    android:id="@+id/code3"
+                    style="@style/CodeInputStyle"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:maxLength="1"
+                    android:hint="@string/otp_hint_3"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:autofillHints="oneTimeCode"/>
+
+                <EditText
+                    android:id="@+id/code4"
+                    style="@style/CodeInputStyle"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:maxLength="1"
+                    android:hint="@string/otp_hint_4"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:autofillHints="oneTimeCode"/>
+
+                <EditText
+                    android:id="@+id/code5"
+                    style="@style/CodeInputStyle"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:maxLength="1"
+                    android:hint="@string/otp_hint_5"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:autofillHints="oneTimeCode"/>
+
+                <EditText
+                    android:id="@+id/code6"
+                    style="@style/CodeInputStyle"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:maxLength="1"
+                    android:hint="@string/otp_hint_6"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:autofillHints="oneTimeCode"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvCodeError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/verify_code_error"
+                android:textColor="@color/errorColor"
+                android:textSize="14sp"
+                android:visibility="gone"
                 android:gravity="center"
-                android:inputType="number"
-                android:maxLength="1" />
+                android:layout_marginBottom="24dp"/>
         </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-    </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
         android:id="@+id/progressDots"
@@ -108,26 +145,30 @@
         android:orientation="horizontal"
         android:gravity="center"
         android:paddingTop="16dp"
-        android:paddingBottom="16dp"
+        android:paddingBottom="44dp"
         android:layout_gravity="bottom">
+
         <View
             android:id="@+id/dot1"
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:background="@drawable/dot_done"
             android:layout_margin="4dp"/>
+
         <View
             android:id="@+id/dot2"
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:background="@drawable/dot_active"
             android:layout_margin="4dp"/>
+
         <View
             android:id="@+id/dot3"
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:background="@drawable/dot_default"
             android:layout_margin="4dp"/>
+
         <View
             android:id="@+id/dot4"
             android:layout_width="12dp"
@@ -136,4 +177,16 @@
             android:layout_margin="4dp"/>
     </LinearLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnBack"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="28dp"
+        android:layout_marginBottom="85dp"
+        android:src="@drawable/ic_reply"
+        android:contentDescription="@string/back_button_desc"
+        app:backgroundTint="@color/teal_primary"
+        app:tint="@color/buttonTextLight"
+        app:rippleColor="@color/rippleLight"/>
+</FrameLayout>

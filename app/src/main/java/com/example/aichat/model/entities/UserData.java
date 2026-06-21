@@ -2,14 +2,12 @@ package com.example.aichat.model.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
+import java.util.UUID;
 
 public class UserData implements Serializable {
     @JsonProperty
-    private int id;
-    @JsonProperty
-    private char gender;
+    private Gender gender;
     @JsonProperty
     private String name;
     @JsonProperty
@@ -18,28 +16,18 @@ public class UserData implements Serializable {
     public UserData(){
 
     }
-    public  UserData(String name, int age, char gender)
+    public  UserData(String name, int age, Gender gender)
     {
-        id = 0;
         this.name = name;
         this.age = age;
         this.gender = gender;
     }
     @JsonIgnore
-
-    public int getId() {
-        return id;
-    }
-    @JsonIgnore
-    public void setId(int id) {
-        this.id = id;
-    }
-    @JsonIgnore
-    public char getGender() {
+    public Gender getGender() {
         return gender;
     }
     @JsonIgnore
-    public void setGender(char gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
     @JsonIgnore
@@ -61,7 +49,7 @@ public class UserData implements Serializable {
     @JsonIgnore
     @Override
     public String toString() {
-        return String.format("%s (%c%d)", name, gender, age);
+        return String.format("%s (%s%d)", name, gender.toString(), age);
     }
 
 }

@@ -1,9 +1,12 @@
 <resources>
+
     <string-array name="languages">
-        <item>English</item>
-        <item>Русский</item>
-        <item>Español</item>
-        <item>Беларуская</item>
+        <item>🇬🇧 English</item>
+        <item>🇷🇺 Русский</item>
+        <item>🇪🇸 Español</item>
+        <item>🇧🇾 Беларуская</item>
+        <item>🇺🇦 Українська</item>
+        <item>🇵🇱 Polski</item>
     </string-array>
 
     <string-array name="language_codes">
@@ -11,5 +14,22 @@
         <item>ru</item>
         <item>es</item>
         <item>be</item>
+        <item>uk</item>
+        <item>pl</item>
     </string-array>
+
+    <string-array name="theme_modes">
+        <item>@string/theme_light</item>
+        <item>@string/theme_dark</item>
+        <item>@string/theme_system</item>
+        <item>Dark Teal</item>
+    </string-array>
+
+    <string-array name="theme_mode_values">
+        <item>light</item>
+        <item>dark</item>
+        <item>system</item>
+        <item>dark_teal</item>
+    </string-array>
+
 </resources>

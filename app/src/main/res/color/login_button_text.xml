@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/login_text_enabled_dark" android:state_enabled="true"/>
+    <item android:color="@color/login_text_disabled_dark" android:state_enabled="false"/>
+    <item android:color="@color/login_text_enabled_light" android:state_enabled="true"/>
+    <item android:color="@color/login_text_disabled_light" android:state_enabled="false"/>
+</selector>

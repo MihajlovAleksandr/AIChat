@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="190dp"
+    android:layout_height="190dp"
+    android:layout_marginStart="4dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginEnd="4dp"
+    android:layout_marginBottom="4dp"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <com.example.aichat.view.main.chat.helpers.CircleClipFrameLayout
+        android:id="@+id/video_circle_card"
+        android:layout_width="172dp"
+        android:layout_height="172dp"
+        android:layout_gravity="center"
+        android:background="?attr/colorSurfaceVariant"
+        android:clipChildren="true"
+        android:clipToPadding="true">
+
+        <com.example.aichat.view.main.chat.helpers.CircleVideoTextureView
+            android:id="@+id/video_circle_inline_player"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/video_circle_thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/colorSurfaceVariant"
+            android:contentDescription="@string/video_circle_message"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_video" />
+
+        <View
+            android:id="@+id/video_circle_scrim"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#22000000" />
+
+        <ImageView
+            android:id="@+id/video_circle_play"
+            android:layout_width="58dp"
+            android:layout_height="58dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_status_circle"
+            android:backgroundTint="?attr/colorPrimary"
+            android:contentDescription="@string/video_circle_play"
+            android:padding="14dp"
+            android:src="@drawable/ic_play_circle"
+            app:tint="?attr/colorOnPrimary" />
+
+        <ProgressBar
+            android:id="@+id/file_progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="112dp"
+            android:layout_height="4dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="28dp"
+            android:max="100"
+            android:progressTint="?attr/colorPrimary"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/file_progress_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="34dp"
+            android:background="@drawable/bg_chat_action_panel"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="@string/file_counter_zero"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <SeekBar
+            android:id="@+id/video_circle_timeline"
+            android:layout_width="118dp"
+            android:layout_height="22dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="31dp"
+            android:max="1000"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:progress="0"
+            android:progressTint="?attr/colorPrimary"
+            android:thumbTint="?attr/colorOnPrimary"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/video_circle_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_chat_action_panel"
+            android:gravity="center"
+            android:minWidth="42dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="@string/video_label"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+    </com.example.aichat.view.main.chat.helpers.CircleClipFrameLayout>
+
+    <ImageView
+        android:id="@+id/file_menu"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="top|end"
+        android:background="@drawable/bg_status_circle"
+        android:backgroundTint="?attr/colorSurfaceVariant"
+        android:contentDescription="@string/options_button_description"
+        android:padding="10dp"
+        android:src="@drawable/ic_more_vert"
+        app:tint="?attr/colorOnSurface" />
+
+    <ImageView
+        android:id="@+id/file_status"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_gravity="bottom|end"
+        android:visibility="gone" />
+
+</FrameLayout>

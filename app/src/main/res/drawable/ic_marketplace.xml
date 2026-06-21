@@ -1,0 +1,87 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="36dp"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+
+    <group
+        android:pivotX="512"
+        android:pivotY="512"
+        android:scaleX="1.47"
+        android:scaleY="1.47">
+
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="?attr/colorOnSurface"
+            android:strokeWidth="34"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="
+            M268,310
+            L332,310
+            L386,646
+            C392,682 420,706 456,706
+            L700,706
+            C734,706 764,684 772,650
+            L818,438
+            C824,410 802,384 772,384
+            L366,384" />
+
+        <path
+            android:fillColor="?attr/colorSecondary"
+            android:fillAlpha="0.22"
+            android:pathData="
+            M398,430
+            L770,430
+            L726,634
+            C722,652 706,666 688,666
+            L470,666
+            C450,666 434,652 430,632
+            Z" />
+
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="?attr/colorPrimary"
+            android:strokeWidth="30"
+            android:strokeLineCap="round"
+            android:pathData="
+            M474,486
+            L694,486" />
+
+
+        <path
+            android:fillColor="?attr/colorPrimary"
+            android:pathData="
+            M520,476
+            L520,566
+            L472,566
+            L472,610
+            L520,610
+            L520,658
+            L564,658
+            L564,610
+            L612,610
+            L612,566
+            L564,566
+            L564,476
+            Z" />
+
+        <path
+            android:fillColor="?attr/colorPrimary"
+            android:pathData="
+            M458,770
+            m-34,0
+            a34,34 0,1 1,68 0
+            a34,34 0,1 1,-68 0" />
+
+        <path
+            android:fillColor="?attr/colorPrimary"
+            android:pathData="
+            M676,770
+            m-34,0
+            a34,34 0,1 1,68 0
+            a34,34 0,1 1,-68 0" />
+
+    </group>
+
+</vector>

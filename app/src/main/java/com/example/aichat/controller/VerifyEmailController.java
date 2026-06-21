@@ -1,136 +1,147 @@
 package com.example.aichat.controller;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import android.text.Editable;
 import android.util.Log;
 import android.widget.EditText;
-
+import com.example.aichat.dto.request.VerificationCodeRequest;
+import com.example.aichat.dto.response.ApiError;
+import com.example.aichat.dto.response.RegisterResponse;
+import com.example.aichat.model.connection.ConnectionDispatcher;
+import com.example.aichat.model.connection.ConnectionSingleton;
+import com.example.aichat.model.connection.HttpClient;
+import com.example.aichat.model.entities.RegistrationState;
+import com.example.aichat.model.SecurePreferencesManager;
 import com.example.aichat.view.UserDataActivity;
 import com.example.aichat.view.VerifyEmailActivity;
-import com.example.aichat.model.entities.Command;
-import com.example.aichat.model.connection.ConnectionManager;
-import com.example.aichat.model.connection.ConnectionSingleton;
-import com.example.aichat.model.connection.OnConnectionEvents;
 
 public class VerifyEmailController {
 
-    private EditText[] codeFields;
-    private ConnectionManager connectionManager;
-    private VerifyEmailActivity activity;
+    private static final String TAG = "EmailVerification";
+
+    private final EditText[] codeFields;
+    private final VerifyEmailActivity activity;
+    private final ConnectionDispatcher dispatcher;
 
     public VerifyEmailController(VerifyEmailActivity activity, EditText[] codeFields) {
         this.activity = activity;
         this.codeFields = codeFields;
+        this.dispatcher = ConnectionSingleton.getInstance().getConnectionDispatcher();
+    }
 
-        connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
-        if (connectionManager == null) {
-            ConnectionSingleton.getInstance().setConnectionManager(new ConnectionManager(""));
-            connectionManager = ConnectionSingleton.getInstance().getConnectionManager();
+    public void verifyCode() {
+        String fullCode = activity.getCurrentCodeFromFields();
+
+        try {
+            Integer.parseInt(fullCode);
+        } catch (NumberFormatException e) {
+            activity.showCodeErrorAnimation();
+            return;
         }
 
-        connectionManager.setConnectionEvent(new OnConnectionEvents() {
-            @Override
-            public void OnCommandGot(Command command) {
-                if (command.getOperation().equals("VerificationCodeAnswer")) {
-                    handleVerificationResponse(command);
+        String registrationToken = SecurePreferencesManager.getAuthToken(activity);
+
+        if (registrationToken == null || registrationToken.trim().isEmpty()) {
+            Log.e(TAG, "Registration token is empty before email verification");
+            activity.showCodeErrorAnimation();
+            return;
+        }
+
+        dispatcher.setToken(registrationToken);
+
+        VerificationCodeRequest request = new VerificationCodeRequest(fullCode);
+
+        dispatcher.sendHttpRequestAsync(
+                "/api/auth/register/verify",
+                HttpClient.HTTPMethod.POST,
+                request,
+                false
+        ).thenAccept(cmd -> activity.runOnUiThread(() -> {
+            if (cmd != null && cmd.isSuccess()) {
+                RegisterResponse response = cmd.getData(RegisterResponse.class);
+
+                if (response != null
+                        && response.state == RegistrationState.EMAIL_VERIFIED
+                        && response.token != null
+                        && !response.token.trim().isEmpty()) {
+
+                    activity.showCodeSuccessAnimation();
+
+                    SecurePreferencesManager.saveAuthToken(activity, response.token);
+                    dispatcher.setToken(response.token);
+
+                    Intent intent = new Intent(activity, UserDataActivity.class);
+                    activity.startActivity(intent);
+                    activity.finish();
+
+                } else {
+                    Log.e(TAG, "Invalid verification response");
+                    activity.showCodeErrorAnimation();
                 }
-            }
 
-            @Override
-            public void OnConnectionFailed() {
-                Log.e("VerifyEmailController", "Connection failed");
-            }
+            } else {
+                if (cmd != null) {
+                    ApiError error = cmd.getData(ApiError.class);
 
-            @Override
-            public void OnOpen() {
-                Log.d("VerifyEmailController", "Connection opened");
+                    if (error != null) {
+                        Log.e(TAG, error.toString());
+                    } else {
+                        Log.e(TAG, "Email verification failed. Code: " + cmd.getCode());
+                    }
+                } else {
+                    Log.e(TAG, "Email verification command is null");
+                }
+
+                activity.showCodeErrorAnimation();
             }
+        })).exceptionally(throwable -> {
+            activity.runOnUiThread(activity::showCodeErrorAnimation);
+            Log.e(TAG, "Ошибка проверки кода", throwable);
+            return null;
         });
     }
 
-    private void handleVerificationResponse(Command command) {
-        if (command.getData("answer", int.class) == 1) {
-            ConnectionSingleton.getInstance().setConnectionManager(connectionManager);
-            Intent intent = new Intent(activity, UserDataActivity.class);
-            activity.startActivity(intent);
-            activity.finish();
-        } else {
-            new Thread(() -> changeColorForEditText(50, Color.RED)).start();
-        }
-    }
-
-    public void changeColorForEditText(int delay, int color) {
-        for (EditText editText : codeFields) {
-            try {
-                Thread.sleep(delay);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            activity.runOnUiThread(() -> {
-                GradientDrawable drawable = (GradientDrawable) editText.getBackground();
-                drawable.setStroke(5, color);
-            });
-        }
-    }
-
-    public void handleTextChanged(CharSequence s, int currentIndex) {
-        if (s.length() == 1 && currentIndex < codeFields.length - 1) {
-            codeFields[currentIndex + 1].requestFocus();
-        } else if (s.length() == 0 && currentIndex > 0) {
-            codeFields[currentIndex - 1].requestFocus();
-        }
-    }
-
-    public void handleAfterTextChanged(Editable s, int currentIndex) {
-        if (s.length() == 1 && currentIndex == codeFields.length - 1) {
-            String fullCode = getFullCode();
-            Log.d("VerifyEmailController", "Full code: " + fullCode);
-            Command command = new Command("VerificationCode");
-            command.addData("code", fullCode);
-            connectionManager.SendCommand(command);
-        }
-    }
-
     public boolean handleKeyEvent(int keyCode, int currentIndex) {
-        if (keyCode == 67 && codeFields[currentIndex].getText().length() == 0 && currentIndex > 0) {
+        if (keyCode == 67
+                && codeFields[currentIndex].getText().length() == 0
+                && currentIndex > 0) {
+
             codeFields[currentIndex - 1].requestFocus();
         }
+
         return false;
     }
 
     public void handlePaste() {
         String clipboardText = getClipboardText();
-        if (clipboardText != null && clipboardText.length() == 6) {
-            for (int i = 0; i < 6; i++) {
-                codeFields[i].setText(String.valueOf(clipboardText.charAt(i)));
-            }
-        } else if (clipboardText != null && clipboardText.length() == 7 && clipboardText.indexOf(' ') == 3) {
+
+        if (clipboardText != null) {
             int curIndex = 0;
-            for (int i = 0; i < 7; i++) {
-                if (i == 3) continue;
-                codeFields[curIndex].setText(String.valueOf(clipboardText.charAt(i)));
+
+            for (int i = 0; i < clipboardText.length() && curIndex < codeFields.length; i++) {
+                char c = clipboardText.charAt(i);
+
+                if (c == ' ') {
+                    continue;
+                }
+
+                codeFields[curIndex].setText(String.valueOf(c));
                 curIndex++;
             }
         }
     }
 
-    private String getFullCode() {
-        StringBuilder code = new StringBuilder();
-        for (EditText field : codeFields) {
-            code.append(field.getText().toString());
-        }
-        return code.toString();
-    }
-
     private String getClipboardText() {
-        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) activity.getSystemService(activity.CLIPBOARD_SERVICE);
-        if (clipboard != null && clipboard.hasPrimaryClip()) {
+        android.content.ClipboardManager clipboard =
+                (android.content.ClipboardManager) activity.getSystemService(VerifyEmailActivity.CLIPBOARD_SERVICE);
+
+        if (clipboard != null && clipboard.hasPrimaryClip() && clipboard.getPrimaryClip() != null) {
             android.content.ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
-            return item.getText().toString();
+
+            if (item != null && item.getText() != null) {
+                return item.getText().toString();
+            }
         }
+
         return null;
     }
 }

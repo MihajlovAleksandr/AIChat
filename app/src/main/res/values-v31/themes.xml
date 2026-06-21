@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.AIChat.Starting" parent="Theme.AIChat">
+        <item name="android:windowSplashScreenBackground">@color/aichat_splash_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_aichat_splash_icon</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
+    </style>
+
+</resources>

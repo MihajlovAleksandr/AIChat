@@ -1,121 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/user_data_root"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="16dp">
+    android:background="?attr/android:windowBackground"
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        android:fillViewport="true"
+        android:paddingTop="40dp"
+        android:paddingBottom="60dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical"
+            android:gravity="top|center_horizontal"
+            android:paddingStart="28dp"
+            android:paddingEnd="28dp">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/nameInputLayout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/name_hint">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/nameInput"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPersonName"
-                    android:maxLines="1"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <ImageView
-                android:id="@+id/nameInfoIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="8dp"
-                android:src="@drawable/ic_info_outline"
-                android:contentDescription="@string/name_info_description"
-                android:clickable="true"
-                android:focusable="true"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="16dp">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/ageInputLayout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/min_age_hint">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/ageInput"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:maxLines="1"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <ImageView
-                android:id="@+id/ageInfoIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="8dp"
-                android:src="@drawable/ic_info_outline"
-                android:contentDescription="@string/age_info_description"
-                android:clickable="true"
-                android:focusable="true"/>
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/gender_label"
-            android:textSize="16sp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"/>
-
-        <RadioGroup
-            android:id="@+id/genderGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/maleRadio"
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:tag="M"
-                android:text="@string/gender_male"/>
+                android:text="@string/personal_data_title"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="#42969E"
+                android:layout_marginTop="36dp"
+                android:layout_marginBottom="12dp" />
 
-            <RadioButton
-                android:id="@+id/femaleRadio"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/personal_data_subtitle"
+                android:textSize="15sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:gravity="center"
+                android:layout_marginBottom="36dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/nameInputLayout"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:maxWidth="480dp"
+                    android:minHeight="72dp"
+                    android:hint="@string/name_hint"
+                    app:boxBackgroundMode="outline"
+                    app:boxStrokeColor="@color/textinput_stroke_selector"
+                    app:boxStrokeWidth="1dp"
+                    app:boxStrokeWidthFocused="2.5dp"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/nameInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName"
+                        android:maxLines="1"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <FrameLayout
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="8dp"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                    <ImageView
+                        android:id="@+id/nameInfoIcon"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:padding="12dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_info_outline"
+                        android:contentDescription="@string/name_info_description"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:scaleType="center"/>
+                </FrameLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="18dp"
+                android:baselineAligned="false">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/ageInputLayout"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:maxWidth="480dp"
+                    android:minHeight="72dp"
+                    android:hint="@string/age_hint"
+                    app:boxBackgroundMode="outline"
+                    app:boxStrokeColor="@color/textinput_stroke_selector"
+                    app:boxStrokeWidth="1dp"
+                    app:boxStrokeWidthFocused="2.5dp"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/ageInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:maxLines="1"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <FrameLayout
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="8dp"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                    <ImageView
+                        android:id="@+id/ageInfoIcon"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:padding="12dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_info_outline"
+                        android:contentDescription="@string/age_info_description"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:scaleType="center"/>
+                </FrameLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/gender_label"
+                android:textSize="16sp"
+                android:layout_marginTop="18dp"
+                android:layout_marginBottom="8dp"/>
+
+            <RadioGroup
+                android:id="@+id/genderGroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:tag="F"
-                android:text="@string/gender_female"/>
-        </RadioGroup>
+                android:orientation="horizontal"
+                android:gravity="start"
+                android:layout_marginBottom="16dp">
 
-        <Button
-            android:id="@+id/submitButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/submit_button"
-            android:layout_marginTop="24dp"
-            android:enabled="false"/>
-    </LinearLayout>
+                <RadioButton
+                    android:id="@+id/maleRadio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:tag="MALE"
+                    android:text="@string/gender_male"
+                    android:layout_marginEnd="16dp"
+                    app:buttonTint="@color/radio_tint"/>
+
+                <RadioButton
+                    android:id="@+id/femaleRadio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:tag="FEMALE"
+                    android:text="@string/gender_female"
+                    app:buttonTint="@color/radio_tint"/>
+            </RadioGroup>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/submitButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:maxWidth="480dp"
+                android:layout_marginTop="32dp"
+                android:text="@string/submit_button"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:enabled="false"
+                app:cornerRadius="28dp"
+                app:backgroundTint="@color/login_button_tint"
+                app:rippleColor="@color/login_button_ripple"
+                android:textColor="@color/login_button_text"/>
+        </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
         android:id="@+id/progressDots"
@@ -124,10 +202,8 @@
         android:orientation="horizontal"
         android:gravity="center"
         android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:paddingBottom="44dp"
+        android:layout_gravity="bottom">
 
         <View
             android:id="@+id/dot1"
@@ -135,18 +211,21 @@
             android:layout_height="12dp"
             android:background="@drawable/dot_done"
             android:layout_margin="4dp"/>
+
         <View
             android:id="@+id/dot2"
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:background="@drawable/dot_done"
             android:layout_margin="4dp"/>
+
         <View
             android:id="@+id/dot3"
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:background="@drawable/dot_active"
             android:layout_margin="4dp"/>
+
         <View
             android:id="@+id/dot4"
             android:layout_width="12dp"
@@ -154,4 +233,17 @@
             android:background="@drawable/dot_default"
             android:layout_margin="4dp"/>
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnBack"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:src="@drawable/ic_reply"
+        android:contentDescription="@string/back_button_desc"
+        app:backgroundTint="@color/teal_primary"
+        app:tint="@color/buttonTextLight"
+        app:rippleColor="@color/rippleLight"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="22dp"
+        android:layout_marginBottom="55dp"/>
+</FrameLayout>

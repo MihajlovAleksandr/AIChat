@@ -1,8 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
+    <color name="stroke_focused">#42969E</color>
+    <color name="stroke_default">#3342969E</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="error_color">#FF0000</color>
-    <color name="link_color">#002FFF</color>
+    <color name="autofill_highlight_teal">#A3E5E5E5</color>
     <color name="green_500">#4CAF50</color>
+    <color name="link_color">#002FFF</color>
+    <color name="errorColor">#FF5252</color>
+    <color name="light_gray">#EEEEEE</color>
+    <color name="connection_ok">#4CAF50</color>
+    <color name="connection_error">#F44336</color>
+    <color name="teal_primary">#42969E</color>
+    <color name="text_secondary">#49454F</color>
+    <color name="primaryTextLight">#212121</color>
+    <color name="close_button_light">#000000</color>
+    <color name="secondaryTextLight">#666666</color>
+    <color name="buttonTextLight">#212121</color>
+    <color name="buttonBackgroundLight">#FFFFFF</color>
+    <color name="rippleLight">#AA42AFC0</color>
+    <color name="chat_circle_stroke_light">@android:color/black</color>
+    <color name="textinput_hint_light">@color/teal_primary</color>
+    <color name="textinput_hint_light_disabled">#666666</color>
+    <color name="login_text_enabled_light">#212121</color>
+    <color name="login_text_disabled_light">#CCCCCC</color>
+    <color name="login_background_enabled_light">#FFFFFF</color>
+    <color name="login_background_disabled_light">#EEEEEE</color>
+    <color name="textinputEndIconTintLight">#AA000000</color>
+    <color name="textinput_endicon_tint_light">#AA000000</color>
+    <color name="login_error_background_color">#AA000000</color>
+    <color name="login_error_background_color_dark">#FFFFFF</color>
+    <color name="primaryTextDark">#FFFFFF</color>
+    <color name="secondaryTextDark">#99FFFFFF</color>
+    <color name="buttonTextDark">#FFFFFF</color>
+    <color name="chat_circle_stroke_dark">@android:color/white</color>
+    <color name="close_button_dark">#FFFFFF</color>
+    <color name="buttonBackgroundDark">#1AFFFFFF</color>
+    <color name="rippleDark">#6642969E</color>
+    <color name="login_text_enabled_dark">#FFFFFF</color>
+    <color name="login_text_disabled_dark">#99FFFFFF</color>
+    <color name="login_background_enabled_dark">#42969E</color>
+    <color name="login_background_disabled_dark">#3342969E</color>
+    <color name="textinputHintDark">#99FFFFFF</color>
+    <color name="textinputEndIconTintDark">#CCFFFFFF</color>
+    <color name="login_button_ripple">#33FFFFFF</color>
+    <color name="textinput_endicon_tint_dark">#AA000000</color>
+    <color name="textinput_endicon_light">#AA000000</color>
+    <color name="textinput_endicon_dark">#CCFFFFFF</color>
+    <color name="state_layer_light">@android:color/transparent</color>
+    <color name="state_layer_dark">@android:color/transparent</color>
+    <color name="black_translucent_50">#80000000</color>
+    <color name="settings_screen_background">#FFFFFF</color>
+    <color name="fab_panel_dark">#FF2B2D31</color>
+    <color name="fab_panel_dark_pressed">#FF35383E</color>
+    <color name="dialog_scrim">#99000000</color>
+
+    <color name="ai_dialog_surface">#FFFFF8FF</color>
+    <color name="ai_dialog_field">#FFE8E0EC</color>
+    <color name="ai_dialog_dropdown_surface">#FFFFFFFF</color>
+    <color name="ai_dialog_stroke">#FF79747E</color>
+    <color name="ai_dialog_soft_button">#FFE8E0EC</color>
+    <color name="popup_menu_light_surface">#FFFFFFFF</color>
+    <color name="popup_menu_light_stroke">#1F000000</color>
+
+    <color name="aichat_splash_background">#E8FAF9</color>
+
 </resources>

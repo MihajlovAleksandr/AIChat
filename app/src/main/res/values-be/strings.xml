@@ -1,70 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AIChat</string>
-    <string name="language">Мова</string>
-    <string name="logout">Выйсціі</string>
+    <string name="close_button_description">Закрыць</string>
+    <string name="back_button_description">Назад</string>
+    <string name="options_button_description">Больш опцый</string>
+    <string name="submit_button">Адправіць</string>
+    <string name="skip_button">Прапусціць</string>
+    <string name="update_button">Абнавіць</string>
+    <string name="logout">Выйсці</string>
     <string name="first_fragment_label">Першы фрагмент</string>
     <string name="second_fragment_label">Другі фрагмент</string>
     <string name="hello_blank_fragment">Прывітанне, пусты фрагмент</string>
+    <string name="language">Мова</string>
     <string name="select_language">Выберыце мову</string>
-    <string name="scan_me">Скануй мяне</string>
-    <string name="no_email">Тут будзе ваш email</string>
     <string name="no_devices">Тут будуць вашы прылады</string>
     <string name="device_status">Усяго %d, Онлайн %d</string>
     <string name="about">Пра сябе</string>
     <string name="preferences">Перавагі</string>
     <string name="no_about">Тут будзе інфармацыя пра вас</string>
     <string name="no_preference">Тут будуць вашы перавагі</string>
+    <string name="no_email">Тут будзе ваш email</string>
     <string name="email_hint">Увядзіце email</string>
-    <string name="password_hint">Увядзіце пароль</string>
     <string name="new_password_hint">Увядзіце новы пароль</string>
+    <string name="password_hint">Увядзіце пароль</string>
     <string name="confirm_password_hint">Пацвердзіце пароль</string>
     <string name="login_button">Увайсці</string>
     <string name="register_button">Зарэгістравацца</string>
     <string name="register_prompt">Няма акаўнта? Рэгістрацыя</string>
     <string name="login_prompt">Ужо ёсць акаўнт? Увайсці</string>
+    <string name="register_link_text">Рэгістрацыя</string>
+    <string name="login_link_text">Увайсці</string>
+    <string name="chat_created">Чат быў створаны</string>
+    <string name="chat_ended">Чат быў скончаны</string>
+    <string name="you">Вы</string>
+    <string name="name_hint">Імя</string>
     <string name="age_hint">Узрост</string>
     <string name="min_age_hint">Мінімальны ўзрост</string>
     <string name="max_age_hint">Максімальны ўзрост</string>
-    <string name="age_info_description">Інфармацыя пра ўзрост</string>
-    <string name="name_hint">Імя</string>
-    <string name="name_info_description">Інфармацыя пра поле імя</string>
     <string name="gender_label">Пол:</string>
     <string name="gender_male">Мужчынскі</string>
     <string name="gender_female">Жаночы</string>
     <string name="gender_any">Любы</string>
-    <string name="submit_button">Адправіць</string>
-    <string name="update_button">Абнавіць</string>
-    <string name="skip_button">Прапусціць</string>
+    <string name="scan_me">Скануй мяне</string>
+    <string name="email" translatable="false">Email</string>
     <string name="chat_members_title">Удзельнікі чату</string>
-    <string name="close_button_description">Закрыць</string>
-    <string name="back_button_description">Назад</string>
-    <string name="options_button_description">Больш опцый</string>
     <string name="message_hint">Увядзіце паведамленне</string>
-    <string name="send_button">Адправіць</string>
     <string name="end_chat_menu">Скончыць чат</string>
     <string name="view_members_menu">Удзельнікі</string>
     <string name="search_words_menu">Пошук словаў</string>
+    <string name="export_chat">Экспарт чату</string>
+    <string name="age_info_description">Інфармацыя пра ўзрост</string>
+    <string name="name_info_description">Інфармацыя пра поле імя</string>
+    <string name="min_age_info">Які мінімальны ўзрост пажаданы для суразмоўцы? Увядзіце лік, напрыклад, 18. Гэта дапаможа знайсці вам адпаведных людзей для абмеркавання.</string>
+    <string name="max_age_info">Які максімальны ўзрост пажаданы для суразмоўцы? Увядзіце лік, напрыклад, 23. Гэта дапаможа знайсці вам адпаведных людзей для абмеркавання.</string>
+    <string name="name_popup_info">Як вам лепш называць? Увядзіце сваё імя, нікнэйм або пераважны псеўданім. Галоўнае, каб вам было камфортна.</string>
+    <string name="age_popup_info">Колькі вам гадоў? Проста ўвядзіце лік, напрыклад, 19. Не абавязкова быць абсалютна сумленным, але памятайце, што гэта дапаможа падабраць вам цікавых суразмоўцаў.</string>
     <string name="invalid_email_error">Увядзіце карэктны email</string>
-    <string name="invalid_password_error">Пароль павінен змяшчаць мінімум 8 сімвалаў, уключаючы вялікія і малыя літары, лічбы і спецыяльныя сімвалы</string>
+    <string name="invalid_password_error">Пароль павінен змяшчаць\nмінімум 8 сімвалаў,\nуключаючы вялікія і малыя\nлітары, лічбы і спецыяльныя\nсімвалы</string>
     <string name="age_range_error">Узрост павінен быць ад 18 да 120 гадоў</string>
     <string name="max_age_error">Максімальны ўзрост павінен быць больш за мінімальны</string>
     <string name="min_age_error">Мінімальны ўзрост павінен быць менш за максімальны</string>
     <string name="password_mismatch_error">Паролі не супадаюць</string>
     <string name="email_in_use_error">Гэты email ужо выкарыстоўваецца</string>
     <string name="name_validation_error">Імя павінна змяшчаць ад 1 да 50 сімвалаў</string>
-    <string name="register_link_text">Рэгістрацыя</string>
-    <string name="login_link_text">Увайсці</string>
-    <string name="chat_ended">Чат быў скончаны</string>
-    <string name="chat_created">Чат быў створаны</string>
-    <string name="you">Вы</string>
-    <string name="min_age_info">Які мінімальны ўзрост пажаданы для суразмоўцы? Увядзіце лік, напрыклад, 18. Гэта дапаможа знайсці вам адпаведных людзей для абмеркавання.</string>
-    <string name="max_age_info">Які максімальны ўзрост пажаданы для суразмоўцы? Увядзіце лік, напрыклад, 23. Гэта дапаможа знайсці вам адпаведных людзей для абмеркавання.</string>
-    <string name="name_popup_info">Як вам лепш называць? Увядзіце сваё імя, нікнэйм або пераважны псеўданім. Галоўнае, каб вам было камфортна.</string>
-    <string name="age_popup_info">Колькі вам гадоў? Проста ўвядзіце лік, напрыклад, 19. Не абавязкова быць абсалютна сумленным (мы ўсе 18), але памятайце, што гэта дапаможа падабраць вам цікавых суразмоўцаў.</string>
     <string name="profile_section">Профіль</string>
     <string name="change_password">Змяніць пароль</string>
     <string name="devices">Прылады</string>
     <string name="settings">Налады</string>
+    <string name="version_format" translatable="false">Version %s</string>
     <string name="notifications_section">Апавяшчэнні</string>
     <string name="send_email_notifications">Дасылаць апавяшчэнні па email</string>
     <string name="show_notifications">Паказваць апавяшчэнні</string>
@@ -73,31 +76,29 @@
     <string name="vibration">Вібрацыя</string>
     <string name="language_section">Мова</string>
     <string name="reference_section">Даведка</string>
+    <string name="reference_intro">AIChat абʼядноўвае асабістыя чаты, групы, выпадковыя чаты і дыялогі з ІІ ў адной праграме. Ніжэй сабраная асноўная інфармацыя пра раздзелы, апрацоўку даных і зварот у падтрымку.</string>
     <string name="faq">Частыя пытанні</string>
     <string name="privacy_policy">Палітыка прыватнасці</string>
     <string name="support">Падтрымка</string>
+    <string name="version" translatable="false">Version</string>
     <string name="no_permissions">Дазволы не прадастаўлены</string>
     <string name="login_qr_failed">Памылка ўваходу з дапамогай QR-кода</string>
-    <string name="ok">ок</string>
-    <string name="online">анлайн</string>
+    <string name="ok">ОК</string>
+    <string name="online">Анлайн</string>
     <string name="qr_login_in_prompt">Увайдзіце з дапамогай QR-кода</string>
-    <string name="scan_qr_prompt">Сканіраванне QR-код, каб падключыць прыладу.</string>
+    <string name="scan_qr_prompt">Сканіраванне QR-кода, каб падключыць прыладу.</string>
     <string name="scan">Сканіраваць</string>
     <string name="all_devices">Усе прылады</string>
     <string name="offline">Офлайн</string>
     <string name="Online">Анлайн</string>
     <string name="terminate_button">Скончыць усе іншыя сеансы</string>
-    <!-- Notification Strings -->
     <string name="notifications_permission_denied_message">Апавяшчэнні застануцца адключанымі без дазволу</string>
-    <string name="browser_not_found">Браўэр не знойдзены</string>
-    <string name="email_app_not_found">Почтавая праграма не знойдзена</string>
+    <string name="browser_not_found">Браўзер не знойдзены</string>
+    <string name="email_app_not_found">Паштовая праграма не знойдзена</string>
     <string name="notifications_permission_denied">Апавяшчэнні адключаны. Вы можаце ўключыць іх у наладах</string>
     <string name="demo_notification_title">Тэставае апавяшчэнне</string>
     <string name="demo_notification_message">Прывітанне! Гэта праверка работы апавяшчэнняў</string>
     <string name="connecting">Падлучэнне...</string>
-    <string name="new_message">Новае паведамленне</string>
-    <string name="new_chat">Чат быў створаны</string>
-    <string name="end_chat">Чат быў скончаны</string>
     <string name="start_chatting">Пачні размову</string>
     <string name="start_new_chat">Пачні новую размову</string>
     <string name="background_work_section">Праца ў фоне</string>
@@ -107,4 +108,625 @@
     <string name="search_human_prompt">Чалавек</string>
     <string name="search_ai_prompt">ШІ</string>
     <string name="search_random_prompt">Выпадковы</string>
+    <string name="search_group_prompt">Група</string>
+    <string name="manage_users">Кіраваць удзельнікамі</string>
+    <string name="add_new_member">Дадаць удзельніка</string>
+    <string name="remove_member_description">Выключыць удзельніка</string>
+    <string name="add_user_to_chat_prompt">Далучыцца да групы</string>
+    <string name="create_chat_prompt">Стварыць чат</string>
+    <string name="cancel_chat_searching">Адмяніць пошук чата</string>
+    <string name="cancel_user_adding">Адмяніць пошук групы</string>
+    <string name="searching_chat_user">Ідзе пошук удзельніка для %s</string>
+    <string name="chat_link">чата</string>
+    <string name="this_chat">гэтага чата</string>
+    <string name="cancel">Адмяніць</string>
+    <string name="searching_new_group">Ідзе пошук новай групы</string>
+    <string name="rename_chat">Перайменаваць чат</string>
+    <string name="delete_chat">Выдаліць чат</string>
+    <string name="enter_new_chat_name">Увядзіце новае імя чата</string>
+    <string name="language_mark">BE</string>
+    <string name="sign_in_title">Увайсці</string>
+    <string name="sign_in_subtitle">Увядзіце ваш email і пароль</string>
+    <string name="login_by_qr">Увайсці па QR-кодзе</string>
+    <string name="registration">Рэгістрацыя</string>
+    <string name="facebook_login_desc" translatable="false">Login with Facebook</string>
+    <string name="google_login_desc" translatable="false">Login with Google</string>
+    <string name="instagram_login_desc" translatable="false">Login with Instagram</string>
+    <string name="change_language_desc">Змяніць мову праграмы</string>
+    <string name="registration_title">Рэгістрацыя</string>
+    <string name="registration_subtitle">Увядзіце дадзеныя для стварэння новага акаўнта</string>
+    <string name="verify_email_title">Пацвердзіце Email</string>
+    <string name="verify_email_subtitle">Увядзіце 6-значны код, адпраўлены на ваш email</string>
+    <string name="already_account">Ужо ёсць уліковы запіс?</string>
+    <string name="login_text">Увайсці</string>
+    <string name="already_account_prompt">Ужо ёсць уліковы запіс? &lt;b&gt;Увайсці&lt;/b&gt;</string>
+    <string name="already_account_prefix">Ужо ёсць уліковы запіс?</string>
+    <string name="camera_permission_required">Для сканавання QR-кода патрабуецца дазвол на камеру</string>
+    <string name="scan_success_sound_description">QR-код паспяхова адсканаваны</string>
+    <string name="personal_data_title">Асабістыя даныя</string>
+    <string name="personal_data_subtitle">Увядзіце неабходныя дадзеныя для стварэння профілю</string>
+    <string name="filter_title">Налады суразмоўцаў</string>
+    <string name="filter_subtitle">Выберыце пажаданы ўзрост і пол суразмоўцаў</string>
+    <string name="otp_hint_1">1</string>
+    <string name="otp_hint_2">2</string>
+    <string name="otp_hint_3">3</string>
+    <string name="otp_hint_4">4</string>
+    <string name="otp_hint_5">5</string>
+    <string name="otp_hint_6">6</string>
+    <string name="desc_btn_back">Назад</string>
+    <string name="desc_btn_flash">Уключыць/выключыць ліхтарык</string>
+    <string name="facebook_login_not_implemented">Уваход праз Facebook яшчэ не рэалізаваны</string>
+    <string name="instagram_login_not_implemented">Уваход праз Instagram яшчэ не рэалізаваны</string>
+    <string name="qr_login_result">QR: %1$s</string>
+    <string name="login_error_account_not_exist">Няправільны лагін або пароль. Паспрабуйце яшчэ раз.</string>
+    <string name="back_button_desc">Назад</string>
+    <string name="verify_code_error">Вы ўвялі няправільны верыфікацыйны код. Паспрабуйце яшчэ раз.</string>
+    <string name="settings_button">Налады</string>
+    <string name="search_button">Пошук</string>
+    <string name="back_button">Назад</string>
+    <string name="search_hint">Увядзіце тэкст для пошуку</string>
+    <string name="search_input">Поле ўводу для пошуку</string>
+    <string name="search_button_action">Пошук</string>
+    <string name="menu_create_chat">Стварыць чат</string>
+    <string name="menu_join_group">Далучыцца да групы</string>
+    <string name="chat_human">Чалавек</string>
+    <string name="chat_ai">ШІ</string>
+    <string name="chat_random">Выпадковы</string>
+    <string name="chat_group">Група</string>
+    <string name="join_group">Далучыцца да групы</string>
+    <string name="back">Назад</string>
+    <string name="menu">Меню</string>
+    <string name="chat_join_group">Далучыцца да групы</string>
+    <string name="chat_single">Адзін чалавек</string>
+    <string name="choose_with_whom">З кім хочаш?</string>
+    <string name="show_my_qr">Паказаць мой QR-код</string>
+    <string name="theme">Тэма</string>
+    <string name="qr_image_description">Выява QR-кода</string>
+    <string name="show_qr_prompt">Націсніце, каб паказаць ваш QR-код</string>
+    <string name="close">Закрыць</string>
+    <string name="your_qr_code">Ваш QR-код</string>
+    <string name="close_qr_button">Закрыць акно з QR-кодам</string>
+    <string name="qr_code_image">Выява QR-кода</string>
+    <string name="change_password_title">Змяніць пароль</string>
+    <string name="change_password_subtitle">Увядзіце бягучы пароль і новы пароль ніжэй</string>
+    <string name="fullscreen_mode">Поўнаэкранны рэжым</string>
+    <string name="preference_skip_title">Прапусціць налады пераваг</string>
+    <string name="preference_skip_message">Вы зможаце ўказаць перавагі пазней у наладах.</string>
+    <string name="preference_skip_ok">ОК</string>
+    <string name="save_button">Захаваць</string>
+    <string name="search_counter">%1$d з %2$d</string>
+    <string name="search_counter_empty">Няма вынікаў</string>
+    <string name="member_details">%1$s, %2$d</string>
+    <string name="connection_restored">Злучэнне адноўлена</string>
+    <string name="connection_lost">Няма злучэння</string>
+    <string name="language_applied">Мова зменена</string>
+    <string name="dark_mode">Цёмная тэма</string>
+    <string name="language_arrow_description">Адкрыць выбар мовы</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Цёмная</string>
+    <string name="theme_system">Як у сістэме</string>
+    <string name="select_theme">Абярыце тэму</string>
+    <string name="appearance_section">Вонкавы выгляд</string>
+    <string name="chevron_description">Адкрыць</string>
+    <string name="qr_scanned">QR-код паспяхова адсканаваны, вы можаце закрыць гэта акно</string>
+    <string name="attach_file">Прымацаваць файл</string>
+    <string name="choose_image">Выбраць выяву</string>
+    <string name="choose_file">Выбраць файл</string>
+    <string name="themes">Тэмы</string>
+    <string name="member_avatar">Аватар удзельніка</string>
+    <string name="empty_chats_title">Пачніце размову!</string>
+    <string name="empty_chats_subtitle">Стварыце новы чат</string>
+    <string name="marketplace">Маркетплэйс</string>
+    <string name="ai_marketplace">AI-маркетплэйс</string>
+    <string name="all">Усе</string>
+    <string name="chat_models">Чат-мадэлі</string>
+    <string name="generation">Генерацыя</string>
+    <string name="analysis">Аналіз</string>
+    <string name="favorites">Выбранае</string>
+    <string name="add">Дадаць</string>
+    <string name="empty_marketplace_title">Маркетплэйс пусты</string>
+    <string name="empty_marketplace_subtitle">Тут зʼявяцца AI-мадэлі і інструменты</string>
+    <string name="add_new_ai_model">Дадаць новую AI-мадэль</string>
+    <string name="new_chat">Чат быў створаны</string>
+    <string name="end_chat">Чат быў скончаны</string>
+    <string name="add_user">Карыстальнік дададзены</string>
+    <string name="new_message">Новае паведамленне</string>
+    <string name="tap_to_reveal_qr">Націсніце, каб паказаць QR-код</string>
+    <string name="generating_qr_please_wait">Генерацыя QR-кода, пачакайце...</string>
+    <string name="qr_generation_failed">Памылка генерацыі QR-кода</string>
+    <string name="scan_qr_code">Адсканіруйце QR-код для ўваходу</string>
+    <string name="chat_type">Тып чата</string>
+    <string name="chat_type_group">Група</string>
+    <string name="chat_type_ai">AI</string>
+    <string name="chat_type_human">Чалавек</string>
+    <string name="chat_type_random">Выпадковы</string>
+    <string name="chat_type_letter_group">Г</string>
+    <string name="chat_type_letter_ai">AI</string>
+    <string name="chat_type_letter_human">Ч</string>
+    <string name="chat_type_letter_random">В</string>
+    <string name="chat_circle_me">Я</string>
+    <string name="cannot_open_file">Немагчыма адкрыць файл</string>
+    <string name="integration_connected">Інтэграцыя падключана</string>
+    <string name="integration_disconnected">Інтэграцыя не падключана</string>
+    <string name="integration_connected_toast">Інтэграцыя %s падключана</string>
+    <string name="integration_disconnected_toast">Інтэграцыя %s адключана</string>
+    <string name="integration_error">Памылка пры змяненні статусу інтэграцыі</string>
+    <string name="integration_google_desc">Інтэграцыя з Google</string>
+    <string name="integration_instagram_desc">Інтэграцыя з Instagram</string>
+    <string name="integration_facebook_desc">Інтэграцыя з Facebook</string>
+    <string name="integration_telegram_desc">Інтэграцыя з Telegram</string>
+    <string name="storage">Сховішча</string>
+    <string name="storage_usage">Выкарыстана: 0 MB</string>
+    <string name="integrations">Інтэграцыі</string>
+    <string name="service_google">Google</string>
+    <string name="service_instagram">Instagram</string>
+    <string name="service_facebook">Facebook</string>
+    <string name="service_telegram">Telegram</string>
+    <string name="subscribe">Падпіска</string>
+    <string name="user_not_found">Карыстальнік не знойдзены.</string>
+    <string name="invalid_credentials">Няправільная пошта або пароль.</string>
+    <string name="user_banned">Ваш акаўнт заблакаваны.</string>
+    <string name="try_again">Памылка ўваходу. Калі ласка, паспрабуйце яшчэ раз.</string>
+    <string name="invalid_qr_code">Няправільны QR-код</string>
+    <string name="products_title">Падпіска</string>
+    <string name="payment_history">Гісторыя плацяжоў</string>
+    <string name="products_header_title">Адкрыйце магчымасці AIChat</string>
+    <string name="products_header_description">Доступ да прасунутых мадэляў,\nпрэміум-тэм і больш хуткіх\nадказаў</string>
+    <string name="premium_subscription">Прэміум-падпіска</string>
+    <string name="subscriptions">Падпіскі</string>
+    <string name="token_packages">Пакеты валюты</string>
+    <string name="badge_popular">ПАПУЛЯРНА</string>
+    <string name="badge_best_value">ЛЕПШАЯ ВАРТАСЦЬ</string>
+    <string name="continue_text">Працягнуць</string>
+    <string name="quantity">Колькасць</string>
+    <string name="pay_now">Аплаціць</string>
+    <string name="payment_success">Плацёж паспяхова завершаны</string>
+    <string name="payment_canceled">Плацёж адменены</string>
+    <string name="product_not_found">Прадукт не знойдзены</string>
+    <string name="product_not_loaded">Прадукт не загружаны</string>
+    <string name="invalid_quantity">Няправільная колькасць</string>
+    <string name="payment_failed">Памылка аплаты</string>
+    <string name="subscription">Падпіска</string>
+    <string name="subscription_month">Прэміум на 1 месяц</string>
+    <string name="subscription_3_months">Прэміум на 3 месяцы</string>
+    <string name="subscription_year">Прэміум на 1 год</string>
+    <string name="currency_package">Пакет валюты</string>
+    <string name="currency_100">100 валюты</string>
+    <string name="currency_500">500 валюты</string>
+    <string name="currency_1000">1000 валюты</string>
+    <string name="subscription_month_description">Поўны прэміум-доступ на 1 месяц з усімі магчымасцямі AIChat.</string>
+    <string name="subscription_3_months_description">Пашыраны прэміум-доступ на 3 месяцы з найлепшым балансам кошту і магчымасцей.</string>
+    <string name="subscription_year_description">Безлімітны прэміум-доступ на 1 год з максімальнай выгодай.</string>
+    <string name="currency_100_description">Невялікі пакет валюты для хуткіх AI-запытаў і базавага выкарыстання.</string>
+    <string name="currency_500_description">Сярэдні пакет валюты для рэгулярных размоў і задач генерацыі.</string>
+    <string name="currency_1000_description">Вялікі пакет валюты для актыўнага штодзённага выкарыстання і пашыраных AI-функцый.</string>
+    <string name="secure_payment_stripe">Бяспечная аплата праз Stripe</string>
+    <string name="user_already_has_subscription">У вас ужо ёсць актыўная падпіска з аўтападаўжэннем</string>
+    <string name="connection_error">Памылка злучэння. Праверце падключэнне да інтэрнэту</string>
+    <string name="payment_declined">Адхілена</string>
+    <string name="understood">Зразумела</string>
+    <string name="contact_support">Звязацца з падтрымкай</string>
+    <string name="payment_successful">Паспяхова</string>
+    <string name="next">Далей</string>
+    <string name="previous">Назад</string>
+    <string name="currency">Валюта</string>
+    <string name="premium_inactive">Прэміум не актыўны</string>
+    <string name="no_active_subscription">Няма актыўнай падпіскі</string>
+    <string name="auto_renew_enabled">Аўтападаўжэнне ўключана</string>
+    <string name="auto_renew_disabled">Аўтападаўжэнне выключана</string>
+    <string name="premium_active_until">Прэміум актыўны да</string>
+    <string name="payment_details_title">Дэталі плацяжу</string>
+    <string name="payment_id_label">ID плацяжу</string>
+    <string name="payment_amount_label">Сума</string>
+    <string name="payment_currency_label">Валюта</string>
+    <string name="payment_status_label">Статус</string>
+    <string name="payment_created_label">Створана</string>
+    <string name="payment_items_title">Тавары</string>
+    <string name="open_receipt">Адкрыць чэк</string>
+    <string name="details">Падрабязней</string>
+    <string name="payment_status_confirmed">Пацверджана</string>
+    <string name="payment_status_pending">У чаканні</string>
+    <string name="payment_status_failed">Памылка</string>
+    <string name="payment_status_expired">Пратэрмінавана</string>
+    <string name="payment_amount_value">Сума: %1$s %2$s</string>
+    <string name="payment_created_value">Створана: %1$s</string>
+    <string name="my_themes">Мае тэмы</string>
+    <string name="create_theme">Стварыць тэму</string>
+    <string name="library">Бібліятэка</string>
+    <string name="chats">Чаты</string>
+    <string name="default_theme">Па змаўчанні</string>
+    <string name="in_library">У бібліятэцы</string>
+    <string name="theme_loading_percent">Загрузка...</string>
+    <string name="explore">Даследаваць</string>
+    <string name="theme_header_description">Адкрыйце для сябе ўнікальныя тэмы, каб персаналізаваць ваш досвед</string>
+    <string name="premium_title">Прэміум</string>
+    <string name="premium_status">Прэміум-статус</string>
+    <string name="premium_description">Усе магчымасці прэміум-доступу</string>
+    <string name="premium_autorenew_on">Аўтападаўжэнне ўключана</string>
+    <string name="premium_autorenew_off">Аўтападаўжэнне выключана</string>
+    <string name="premium_active_period">Прэміум актыўны з — да —</string>
+    <string name="premium_next_payment">Наступная аплата: —</string>
+    <string name="premium_no_active">Няма актыўнага прэміуму</string>
+    <string name="premium_no_active_description">Аформіце падпіску, каб атрымаць доступ да ўсіх магчымасцей</string>
+    <string name="premium_activate">Актываваць прэміум</string>
+    <string name="premium_history">Гісторыя падпісак</string>
+    <string name="theme_editor_title">Рэдактар тэмы</string>
+    <string name="theme_editor_save">Захаваць</string>
+    <string name="theme_editor_name_hint">Назва тэмы</string>
+    <string name="theme_editor_default_name">Мая тэма</string>
+    <string name="theme_editor_colors_section">Колеры</string>
+    <string name="theme_editor_primary_color">Асноўны колер</string>
+    <string name="theme_editor_background_color">Колер фону</string>
+    <string name="theme_editor_text_color">Колер тэксту</string>
+    <string name="theme_editor_secondary_text_color">Колер дадатковага тэксту</string>
+    <string name="theme_editor_my_messages_color">Колер маіх паведамленняў</string>
+    <string name="theme_editor_other_messages_color">Колер чужых паведамленняў</string>
+    <string name="theme_editor_chat_background_section">Фон чата</string>
+    <string name="theme_editor_background_image">Фонавая выява</string>
+    <string name="theme_editor_default_value">Па змаўчанні</string>
+    <string name="theme_editor_animations_section">Анімацыі</string>
+    <string name="theme_editor_message_animation">Анімацыя адпраўкі паведамлення</string>
+    <string name="theme_editor_preview_section">Перадпрагляд</string>
+    <string name="theme_editor_preview_other_message">Прывітанне! Як справы?</string>
+    <string name="theme_editor_preview_my_message">Выдатна! А ў цябе?</string>
+    <string name="theme_editor_preview_time">17:30</string>
+    <string name="theme_editor_preview_time_read">17:30 ✓✓</string>
+    <string name="theme_editor_choose_primary_color">Выберыце асноўны колер</string>
+    <string name="theme_editor_choose_background_color">Выберыце колер фону</string>
+    <string name="theme_editor_choose_text_color">Выберыце колер тэксту</string>
+    <string name="theme_editor_choose_secondary_text_color">Выберыце колер дадатковага тэксту</string>
+    <string name="theme_editor_choose_my_messages_color">Выберыце колер вашых паведамленняў</string>
+    <string name="theme_editor_choose_other_messages_color">Выберыце колер чужых паведамленняў</string>
+    <string name="theme_editor_choose_chat_background">Выберыце фон чата</string>
+    <string name="theme_editor_palette">Палітра</string>
+    <string name="theme_editor_spectrum">Спектр</string>
+    <string name="theme_editor_cancel">Адмяніць</string>
+    <string name="theme_editor_choose">Выбраць</string>
+    <string name="theme_editor_enter_theme_name_error">Увядзіце назву тэмы</string>
+    <string name="theme_editor_theme_saved">Тэма захавана</string>
+    <string name="theme_editor_icon_background">▣</string>
+    <string name="theme_editor_icon_animation">◌</string>
+    <string name="theme_editor_background_picker_title">Фон чата</string>
+    <string name="theme_editor_choose_background_color_action">Выбраць колер фону</string>
+    <string name="theme_editor_choose_background_image">Выбраць фонавую выяву</string>
+    <string name="theme_editor_remove_background_image">Выдаліць фонавую выяву</string>
+    <string name="theme_editor_background_image_selected">Фонавая выява выбрана</string>
+    <string name="theme_editor_background_image_error">Не ўдалося выбраць фонавую выяву</string>
+    <string name="theme_editor_background_image_invalid">Выберыце выяву</string>
+    <string name="theme_editor_hex_label">HEX</string>
+    <string name="delete">Выдаліць</string>
+    <string name="theme_menu">Меню тэмы</string>
+    <string name="theme_menu_apply">Прымяніць</string>
+    <string name="theme_menu_edit">Рэдагаваць</string>
+    <string name="theme_menu_duplicate">Дубляваць</string>
+    <string name="theme_menu_delete">Выдаліць</string>
+    <string name="theme_applied">Тэма прыменена: %1$s</string>
+    <string name="theme_applied_short">Прыменена</string>
+    <string name="theme_source_my">Мая тэма</string>
+    <string name="theme_source_library">Бібліятэка</string>
+    <string name="theme_selected_subtitle">Прыменена • %1$s</string>
+    <string name="theme_copy_suffix">копія</string>
+    <string name="theme_duplicated">Тэма прадублявана</string>
+    <string name="theme_deleted">Тэма выдалена</string>
+    <string name="theme_delete_title">Выдаліць тэму?</string>
+    <string name="theme_delete_message">Выдаліць «%1$s»? Гэта дзеянне нельга адмяніць.</string>
+    <string name="manage_themes">Кіраванне тэмамі</string>
+
+    <string-array name="theme_editor_message_animations">
+        <item>Па змаўчанні</item>
+        <item>Плыўная</item>
+        <item>Зрух уверх</item>
+        <item>Зрух уверх з эфектам</item>
+        <item>Зрух уверх з адскокам</item>
+        <item>Згасанне</item>
+        <item>Маштаб</item>
+    </string-array>
+
+    <string name="connection_established">Злучэнне ўстаноўлена</string>
+    <string name="reconnecting">Перападключэнне...</string>
+    <string name="critical_error">Крытычная памылка: %1$s</string>
+    <string name="theme_not_found">Тэма не знойдзена</string>
+    <string name="theme_editor_open_full_preview">Адкрыць поўнаэкранны папярэдні прагляд</string>
+    <string name="add_member">Дадаць карыстальніка</string>
+    <string name="youtube_preview_title_default">Відэа YouTube</string>
+    <string name="youtube_preview_subtitle_default">https://youtube.com</string>
+    <string name="youtube_preview_open_description">Адкрыць відэа YouTube</string>
+
+    <string name="video_player_title">Відэа</string>
+    <string name="video_player_error">Не ўдалося прайграць відэа</string>
+    <string name="video_player_open_youtube">Адкрыць у YouTube</string>
+    <string name="video_player_youtube_title">YouTube</string>
+    <string name="video_player_youtube_embed_unavailable_title">Гэта відэа недаступнае ва ўбудаваным плэеры</string>
+    <string name="video_player_youtube_embed_unavailable_text">YouTube не дазволіў прайграць гэта відэа ўнутры праграмы.</string>
+
+    <string name="video_player_quality_short">Q</string>
+    <string name="video_player_quality_auto">Аўта</string>
+    <string name="video_player_quality_auto_details">Адаптыўная якасць на аснове бягучага відэа</string>
+    <string name="video_player_quality_available">Даступная якасць</string>
+    <string name="video_player_quality_unknown">Невядома</string>
+    <string name="video_player_quality_unavailable">Варыянты якасці недаступныя</string>
+    <string name="video_player_quality_exoplayer_only">Выбар якасці даступны толькі ў рэжыме ExoPlayer</string>
+
+    <string name="video_player_captions_title">Субцітры</string>
+    <string name="video_player_captions_auto">Убудаваныя субцітры</string>
+    <string name="video_player_captions_auto_description">Выкарыстоўвае дарожкі субцітраў у відэа, калі яны ёсць.</string>
+    <string name="video_player_captions_auto_status">Аўтасубцітры: выкарыстоўваюцца ўбудаваныя дарожкі, калі яны ёсць</string>
+    <string name="video_player_captions_off">Субцітры выключаны</string>
+    <string name="video_player_captions_off_description">Не паказваць убудаваныя субцітры і лакальныя STT-субцітры.</string>
+    <string name="video_player_captions_short_on">CC</string>
+    <string name="video_player_captions_short_off">CC выкл.</string>
+    <string name="video_player_captions_short_stt">STT %1$s</string>
+    <string name="video_player_captions_short_translate">TR %1$s</string>
+    <string name="video_player_captions_short_bilingual">BI %1$s</string>
+
+    <string name="video_player_stt_original_title">Sherpa STT — арыгінал</string>
+    <string name="video_player_stt_original_description">Распазнае маўленне лакальнай Sherpa-ONNX ASR-мадэллю і паказвае зыходны тэкст без перакладу.</string>
+    <string name="video_player_stt_translated_title">Sherpa STT — пераклад на мову праграмы</string>
+    <string name="video_player_stt_translated_description">Распазнае маўленне лакальна, а потым перакладае гатовыя фразы лакальнай ML Kit мадэллю на бягучую мову праграмы.</string>
+    <string name="video_player_stt_bilingual_title">Sherpa STT — арыгінал + пераклад</string>
+    <string name="video_player_stt_bilingual_description">Паказвае зыходны радок і пераклад на мову праграмы. Пераклад выконваецца лакальна пасля падрыхтоўкі мадэлі.</string>
+    <string name="video_player_stt_language_ru_title">Мова відэа — руская</string>
+    <string name="video_player_stt_language_ru_description">Руская ASR-мадэль: asr/ru. Пунктуацыя і арфаграфія апрацоўваюцца Java-постпрацэсарам.</string>
+    <string name="video_player_stt_language_en_zh_title">Мова відэа — English / 中文</string>
+    <string name="video_player_stt_language_en_zh_description">Двухмоўная EN/ZH ASR-мадэль: asr/en. Пасля распазнання выкарыстоўваецца Sherpa EN/ZH punctuation-мадэль, калі яна даступная.</string>
+    <string name="video_player_stt_language_ru_short">RU</string>
+    <string name="video_player_stt_language_en_zh_short">EN/ZH</string>
+    <string name="video_player_stt_youtube_unavailable">Sherpa-ONNX субцітры недаступныя для YouTube-відэа ўнутры праграмы</string>
+    <string name="video_player_stt_microphone_permission_missing">Для Sherpa-ONNX субцітраў патрэбны дазвол на мікрафон</string>
+    <string name="video_player_translation_model_preparing">Падрыхтоўка лакальнага перакладу %1$s → %2$s…</string>
+
+    <string name="video_player_scale_short">FIT</string>
+    <string name="video_player_scale_title">Маштаб</string>
+    <string name="video_player_scale_content_description">Маштаб відэа</string>
+    <string name="video_player_scale_fit_title">Упісаць у экран</string>
+    <string name="video_player_scale_fit_description">Захоўвае прапорцыі відэа без абрэзкі.</string>
+    <string name="video_player_scale_fill_title">Запоўніць экран</string>
+    <string name="video_player_scale_fill_description">Расцягвае відэа на ўсю вобласць плэера.</string>
+    <string name="video_player_scale_crop_title">Павялічыць / абрэзаць</string>
+    <string name="video_player_scale_crop_description">Запаўняе экран, павялічваючы відэа і абразаючы краі.</string>
+    <string name="video_player_scale_pinch_title">Жэст маштабавання</string>
+    <string name="video_player_scale_pinch_description">Бягучы ручны маштаб: %1$s</string>
+
+    <string name="video_player_filter_short">FX</string>
+    <string name="video_player_filters_title">Фільтры</string>
+    <string name="video_player_filters_content_description">Фільтры відэа</string>
+    <string name="video_player_filter_none_title">Без фільтра</string>
+    <string name="video_player_filter_none_description">Арыгінальная карцінка без каляровай апрацоўкі.</string>
+    <string name="video_player_filter_brightness_title">Яркасць+</string>
+    <string name="video_player_filter_brightness_description">Робіць відэа святлейшым.</string>
+    <string name="video_player_filter_sharpness_title">Рэзкасць+</string>
+    <string name="video_player_filter_sharpness_description">Павышае візуальную кантраснасць краёў.</string>
+    <string name="video_player_filter_brightness_sharpness_title">Яркасць+ і рэзкасць+</string>
+    <string name="video_player_filter_brightness_sharpness_description">Камбінуе ўзмацненне яркасці і кантраснасці.</string>
+    <string name="video_player_filter_black_white_title">Чорна-белы</string>
+    <string name="video_player_filter_black_white_description">Цалкам прыбірае колер.</string>
+    <string name="video_player_filter_noir_title">Нуар</string>
+    <string name="video_player_filter_noir_description">Кантрасны чорна-белы кінаэфект.</string>
+    <string name="video_player_filter_warm_title">Цёплы</string>
+    <string name="video_player_filter_warm_description">Дадае цёплае жаўтаватае адценне.</string>
+    <string name="video_player_filter_cold_title">Халодны</string>
+    <string name="video_player_filter_cold_description">Дадае халоднае сіняе адценне.</string>
+    <string name="video_player_filter_high_contrast_title">Высокі кантраст</string>
+    <string name="video_player_filter_high_contrast_description">Узмацняе кантраст і насычанасць.</string>
+    <string name="video_player_open_youtube_short">YouTube</string>
+    <string name="video_player_enhancement_title">Паляпшэнне відэа</string>
+    <string name="video_player_enhance_short">HDR</string>
+    <string name="video_player_quality">Якасць відэа</string>
+    <string name="video_file">Відэа</string>
+    <string name="chat_typing_status">друкуе</string>
+    <string name="voice_message">Галасавое паведамленне</string>
+    <string name="video_circle_message">Відэакружок</string>
+
+    <string name="voice_swipe_right_cancel">Управа — адмяніць</string>
+    <string name="voice_release_delete">Адпусціце — выдаліць</string>
+    <string name="voice_recording">Запіс</string>
+    <string name="voice_swipe_down_unlock">Уніз — зняць</string>
+    <string name="voice_locked">Замацавана</string>
+    <string name="voice_unlocked_release_send">Адпусціце — адправіць</string>
+    <string name="voice_trim">Абрэзка</string>
+    <string name="voice_trim_hint">Край унутр</string>
+    <string name="voice_permission_microphone">Дазвольце доступ да мікрафона і націсніце яшчэ раз</string>
+    <string name="voice_start_failed">Не ўдалося пачаць запіс</string>
+    <string name="video_circle_permission_camera_microphone">Дазвольце доступ да камеры і мікрафона і націсніце яшчэ раз</string>
+
+    <string name="chat_typing_dot">•</string>
+    <string name="unread_jump_placeholder">1 непрач.</string>
+    <string name="file_counter_zero">0</string>
+    <string name="video_circle_play">Прайграць кружок</string>
+    <string name="video_label">VID</string>
+    <string name="audio_now_playing_unknown">Зараз грае</string>
+    <string name="audio_now_playing_voice">Галасавое паведамленне</string>
+    <string name="audio_now_playing_voice_subtitle">Галасавое</string>
+    <string name="audio_now_playing_you">Вы</string>
+    <string name="audio_now_playing_interlocutor">Суразмоўца</string>
+    <string name="audio_now_playing_voice_title_format">%1$s • %2$s</string>
+
+    <string name="cache_usage_title">Выкарыстанне памяці</string>
+    <string name="cache_aichat_title">Кэш AIChat</string>
+    <string name="cache_counting">Падлік памеру кэша…</string>
+    <string name="cache_usage_subtitle">AIChat займае %1$s месца на прыладзе.</string>
+    <string name="cache_usage_hint">Націсніце на катэгорыі, якія трэба ачысціць. Файл, які зараз прайграецца, заўсёды абаронены.</string>
+    <string name="cache_clear_selected">Ачысціць выбраны кэш</string>
+    <string name="cache_clear_button">Ачысціць кэш  %1$s</string>
+    <string name="cache_select_categories">Выберыце катэгорыі</string>
+    <string name="cache_select_categories_to_clear">Выберыце хаця б адну катэгорыю</string>
+    <string name="cache_cleared">Кэш ачышчаны</string>
+    <string name="cache_limit_title">Максімальны памер кэша</string>
+    <string name="cache_limit_saved">Ліміт кэша: %1$s</string>
+    <string name="cache_auto_download_settings">Налады аўтазагрузкі медыя</string>
+    <string name="cache_auto_download_title">Аўтазагрузка медыя</string>
+    <string name="cache_auto_download_reset">Скінуць налады</string>
+    <string name="cache_auto_download_reset_done">Налады аўтазагрузкі скінуты</string>
+    <string name="cache_auto_download_note">Галасавыя паведамленні маюць невялікі памер і заўсёды загружаюцца аўтаматычна. Астатнія тыпы файлаў улічваюць выбраны тып сеткі і ліміт памеру.</string>
+    <string name="cache_network_mobile">Праз мабільную сетку</string>
+    <string name="cache_network_wifi">Праз сеткі Wi‑Fi</string>
+    <string name="cache_network_roaming">У роўмінгу</string>
+    <string name="cache_network_mobile_short">Маб. сетка</string>
+    <string name="cache_network_wifi_short">Wi‑Fi</string>
+    <string name="cache_network_roaming_short">Роўмінг</string>
+    <string name="cache_disabled">Выключана</string>
+    <string name="cache_nothing_selected">Нічога не выбрана</string>
+    <string name="cache_media_photo">Фота</string>
+    <string name="cache_media_video">Відэа</string>
+    <string name="cache_media_files">Файлы</string>
+    <string name="cache_media_stories">Гісторыі</string>
+    <string name="cache_media_video_with_limit">Відэа (%1$s)</string>
+    <string name="cache_media_files_with_limit">Файлы (%1$s)</string>
+    <string name="cache_download_automatically">Загружаць аўтаматычна</string>
+    <string name="cache_traffic_usage">Выкарыстанне трафіку</string>
+    <string name="cache_traffic_low">Нізкае</string>
+    <string name="cache_traffic_medium">Сярэдняе</string>
+    <string name="cache_traffic_high">Высокае</string>
+    <string name="cache_download_multimedia">Загружаць мультымедыя</string>
+    <string name="cache_enabled_for_all_chats">Уключана для ўсіх чатаў</string>
+    <string name="cache_up_to_for_all_chats">Да %1$s для ўсіх чатаў</string>
+    <string name="cache_on_short">Укл.</string>
+    <string name="cache_off_short">Выкл.</string>
+    <string name="cache_voice_always_downloaded">Галасавыя паведамленні маюць невялікі памер і заўсёды загружаюцца аўтаматычна.</string>
+    <string name="cache_category_video">Відэа</string>
+    <string name="cache_category_files">Файлы</string>
+    <string name="cache_category_images">Фота</string>
+    <string name="cache_category_voice">Галасавыя паведамленні</string>
+    <string name="cache_category_music">Музыка</string>
+    <string name="cache_category_other">Іншае</string>
+
+    <string name="ai_model_title">AI-мадэль</string>
+    <string name="ai_model_subtitle">Мадэль для AI-чатаў</string>
+    <string name="ai_translate">Перакласці</string>
+    <string name="ai_translate_title">AI-пераклад</string>
+    <string name="ai_translate_language_title">Перакласці на</string>
+    <string name="ai_translate_style_title">Стыль перакладу</string>
+    <string name="ai_translate_loading">Пераклад...</string>
+    <string name="ai_translate_error">Памылка перакладу</string>
+    <string name="ai_translate_no_text">Няма тэксту для перакладу</string>
+    <string name="ai_translate_chat_not_found">Не ўдалося вызначыць чат для перакладу</string>
+    <string name="ai_translate_copied">Пераклад скапіяваны</string>
+
+    <string name="currency_package_description">Пакет валюты для AI-запытаў, размоў і задач генерацыі.</string>
+
+    <string name="payments_history_title">Гісторыя плацяжоў</string>
+
+    <string name="payments_header_title">Вашы плацяжы</string>
+
+    <string name="payments_header_description">Праглядайце гісторыю пакупак, падпісак і аплат у адным месцы.</string>
+
+    <string name="payments_loading">Загрузка...</string>
+
+    <string name="payments_empty_title">Плацяжоў пакуль няма</string>
+
+    <string name="payments_empty_description">Пасля куплі падпіскі або токенаў гісторыя плацяжоў з’явіцца тут.</string>
+
+    <string name="payments_go_to_products">Перайсці да прадуктаў</string>
+
+    <string name="payments_latest_title">Апошнія плацяжы</string>
+
+    <string name="send_message">Адправіць паведамленне</string>
+    <string name="ai_customize_title">Наладжванне ШІ</string>
+    <string name="ai_customize_subtitle">Выберыце мадэль і апішыце, як асістэнт павінен адказваць.</string>
+    <string name="ai_model_label">Мадэль</string>
+    <string name="ai_prompt_label">Карыстальніцкі промпт</string>
+    <string name="ai_prompt_hint">Увядзіце карыстальніцкі промпт...</string>
+    <string name="ai_prompt_help">Пакіньце поле пустым, каб выкарыстоўваць стандартны промпт.</string>
+    <string name="ai_customize_done">Гатова</string>
+    <string name="ai_settings_loading">Загрузка налад ШІ...</string>
+    <string name="ai_settings_updated">Налады ШІ абноўлены</string>
+    <string name="ai_settings_update_error">Памылка абнаўлення налад ШІ</string>
+    <string name="ai_settings_load_error">Памылка загрузкі налад ШІ</string>
+    <string name="ai_settings_loading_cancelled">Загрузка адменена</string>
+    <string name="ai_settings_empty_models">Няма даступных мадэляў ШІ</string>
+    <string name="chat_media_not_supported">Медыяпаведамленні не падтрымліваюцца ў гэтым чаце</string>
+    <string name="select_model">Наладзіць ШІ</string>
+    <string name="ai_model_default_display">Па змаўчанні</string>
+    <string name="ai_model_deepseek_chat_display">DeepSeek Chat</string>
+    <string name="ai_model_ollama_qwen3_4b_display">Ollama Qwen 3 4B</string>
+    <string name="ai_model_ollama_llama3_display">Ollama Llama 3</string>
+    <string name="ai_model_ollama_mistral_display">Ollama Mistral</string>
+    <string name="ai_model_ollama_gemma4e_display">Ollama Gemma 4e</string>
+    <string name="faq_summary">Адказы на частыя пытанні пра чаты і функцыі праграмы</string>
+    <string name="privacy_policy_summary">Як AIChat апрацоўвае даныя акаўнта і паведамленняў</string>
+    <string name="support_summary">Звязацца з падтрымкай, калі нешта працуе няправільна</string>
+    <string name="faq_content">У чатах з людзьмі і групах падтрымліваюцца звычайныя паведамленні і даступныя медыяўкладанні. У ІІ-чатах і выпадковых чатах увод абмежаваны тэкстам, таму галасавыя паведамленні, відэакружкі і кнопкі мультымедыя там схаваныя. Значок каля аватара паказвае тып чата, а вялікі круг паказвае апошняга адпраўніка або мадэль ІІ, калі гэтыя даныя даступныя. У наладах можна змяніць выгляд, мову, апавяшчэнні, сховішча і мадэль ІІ.</string>
+    <string name="privacy_policy_content">Праграма захоўвае толькі даныя, неабходныя для ўваходу ў акаўнт, сінхранізацыі, працы чатаў, апавяшчэнняў, выбранай тэмы, мовы і лакальнага кэша. Гісторыя паведамленняў і файлы могуць захоўвацца лакальна, каб інтэрфейс працаваў хутчэй і карэктна аднаўляўся пасля паўторнага адкрыцця праграмы. Не адпраўляйце ў чатах паролі, коды пацвярджэння, плацежныя даныя і іншую адчувальную інфармацыю. Пры выхадзе з акаўнта лакальныя даныя сесіі ачышчаюцца, а пасля паўторнага ўваходу праграма загружае актуальныя даныя чатаў нанова.</string>
+    <string name="support_content">Калі нешта працуе няправільна, спачатку праверце інтэрнэт-злучэнне, перазапусціце праграму і пераканайцеся, што ўсталяваная апошняя версія. Пры звароце ў падтрымку апішыце праблему, пазначце экран, дзе яна зʼявілася, тып чата і па магчымасці дадайце скрыншоты. Так праблему прасцей паўтарыць і выправіць без лішніх удакладненняў.</string>
+
+    <string name="cancel_subscription">Адмяніць падпіску</string>
+    <string name="cancel_subscription_dialog_title">Адмена падпіскі</string>
+    <string name="cancel_subscription_dialog_message">Аўтападаўжэнне будзе выключана. Прэміум-доступ застанецца даступным да канца аплачанага перыяду.</string>
+    <string name="cancel_subscription_confirm">Выключыць аўтападаўжэнне</string>
+    <string name="keep_subscription">Пакінуць падпіску</string>
+    <string name="subscription_cancelled_success">Аўтападаўжэнне падпіскі выключана</string>
+    <string name="subscription_cancel_error">Не ўдалося адмяніць падпіску</string>
+    <string name="premium_subscription_cancelled">Аўтападаўжэнне выключана</string>
+    <string name="premium_active_period_format">Прэміум актыўны з %1$s да %2$s</string>
+    <string name="premium_next_payment_format">Наступная аплата: %1$s</string>
+    <string name="premium_access_until_after_cancel">Прэміум-доступ даступны да %1$s. Аўтападаўжэнне выключана.</string>
+    <string name="premium_history_autorenew_on">Аўтападаўжэнне: Уключана</string>
+    <string name="premium_history_autorenew_off">Аўтападаўжэнне: Выключана</string>
+    <string name="premium_history_item_title">Падпіска #%1$s</string>
+    <string name="premium_load_error">Памылка загрузкі даных</string>
+    <string name="payment_load_error">Памылка загрузкі плацяжу</string>
+    <string name="ai_prompt_english_only_help">Для мадэляў, акрамя «Па змаўчанні» і DeepSeek Chat, карыстальніцкія промпты карэктна працуюць толькі на англійскай мове.</string>
+    <string name="models_ollamaqwen3_4B_title">Qwen 3 4B</string>
+    <string name="models_ollamaqwen3_4B_description">Безлімітны доступ да AI-мадэлі Qwen 3 4B для чата. Выкарыстоўвайце колькі заўгодна разоў.</string>
+    <string name="models_ollamallama3_title">Llama 3</string>
+    <string name="models_ollamallama3_description">Безлімітны доступ да AI-мадэлі Llama 3 для чата. Выкарыстоўвайце колькі заўгодна разоў.</string>
+    <string name="models_ollamamistral_title">Mistral</string>
+    <string name="models_ollamamistral_description">Безлімітны доступ да AI-мадэлі Mistral для чата. Выкарыстоўвайце колькі заўгодна разоў.</string>
+    <string name="models_ollamagemma4е_title">Gemma 4e</string>
+    <string name="models_ollamagemma4е_description">Безлімітны доступ да AI-мадэлі Gemma 4e для чата. Выкарыстоўвайце колькі заўгодна разоў.</string>
+    <string name="single_item">AI-мадэль</string>
+    <string name="leaders_title">Табліца лідараў</string>
+    <string name="loading_leaders">Загрузка...</string>
+    <string name="no_leaders_data">Няма даных пра лідараў</string>
+    <string name="leader_name_age">Імя / узрост</string>
+    <string name="leader_points">Ачкі</string>
+    <string name="leader_region">Рэгіён</string>
+    <string name="items_per_page">На старонцы:</string>
+    <string name="first_page_desc">Першая старонка</string>
+    <string name="previous_page_desc">Папярэдняя старонка</string>
+    <string name="next_page_desc">Наступная старонка</string>
+    <string name="last_page_desc">Апошняя старонка</string>
+    <string name="empty_state_desc">Няма даных</string>
+
+    <string name="lorem_ipsum" translatable="false">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
+        volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
+        dui nec risus. Maecenas non sodales nisi, vel dictum dolor. Class aptent taciti sociosqu ad
+        litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse blandit eleifend
+        diam, vel rutrum tellus vulputate quis. Aliquam eget libero aliquet, imperdiet nisl a,
+        ornare ex. Sed rhoncus est ut libero porta lobortis. Fusce in dictum tellus.\n\n
+        Suspendisse interdum ornare ante. Aliquam nec cursus lorem. Morbi id magna felis. Vivamus
+        egestas, est a condimentum egestas, turpis nisl iaculis ipsum, in dictum tellus dolor sed
+        neque. Morbi tellus erat, dapibus ut sem a, iaculis tincidunt dui. Interdum et malesuada
+        fames ac ante ipsum primis in faucibus. Curabitur et eros porttitor, ultricies urna vitae,
+        molestie nibh. Phasellus at commodo eros, non aliquet metus. Sed maximus nisl nec dolor
+        bibendum, vel congue leo egestas.\n\n
+        Sed interdum tortor nibh, in sagittis risus mollis quis. Curabitur mi odio, condimentum sit
+        amet auctor at, mollis non turpis. Nullam pretium libero vestibulum, finibus orci vel,
+        molestie quam. Fusce blandit tincidunt nulla, quis sollicitudin libero facilisis et. Integer
+        interdum nunc ligula, et fermentum metus hendrerit id. Vestibulum lectus felis, dictum at
+        lacinia sit amet, tristique id quam. Cras eu consequat dui. Suspendisse sodales nunc ligula,
+        in lobortis sem porta sed. Integer id ultrices magna, in luctus elit. Sed a pellentesque
+        est.\n\n
+        Aenean nunc velit, lacinia sed dolor sed, ultrices viverra nulla. Etiam a venenatis nibh.
+        Morbi laoreet, tortor sed facilisis varius, nibh orci rhoncus nulla, id elementum leo dui
+        non lorem. Nam mollis ipsum quis auctor varius. Quisque elementum eu libero sed commodo. In
+        eros nisl, imperdiet vel imperdiet et, scelerisque a mauris. Pellentesque varius ex nunc,
+        quis imperdiet eros placerat ac. Duis finibus orci et est auctor tincidunt. Sed non viverra
+        ipsum. Nunc quis augue egestas, cursus lorem at, molestie sem. Morbi a consectetur ipsum, a
+        placerat diam. Etiam vulputate dignissim convallis. Integer faucibus mauris sit amet finibus
+        convallis.\n\n
+        Phasellus in aliquet mi. Pellentesque habitant morbi tristique senectus et netus et
+        malesuada fames ac turpis egestas. In volutpat arcu ut felis sagittis, in finibus massa
+        gravida. Pellentesque id tellus orci. Integer dictum, lorem sed efficitur ullamcorper,
+        libero justo consectetur ipsum, in mollis nisl ex sed nisl. Donec maximus ullamcorper
+        sodales. Praesent bibendum rhoncus tellus nec feugiat. In a ornare nulla. Donec rhoncus
+        libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
+        vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
+    </string>
+    
+    <string name="leaderboard">Лідары</string>
+    <string name="theme_source_system">Сістэмная</string>
+    <string name="theme_standard_light">Стандартная светлая</string>
+    <string name="theme_standard_dark">Стандартная цёмная</string>
 </resources>

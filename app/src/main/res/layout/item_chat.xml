@@ -2,48 +2,203 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/item_chat_root"
     android:layout_width="match_parent"
     android:layout_height="80dp"
-    android:padding="8dp"
-    android:background="?attr/selectableItemBackground"
+    android:background="@android:color/transparent"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    android:foreground="@drawable/ripple_itemchat"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp">
 
-    <ImageView
-        android:id="@+id/iv_chat_status"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_last_message"
+    <FrameLayout
+        android:id="@+id/chat_circle_preview_root"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_marginEnd="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/tv_last_message"/>
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/chat_circle_preview_card"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_gravity="center"
+            android:clipChildren="true"
+            android:clipToOutline="true"
+            app:cardBackgroundColor="?attr/colorPrimary"
+            app:cardCornerRadius="21dp"
+            app:cardElevation="0dp"
+            app:strokeColor="?attr/chatCircleStroke"
+            app:strokeWidth="2dp">
+
+            <com.example.aichat.view.main.chat.helpers.CircleClipFrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/chat_circle_video_thumbnail"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone" />
+
+                <com.example.aichat.view.main.chat.helpers.CircleVideoTextureView
+                    android:id="@+id/chat_circle_video_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/iv_chat_status"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/chat_status_selector" />
+
+                <TextView
+                    android:id="@+id/tv_chat_circle_initials"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+            </com.example.aichat.view.main.chat.helpers.CircleClipFrameLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <ImageView
+            android:id="@+id/chat_circle_preview_play"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="bottom|end"
+            android:background="@drawable/bg_status_circle"
+            android:backgroundTint="?attr/colorPrimary"
+            android:padding="4dp"
+            android:src="@drawable/ic_play_circle"
+            android:visibility="gone"
+            app:tint="?attr/colorOnPrimary" />
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tv_chat_type_letter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginBottom="-8dp"
+        android:background="@drawable/bg_chat_type_letter"
+        android:gravity="center"
+        android:minWidth="18dp"
+        android:minHeight="18dp"
+        android:padding="2dp"
+        android:textColor="?attr/colorOnPrimary"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@id/chat_circle_preview_root"
+        app:layout_constraintStart_toStartOf="@id/chat_circle_preview_root" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_time_pin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/chat_circle_preview_root">
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/tv_chat_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/cl_time_pin"
+        app:layout_constraintStart_toEndOf="@id/chat_circle_preview_root"
+        app:layout_constraintTop_toTopOf="@id/chat_circle_preview_root" />
 
     <TextView
         android:id="@+id/tv_last_message"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:ellipsize="end"
         android:maxLines="1"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/iv_chat_status"
-        app:layout_constraintEnd_toStartOf="@+id/tv_time"/>
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toStartOf="@id/cl_message_status_or_count"
+        app:layout_constraintStart_toStartOf="@id/tv_chat_name"
+        app:layout_constraintTop_toBottomOf="@id/tv_chat_name" />
 
-    <TextView
-        android:id="@+id/tv_time"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_message_status_or_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="@id/tv_last_message"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_last_message">
+
+        <ImageView
+            android:id="@+id/iv_message_status"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_unread_count"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@drawable/unread_count_background"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
+        android:id="@+id/chat_item_divider"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_marginBottom="8dp"
-        android:background="#E0E0E0"
+        android:layout_marginTop="8dp"
+        android:alpha="0.55"
+        android:background="?attr/colorOnSurfaceVariant"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

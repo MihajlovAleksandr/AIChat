@@ -1,16 +1,15 @@
 package com.example.aichat.model.database;
 
 import androidx.room.Dao;
-import androidx.room.Insert;
 import androidx.room.Delete;
+import androidx.room.Insert;
 import androidx.room.Query;
-
 import com.example.aichat.model.entities.PendingCommand;
-
 import java.util.List;
 
 @Dao
 public interface PendingCommandDao {
+
     @Insert
     void insertCommand(PendingCommand command);
 
@@ -19,4 +18,10 @@ public interface PendingCommandDao {
 
     @Delete
     void deleteCommand(PendingCommand command);
+
+    @Query("DELETE FROM PendingCommands")
+    void clearTable();
+
+    @Query("SELECT COUNT(*) FROM PendingCommands")
+    int getCount();
 }

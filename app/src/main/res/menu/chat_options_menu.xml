@@ -9,4 +9,10 @@
     <item
         android:id="@+id/menu_search_words"
         android:title="@string/search_words_menu" />
+    <item
+        android:id="@+id/menu_select_model"
+        android:title="@string/select_model" />
+    <item
+        android:id="@+id/menu_export_chat"
+        android:title="@string/export_chat" />
 </menu>

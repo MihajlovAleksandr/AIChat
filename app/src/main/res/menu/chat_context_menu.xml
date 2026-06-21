@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_rename_chat"
+        android:title="@string/rename_chat"/>
+    <item
+        android:id="@+id/menu_delete_chat"
+        android:title="@string/delete_chat"/>
+    <item
+        android:id="@+id/menu_export_chat"
+        android:title="@string/export_chat"/>
+</menu>

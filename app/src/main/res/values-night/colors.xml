@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="settings_screen_background">#000000</color>
+    <color name="ai_dialog_surface">#FF1F1B24</color>
+    <color name="ai_dialog_field">#FF2B2533</color>
+    <color name="ai_dialog_dropdown_surface">#FF2A2430</color>
+    <color name="ai_dialog_stroke">#FF8D8495</color>
+    <color name="ai_dialog_soft_button">#FF312B38</color>
+    <color name="popup_menu_light_surface">#FFFFFFFF</color>
+    <color name="popup_menu_light_stroke">#1F000000</color>
+
+    <color name="aichat_splash_background">#001A1A</color>
+
+</resources>

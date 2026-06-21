@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="MyBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/MyBottomSheetStyle</item>
+    </style>
+
+    <style name="MyBottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:windowAnimationStyle">@style/MyBottomSheetAnimation</item>
+    </style>
+
+    <style name="MyBottomSheetAnimation">
+        <item name="android:windowEnterAnimation">@anim/bottom_sheet_slide_in</item>
+        <item name="android:windowExitAnimation">@anim/bottom_sheet_slide_out</item>
+    </style>
+
+    <style name="SwitchOverlay" parent="">
+        <item name="colorPrimary">@color/teal_primary</item>
+        <item name="colorSecondary">@color/teal_primary</item>
+        <item name="colorSecondaryContainer">@color/teal_primary</item>
+        <item name="colorOnSecondaryContainer">@android:color/white</item>
+    </style>
+
+    <style name="CustomSwitchStyle" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="materialThemeOverlay">@style/SwitchOverlay</item>
+    </style>
+
+    <style name="CircleShape">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+
+    <style name="SettingsSwitchItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="MarketplaceChip" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="chipBackgroundColor">@color/chip_selector</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="android:textColor">@color/chip_text_selector</item>
+    </style>
+
+    <style name="PaymentDialogTitleText">
+        <item name="android:textColor">
+            ?attr/paymentDialogTitle
+        </item>
+    </style>
+
+    <style name="PaymentDialogMessageText">
+        <item name="android:textColor">
+            ?attr/paymentDialogMessage
+        </item>
+    </style>
+
+    <style name="PaymentDialogSupportText">
+        <item name="android:textColor">
+            ?attr/paymentDialogSupport
+        </item>
+    </style>
+
+
+    <style name="ThemeEditorRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">18dp</item>
+        <item name="android:layout_marginEnd">18dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:minHeight">58dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="ThemeEditorColorDot">
+        <item name="android:layout_width">30dp</item>
+        <item name="android:layout_height">30dp</item>
+    </style>
+
+    <style name="ThemeEditorRowTitle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">14dp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="ThemeEditorRowValue">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="ThemeEditorChevron">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+
+
+
+
+    <style name="TextAppearance.AIChat.PopupMenuItem.Light" parent="TextAppearance.AppCompat.Widget.PopupMenu.Large">
+        <item name="android:textColor">@color/primaryTextLight</item>
+    </style>
+
+    <style name="TextAppearance.AIChat.PopupMenuItem.Dark" parent="TextAppearance.AppCompat.Widget.PopupMenu.Large">
+        <item name="android:textColor">@color/primaryTextDark</item>
+    </style>
+
+    <style name="ThemeOverlay.AIChat.PopupMenu.LightFixed" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:popupBackground">@drawable/bg_popup_menu_light</item>
+        <item name="popupBackground">@drawable/bg_popup_menu_light</item>
+        <item name="android:colorBackground">@color/popup_menu_light_surface</item>
+        <item name="android:textColorPrimary">@color/primaryTextLight</item>
+        <item name="android:textColorSecondary">@color/secondaryTextLight</item>
+        <item name="colorSurface">@color/popup_menu_light_surface</item>
+        <item name="colorOnSurface">@color/primaryTextLight</item>
+        <item name="android:itemTextAppearance">@style/TextAppearance.AIChat.PopupMenuItem.Light</item>
+        <item name="itemTextAppearance">@style/TextAppearance.AIChat.PopupMenuItem.Light</item>
+    </style>
+
+    <style name="ThemeOverlay.AIChat.PopupMenu.DarkFixed" parent="ThemeOverlay.AppCompat">
+        <item name="android:popupBackground">@drawable/bg_popup_menu_dark</item>
+        <item name="popupBackground">@drawable/bg_popup_menu_dark</item>
+        <item name="android:colorBackground">@color/fab_panel_dark</item>
+        <item name="android:textColorPrimary">@color/primaryTextDark</item>
+        <item name="android:textColorSecondary">@color/secondaryTextDark</item>
+        <item name="colorSurface">@color/fab_panel_dark</item>
+        <item name="colorOnSurface">@color/primaryTextDark</item>
+        <item name="android:itemTextAppearance">@style/TextAppearance.AIChat.PopupMenuItem.Dark</item>
+        <item name="itemTextAppearance">@style/TextAppearance.AIChat.PopupMenuItem.Dark</item>
+    </style>
+
+</resources>
